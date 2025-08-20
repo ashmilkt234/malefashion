@@ -1,0 +1,107 @@
+<%- include('../partials/admin/header') %>
+<link rel="stylesheet" href="/css/dashboard.css">
+<link rel="stylesheet" href="/css/user-list.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<div class="content-header row">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="content-title card-title">Customers</h2>
+    </div>
+</div>         
+
+<header class="card-header text-center mb-20">
+    <form action="/admin/user/" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+</header>
+
+<div class="user-table-container">
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for(let i = 0; i < data.length; i++) { %>
+                <tr>
+                    <td>
+                        <div class="profile-icon <%= data[i].isBlocked ? 'blocked' : 'active' %>">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                    </td>
+                    <td><%= data[i].name %></td>
+                    <td><%= data[i].email %></td>
+                    <td>
+                        <% if(data[i].isBlocked === false) { %>
+  <a href="#" class="action-button block-user red" data-id="<%= data[i].id %>" data-action="block">Block</a>
+<% } else { %>
+  <a href="#" class="action-button unblock-user" data-id="<%= data[i].id %>" data-action="unblock">Unblock</a>
+<% } %>
+
+                    </td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination-controls">
+    <% if (totalPages && totalPages > 1) { %>
+        <ul class="pagination">
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="<%= (i === currentPage) ? 'active' : '' %>">
+                    <a href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.block-user, .unblock-user').forEach(button => {
+      button.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const userId = this.dataset.id;
+        const action = this.dataset.action;
+        const url = `/admin/${action}user?id=${userId}`;
+        const confirmText = action === 'block' ? 'block this user' : 'unblock this user';
+
+        Swal.fire({
+          title: 'Do you want to allow this action?',
+          html: `
+            <div style="text-align:left; margin-top:10px;">
+              <p><strong>Action:</strong> ${action === 'block' ? 'Block User' : 'Unblock User'}</p>
+              <p><strong>Verified by:</strong> Admin Panel</p>
+              <p><small>This change will update the user's access rights.</small></p>
+            </div>
+          `,
+          iconHtml: '<i class="fas fa-user-shield" style="font-size: 36px; color:#0078D7;"></i>',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No',
+          customClass: {
+            popup: 'swal2-uac-popup',
+            confirmButton: 'swal2-uac-yes',
+            cancelButton: 'swal2-uac-no'
+          },
+          buttonsStyling: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = url;
+          }
+        });
+      });
+    });
+  });
+</script>

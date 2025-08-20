@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Login</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/login.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+</head>
+<body>
+  <div class="login-container">
+    <div class="form-section">
+      <h1>Welcome back</h1>      <p>Don't have an account? <a href="/signup">Create an account</a></p>
+      <form action="/login" method="POST">
+        <input type="email" name="email" placeholder="Email" >
+          <div class="password-wrapper">
+    <input type="password" name="password" id="password" placeholder="Password">
+    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+  </div>
+        <div class="options">
+          <a href="/forgot-password">Forgot password?</a>
+        </div>
+
+
+
+
+        <button type="submit">Sign in</button>
+        <p style="text-align:center; margin: 10px 0;">or continue with</p>
+        <button type="button" class="google-btn">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+          Google
+        </button>
+      </form>
+    </div>
+    <div class="image-section"></div>
+  </div>
+<script>
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("password");
+
+  togglePassword.addEventListener("click", function () {
+    const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+    passwordInput.setAttribute("type", type);
+
+    this.classList.toggle("fa-eye");
+    this.classList.toggle("fa-eye-slash");
+  });
+
+
+ document.addEventListener("DOMContentLoaded", function () {
+      <% if (typeof success !== "undefined" && success) { %>
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: "<%= success %>",
+          showConfirmButton: false,
+          timer: 2000
+        });
+        console.log("Success: <%= success %>");
+      <% } %>
+
+      <% if (typeof error !== "undefined" && error) { %>
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: "<%= error %>",
+          confirmButtonText: 'OK'
+        });
+        console.log("Error: <%= error %>");
+      <% } %>
+    });
+  </script>
+</body>
+</html>  

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-section">
+      <div class="logo">
+        <div class="logo-icon">V</div>
+        <div class="logo-text">VogueLuxe</div>
+      </div>
+
+      <h2>Create an account</h2>
+
+      <form id="signform" action="/signup" method="POST" novalidate>
+        <input type="text" id="name" name="name" placeholder="Full Name" />
+        <div id="error1" class="error-message"></div>
+
+        <input type="email" id="email" name="email" placeholder="Email Address" />
+        <div id="error2" class="error-message"></div>
+
+        <input type="tel" id="phone" name="phone" placeholder="Phone Number" />
+        <div id="error3" class="error-message"></div>
+
+        <input type="password" id="password" name="password" placeholder="Password" />
+        <div id="error4" class="error-message"></div>
+
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" />
+        <div id="error5" class="error-message"></div>
+
+      <% if (typeof message !== "undefined" && message.length > 0) { %>
+  <script>
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: '<%= message %>',
+      confirmButtonColor: '#d33'
+    });
+  </script>
+<% } %>
+
+
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <button class="google-btn" onclick="window.location.href='/auth/google'">
+        <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google" />
+        Continue with Google
+      </button>
+
+      <div class="footer-text">
+        Already have an account? <a href="/login">Log in</a>
+      </div>
+    </div>
+
+    <div class="image-section">
+      
+     
+    </div>
+  </div>
+
+  <script>
+    const nameid = document.getElementById('name');
+    const emailid = document.getElementById('email');
+    const phoneid = document.getElementById('phone');
+    const passwordid = document.getElementById('password');
+    const confirmpassword = document.getElementById('confirmPassword');
+
+    const error1 = document.getElementById('error1');
+    const error2 = document.getElementById('error2');
+    const error3 = document.getElementById('error3');
+    const error4 = document.getElementById('error4');
+    const error5 = document.getElementById('error5');
+
+    const signform = document.getElementById('signform');
+
+    function nameValidate() {
+      const name = nameid.value.trim();
+      const pattern = /^[A-Za-z\s]+$/;
+      if (name === "") {
+        error1.innerText = "Full Name is required.";
+        error1.style.display = "block";
+        return false;
+      } else if (!pattern.test(name)) {
+        error1.innerText = "Only letters and spaces allowed.";
+        error1.style.display = "block";
+        return false;
+      } else {
+        error1.style.display = "none";
+        return true;
+      }
+    }
+
+    function emailValidate() {
+      const email = emailid.value.trim();
+      const pattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!pattern.test(email)) {
+        error2.innerText = "Enter a valid email address.";
+        error2.style.display = "block";
+        return false;
+      } else {
+        error2.style.display = "none";
+        return true;
+      }
+    }
+
+    function phoneValidate() {
+      const phone = phoneid.value.trim();
+      if (!/^\d{10}$/.test(phone)) {
+        error3.innerText = "Enter a 10-digit phone number.";
+        error3.style.display = "block";
+        return false;
+      } else {
+        error3.style.display = "none";
+        return true;
+      }
+    }
+
+    function passwordValidate() {
+      const pass = passwordid.value;
+      const confirm = confirmpassword.value;
+      const alpha = /[a-zA-Z]/;
+      const digit = /\d/;
+
+      if (pass.length < 8) {
+        error4.innerText = "Password must be at least 8 characters.";
+        error4.style.display = "block";
+        return false;
+      } else if (!alpha.test(pass) || !digit.test(pass)) {
+        error4.innerText = "Password must include letters and digits.";
+        error4.style.display = "block";
+        return false;
+      } else {
+        error4.style.display = "none";
+      }
+
+      if (pass !== confirm) {
+        error5.innerText = "Passwords do not match.";
+        error5.style.display = "block";
+        return false;
+      } else {
+        error5.style.display = "none";
+        return true;
+      }
+    }
+
+    signform.addEventListener('submit', function (e) {
+      const validName = nameValidate();
+      const validEmail = emailValidate();
+      const validPhone = phoneValidate();
+      const validPassword = passwordValidate();
+
+      if (!validName || !validEmail || !validPhone || !validPassword) {
+        e.preventDefault(); // Prevent submission if any error
+      }
+    });
+  </script>
+</body>
+</html>
