@@ -1,13 +1,15 @@
 // userController.js
 const User = require("../../models/userSchema.js");
+const Category=require('../../models/categorySchema')
+const Product=require("../../models/productSchema")
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 
-//  Generate OTP
-function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
+// //  Generate OTP
+// function generateOtp() {
+//     return Math.floor(100000 + Math.random() * 900000).toString();
+// }
 
 //  Send OTP Email
 async function sendVerificationEmail(email, otp) {
@@ -47,31 +49,126 @@ const pageNotFound = async (req, res) => {
 };
 
 // Homepage
+// controller
 const loadHomepage = async (req, res) => {
-    try {
-        if (req.session.user) {
-            const userData = await User.findById(req.session.user._id);
-            if (!userData) {
-                return res.render("user/error", { message: "User not found" });
-            }
-            return res.render("user/home", { user: userData });
-        }
-        return res.render("user/home");
-    } catch (error) {
-        console.log("Homepage load error:", error);
-        return res.render("user/error", { message: "Server error" });
+  try {
+
+    const categories = await Category.find({ isListed: true }).lean();
+
+
+    const productData = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map(c => c._id) },
+      quantity: { $gt: 0 },
+    })
+      .sort({ createdAt: -1 })  
+      .limit(4)
+      .lean();
+
+ 
+    const userId =
+      req.session?.user?._id ||
+      req.session?.user?.id ||
+      req.session?.user || null;
+
+    if (userId) {
+      const userData = await User.findById(userId).lean();
+      if (!userData) {
+        return res.render("user/error", { message: "User not found" });
+      }
+      return res.render("user/home", {
+        user: userData,
+        products: productData,
+        categories,         
+      });
     }
+
+    return res.render("user/home", {
+      products: productData,
+      categories,           
+    });
+  } catch (error) {
+    console.error("Homepage load error:", error);
+    return res.render("user/error", { message: "Server error" });
+  }
 };
+
+ 
+
+
+
 
 //  Shopping
 const loadShopping = async (req, res) => {
     try {
-        return res.render("shop");
+        const{category,sort,page=1,minPrice,maxPrice}=req.query;
+        const limit=8
+        const skip=(page-1)*limit
+        let filter={isBlocked:false,quantity:{$gt:0}}
+if(category){
+    filter.category=category
+}
+if (minPrice || maxPrice) {
+      filter.salePrice = {};
+      if (minPrice) filter.salePrice.$gte = Number(minPrice);
+      if (maxPrice) filter.salePrice.$lte = Number(maxPrice);
+    }
+let sortOption = { createdAt: -1 }; // default: latest
+    if (sort === "lowtohigh") {
+      sortOption = { salePrice: 1 };
+    } else if (sort === "hightolow") {
+      sortOption = { salePrice: -1 };
+    } else if (sort === "latest") {
+      sortOption = { createdAt: -1 };
+    }
+const totalproducts=await Product.countDocuments(filter)
+
+   const products = await Product.find(filter)
+      .populate("category")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+
+const categories = await Category.find({ isListed: true });
+
+               res.render('user/shop', {
+            user: req.session.user || null,
+            products: products || [], 
+            categories: categories || [],
+             selectedCategory: category || null, 
+             sort:sort||"",
+             currentPage:parseInt(page),
+             totalPages:Math.ceil(totalproducts/limit),
+                      minPrice: minPrice || "",
+      maxPrice: maxPrice || "",
+            title: 'Shop - Men\'s Fashion',
+              breadcrumb: [
+    { name: "Home", url: "/" },
+    { name: "Shop", url: "/shop" },
+    category ? { name: categories.find(c => c._id.toString() === category)?.name, url: "#" } : null
+  ].filter(Boolean) // remove null if no category
+});
+     
+  
+
     } catch (error) {
         console.log("Shopping page error", error);
         res.status(500).send("Server Error");
+        res.render('user/shop', {
+            user: req.session.user || null,
+            products: [],  
+            categories: [],
+        
+            title: 'Shop - Men\'s Fashion',
+            error: 'Unable to load products at this time.'
+        });
     }
 };
+
+
+
+
+
 
 //  Signup
 const loadSignup = async (req, res) => {
@@ -104,26 +201,34 @@ const signup = async (req, res) => {
         if (!emailSent) {
             return res.json({ success: false, message: "Email sending failed" });
         }
-
+ // Store signup info & OTP in session
         req.session.userOtp = otp;
+        console.log("session otp is vefity",req.session.userOtp)
         req.session.userData = { name, email, phone, password };
         req.session.authType = "signup";
 
+
         console.log("OTP Sent:", otp);
         return res.render("user/verify-otp");
+        
     } catch (error) {
         console.error("Signup error:", error);
         return res.redirect("/pageNotFound");
     }
 };
 
-//  Verify OTP
+// //  Verify OTP
 const verifyotp = async (req, res) => {
     try {
         const { otp } = req.body;
 
+        // Pick OTP page depending on flow
+        const otpPage = req.session.authType === "forgot-password" 
+            ? "user/forgot-otp" 
+            : "user/verify-otp";
+
         if (!otp || !req.session.userOtp || !req.session.userData) {
-            return res.json({ success: false, message: "Session expired or missing OTP" });
+            return res.render(otpPage, { message: "Session expired or missing OTP" });
         }
 
         if (otp === req.session.userOtp) {
@@ -131,35 +236,43 @@ const verifyotp = async (req, res) => {
 
             if (authType === "signup") {
                 const { name, email, phone, password } = userData;
+          
                 const passwordHash = await bcrypt.hash(password, 10);
 
-                const saveUserData = new User({
-                    name,
-                    email,
-                    phone,
-                    password: passwordHash
-                });
+                const saveUserData = new User({ name, email, phone, password: passwordHash });
                 await saveUserData.save();
 
-                req.session.user = saveUserData;
+             
+req.session.user = {
+    _id: saveUserData._id.toString(),
+    name: saveUserData.name,
+    email: saveUserData.email,
+};
+                // clear session
                 delete req.session.userOtp;
                 delete req.session.userData;
                 delete req.session.authType;
 
-                return res.json({ success: true, message: "OTP verified. Account created." });
-            } else if (authType === "forgot-password") {
-                return res.json({ success: true, message: "OTP verified. Proceed to reset password.", redirect: "/reset-password" });
-            } else {
-                return res.json({ success: false, message: "Invalid authentication type" });
+                return res.json({success:true,redirect:"/"});
+            
+        }
+            else if (authType === "forgot-password") {
+                req.session.isOtpVerified = true;
+                return res.redirect("/reset-password");
+            } 
+            else {
+                return res.render(otpPage, { message: "Invalid authentication type" });
             }
         } else {
-            return res.json({ success: false, message: "Invalid OTP." });
+            return res.render(otpPage, { message: "Invalid OTP." });
         }
     } catch (error) {
         console.error("OTP verification error:", error);
-        return res.json({ success: false, message: "Internal server error." });
+        return res.render("user/error", { message: "Internal server error." });
     }
 };
+
+
 
 // Resend OTP
 const resendOtp = async (req, res) => {
@@ -201,7 +314,7 @@ const loadOtpPage = (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Login
 const loadLogin = async (req, res) => {
     try {
@@ -267,7 +380,7 @@ const logout = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 };
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Forgot Password
 const loadForgotPassword = async (req, res) => {
     try {
@@ -308,28 +421,34 @@ const forgotPassword = async (req, res) => {
         req.session.authType = "forgot-password";
 
         console.log("Password reset OTP sent:", otp);
-        return res.render("user/verify-otp");
+        return res.render("user/ForgotOtp");
     } catch (error) {
         console.error("Forgot password error:", error);
         return res.json({ success: false, message: "Internal server error" });
     }
 };
 
+
+
+
+
 // Reset Password
 const loadResetPassword = async (req, res) => {
     try {
-        const { email } = req.session.userData;
-        if (!email || req.session.authType !== "forgot-password") {
-            return res.redirect("/forgot-password");
-        }
-        return res.render("user/reset-password");
+        
+        return res.render("user/newpassword"); 
     } catch (error) {
         console.error("Reset password page error:", error);
         res.redirect("/pageNotFound");
     }
 };
 
+
+
+
+
 //  Reset Password
+// --- Handle Reset Password ---
 const resetPassword = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
@@ -351,11 +470,13 @@ const resetPassword = async (req, res) => {
         findUser.password = await bcrypt.hash(password, 10);
         await findUser.save();
 
+        // Clear session
         delete req.session.userOtp;
         delete req.session.userData;
         delete req.session.authType;
+        delete req.session.isOtpVerified;
 
-        return res.json({ success: true, message: "Password reset successfully" });
+        return res.json({ success: true, message: "Password reset successfully", redirect: "/login" });
     } catch (error) {
         console.error("Reset password error:", error);
         return res.json({ success: false, message: "Internal server error" });
@@ -371,6 +492,9 @@ const loadErrorPage = (req, res) => {
 
 
 
+
+
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -378,7 +502,7 @@ module.exports = {
     loadSignup,
     signup,
     verifyotp,
-    resendOtp,
+    resendOtp,  
     loadLogin,
     login,
     logout,
@@ -388,5 +512,8 @@ module.exports = {
     resetPassword,
     loadErrorPage,
     loadOtpPage,
+
+    
+    
   
 };

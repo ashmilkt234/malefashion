@@ -1,0 +1,46 @@
+
+    /* Internal CSS for Profile Dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown > a {
+      color: #111111;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 6px 10px;
+      display: inline-block;
+    }
+ 
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color:white;
+      min-width: 150px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .dropdown-content a {
+      color: #333;
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+      .navbar-expand-lg {
+background: linear-gradient(90deg, #667eea, #764ba2); padding: 5px; border-radius: 8px;
+      }

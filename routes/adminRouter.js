@@ -8,7 +8,7 @@ const { userAuth, adminAuth } = require("../middleware/auth");
 const nocache = require("nocache");
 
 const uploads = require("../middleware/multerConfig"); 
-  
+
 // Admin Routes
 router.get("/login", nocache(),adminController.loadLogin);
 router.post("/login", nocache(),adminController.login);
@@ -38,9 +38,12 @@ router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
 
 // Product
 router.get("/addProduct",adminAuth,productController.getProductAddPage)
-router.get("/product",adminAuth,productController.getProduct)
-// router.post("/addProduct",adminAuth.uploads.array("images",3),productController.addProducts)
-router.post("/addProduct",adminAuth,uploads.array("images",3),productController.addProducts)
+router.get("/product/:id",adminAuth,productController.getProduct)
+router.post("/addProduct",adminAuth,uploads.array("productImage",3),productController.addProducts)
 router.get("/product",adminAuth,productController.getAllProducts)
-
+ router.get("/blockProduct",adminAuth,productController.blockProduct)
+  router.get("/unblockProduct",adminAuth,productController.unblockProduct)
+ router.get("/editProduct/:id",adminAuth,productController.getEditProduct)
+router.post("/editProduct/:id",adminAuth,uploads.array("productImage",3),productController.editProduct)
+router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 module.exports = router;

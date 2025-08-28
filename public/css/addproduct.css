@@ -4,8 +4,16 @@
 
 
 
+.input-error {
+  border: 1px solid red !important;
+  background-color: #ffe6e6; /* light red background */
+}
 
-
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
         * {
             margin: 0;
             padding: 0;

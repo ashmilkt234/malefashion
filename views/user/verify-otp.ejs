@@ -6,11 +6,10 @@
     <title>OTP Verification</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<link rel="stylesheet" href="/css/verifyOTP.css">
-   <body>
-
+    <link rel="stylesheet" href="/css/verifyOTP.css" />
   </head>
-   <div class="container">
+  <body>
+    <div class="container">
       <div class="left">
         <div class="title">OTP Verification Code</div>
         <div class="subtitle">Enter the 6-digit code sent to your phone</div>
@@ -34,6 +33,12 @@
     </div>
 
     <script>
+      verifyBtn.addEventListener("click", verifyOTP);
+resendLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  resendOTP();
+});
+
       let timeLeft = 60;
       let timerInterval;
       const otpInputs = document.querySelectorAll(".otp-box input");
@@ -49,7 +54,7 @@
           timeLeft--;
           countdown.textContent = timeLeft;
 
-          if (timeLeft <= 60) timer.classList.add("warning");
+          if (timeLeft <= 10) timer.classList.add("warning");
 
           if (timeLeft <= 0) {
             clearInterval(timerInterval);
@@ -104,7 +109,7 @@
         verifyBtn.classList.add("loading");
         verifyBtn.disabled = true;
 
-        fetch("/resend-otp", {
+        fetch("/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ otp: enteredOTP }),
@@ -145,6 +150,9 @@
           timerProgressBar: true,
           showConfirmButton: false,
           didClose: () => {
+             resendLink.style.pointerEvents = "none";
+      resendLink.style.opacity = "0.5";
+          resendLink.textContent = "Verified ✅";
             window.location.href = "/";
           },
         });
@@ -159,59 +167,24 @@
         });
       }
 
-      function closePopup() {
-        document.getElementById("popupOverlay").classList.remove("show");
-        if (
-          document.getElementById("popupTitle").textContent === "Invalid OTP!"
-        ) {
-          otpInputs.forEach((input) => (input.value = ""));
-          otpInputs[0].focus();
-        }
-      }
-
+      // Single resendOTP function (merged both versions)
       function resendOTP() {
-        console.log("resend function called ,", resendLink);
         if (!resendLink.classList.contains("active")) return;
 
-        timeLeft =60;
+        clearInterval(timerInterval);
+        timeLeft = 60;
         countdown.textContent = timeLeft;
         timer.style.display = "block";
         timer.classList.remove("warning");
         resendLink.classList.remove("active");
         startTimer();
+
         otpInputs.forEach((input) => {
           input.value = "";
           input.classList.remove("filled", "error");
         });
 
         otpInputs[0].focus();
-        startTimer();
-
-        Swal.fire({
-          icon: "info",
-          title: "OTP Sent",
-          text: "A new OTP has been sent to your phone.",
-          confirmButtonColor: "#3182ce",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-
-      verifyBtn.addEventListener("click", verifyOTP);
-      resendLink.addEventListener("click", (e) => {
-        console.log("commint resent blicked");
-        e.preventDefault();
-        console.log("commint resent clicked");
-        resendOTP();
-      });
-      document.getElementById("popupOverlay").addEventListener("click", (e) => {
-        if (e.target === document.getElementById("popupOverlay")) closePopup();
-      });
-      window.addEventListener("load", () => otpInputs[0].focus());
-      function resendOTP() {
-        clearInterval(timerInterval);
-        time = 60;
-       
 
         $.ajax({
           type: "POST",
@@ -220,7 +193,7 @@
             if (response.success) {
               Swal.fire({
                 icon: "success",
-                title: "OTP Resend Successfully",
+                title: "OTP Resent Successfully",
                 showConfirmButton: false,
                 timer: 1500,
               });
@@ -228,13 +201,20 @@
               Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "An error occured while resending OTP. Please try again",
+                text: "An error occurred while resending OTP. Please try again",
               });
             }
           },
         });
-        return false;
       }
+
+      verifyBtn.addEventListener("click", verifyOTP);
+      resendLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        resendOTP();
+      });
+
+      window.addEventListener("load", () => otpInputs[0].focus());
     </script>
-    </body>
+  </body>
 </html>

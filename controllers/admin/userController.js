@@ -35,7 +35,8 @@ res.render('admin/user', {
   data: userData,             
   message: req.query.message || null,
   totalPages: Math.ceil(count / limit),
-  currentPage: page
+  currentPage: page,
+  query:search
 });
 
   } catch (error) {

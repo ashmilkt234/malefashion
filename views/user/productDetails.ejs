@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= product.productName %> - Product Details</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/header.css">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background:#f1f3f6; margin:0; }
+    .container { max-width:1200px; margin:20px auto; padding:0 20px; }
+    .breadcrumb { font-size:14px; margin-bottom:10px; }
+    .breadcrumb a { text-decoration:none; color:#2874f0; }
+    .breadcrumb span { font-weight:bold; color:#333; }
+
+    .product-detail { display:flex; gap:30px; background:#fff; padding:20px; border-radius:10px; flex-wrap:wrap; }
+    .product-images { flex:1; min-width:300px; }
+    .main-img-container { position:relative; overflow:hidden; border-radius:10px; }
+    .main-img { width:100%; transition: transform 0.3s ease; cursor:zoom-in; }
+    .thumbnails { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+    .thumbnails img { width:60px; height:60px; border:1px solid #ddd; border-radius:5px; cursor:pointer; transition:0.3s; }
+    .thumbnails img:hover { border-color:#2874f0; }
+
+    .product-info { flex:1; display:flex; flex-direction:column; justify-content:flex-start; min-width:300px; }
+    .product-info h1 { font-size:24px; margin-bottom:10px; color:#212121; }
+    .price { font-size:22px; color:#b12704; margin-bottom:15px; }
+    .rating { display:flex; align-items:center; gap:5px; margin-bottom:15px; }
+    .rating i { color: gold; }
+
+    .offers { margin-bottom:20px; }
+    .offers h3 { font-size:16px; margin-bottom:5px; }
+    .offers ul { list-style:disc; padding-left:20px; }
+    .offers li { margin-bottom:5px; color:#212121; }
+
+    .buttons { display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap; }
+    .btn { padding:12px 25px; border:none; border-radius:5px; font-weight:600; cursor:pointer; transition:0.3s; text-decoration:none; text-align:center; }
+    .btn-cart { background:#ff9f00; color:#fff; }
+    .btn-buy { background:#fb641b; color:#fff; }
+    .btn:hover { opacity:0.9; }
+
+    .tabs { background:#fff; padding:20px; border-radius:10px; margin-top:20px; }
+    .tab-buttons { display:flex; gap:15px; margin-bottom:15px; flex-wrap:wrap; }
+    .tab-buttons button { padding:8px 20px; border:none; border-radius:5px; background:#f1f1f1; cursor:pointer; transition:0.3s; }
+    .tab-buttons button.active { background:#2874f0; color:#fff; }
+    .tab-content { display:none; font-size:14px; color:#212121; }
+    .tab-content.active { display:block; }
+
+    /* Related Products */
+    .related-products { margin-top:30px; }
+    .related-products h2 { margin-bottom:15px; color:#212121; }
+    .related-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:15px; }
+    .related-item { background:#fff; border-radius:10px; overflow:hidden; padding:10px; text-align:center; transition:0.3s; cursor:pointer; }
+    .related-item:hover { box-shadow:0 5px 15px rgba(0,0,0,0.15); }
+    .related-item img { width:100%; height:150px; object-fit:cover; margin-bottom:10px; border-radius:5px; }
+    .related-item h5 { font-size:14px; margin-bottom:5px; }
+    .related-item .price { font-size:16px; color:#b12704; }
+
+    @media(max-width:768px) {
+      .product-detail { flex-direction:column; }
+      .thumbnails { justify-content:center; }
+      .buttons { flex-direction:column; }
+    }
+
+    /* Internal CSS for Profile Dropdown from Header */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown > a {
+      color: #111111;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 6px 10px;
+      display: inline-block;
+    }
+ 
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color:white;
+      min-width: 150px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .dropdown-content a {
+      color: #333;
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* Header CSS */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown > a {
+  color: #111111;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 10px;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  min-width: 150px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+   <%- include("partials/user/header") %>
+
+
+
+  <div class="container">
+    <nav class="breadcrumb">
+      <% breadcrumb.forEach((crumb, index) => { %>
+        <% if(index < breadcrumb.length - 1){ %>
+          <a href="<%= crumb.url %>"><%= crumb.name %></a> &gt; 
+        <% } else { %>
+          <span><%= crumb.name %></span>
+        <% } %>
+      <% }) %>
+    </nav>
+
+    <div class="product-detail">
+      <!-- Images -->
+      <div class="product-images">
+        <div class="main-img-container" style="position:relative;">
+          <img id="mainImage" src="/Uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>" style="width:100%; height:auto; cursor:crosshair;">
+          <div id="zoomResult" style="border:1px solid #000; width:300px; height:300px; position:absolute; top:0; left:105%; background-repeat:no-repeat; display:none;">
+          </div>
+        </div>
+
+        <div class="thumbnails" style="display:flex; gap:10px; margin-top:10px;">
+          <% product.productImage.forEach(img => { %>
+            <img src="/Uploads/product-images/<%= img %>" style="width:60px; height:60px; cursor:pointer; border:1px solid #ddd;" onclick="changeImage(this)">
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <h1><%= product.productName %></h1>
+        <div class="price">$<%= product.salesPrice %></div>
+        <div class="rating">
+          <% let rating = product.rating || 0; %>
+          <% for(let i=0;i<5;i++){ %>
+            <% if(i<rating){ %>
+              <i class="fa fa-star"></i>
+            <% } else { %>
+              <i class="fa fa-star-o"></i>
+            <% } %>
+          <% } %>
+        </div>
+
+        <div class="offers">
+          <h3>Available Offers</h3>
+          <ul>
+            <li>10% Instant Discount on XYZ Bank Cards</li>
+            <li>Buy 2 Get 1 Free</li>
+            <li>Free Delivery on orders above $50</li>
+          </ul>
+        </div>
+
+        <div class="buttons">
+          <a href="#" class="btn btn-cart">Add to Cart</a>
+          <a href="#" class="btn btn-buy">Buy Now</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="active" onclick="openTab(event,'desc')">Description</button>
+        <button onclick="openTab(event,'specs')">Specifications</button>
+        <button onclick="openTab(event,'reviews')">Reviews</button>
+      </div>
+
+      <div id="desc" class="tab-content active">
+        <p><%= product.about %></p>
+      </div>
+      <div id="specs" class="tab-content">
+        <ul>
+          <li>Category: <%= product.categoryName %></li>
+          <li>Price: $<%= product.salesPrice %></li>
+          <li>Status: <%= product.status %></li>
+        </ul>
+      </div>
+      <div id="reviews" class="tab-content">
+        <p>No reviews yet.</p>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products">
+      <h2>Related Products</h2>
+      <div class="related-grid">
+        <% relatedProducts.forEach(rp => { %>
+          <div class="related-item" onclick="window.location.href='/productDetails/<%= rp._id %>'">
+            <img src="/Uploads/product-images/<%= rp.productImage[0] %>" alt="<%= rp.productName %>">
+            <h5><%= rp.productName %></h5>
+            <div class="price">$<%= rp.salesPrice %></div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section Begin -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="footer__about">
+            <div class="footer__logo">
+              <a href="#"><img src="img/footer-logo.png" alt=""></a>
+            </div>
+            <p>The customer is at the heart of our unique business model, which includes design.</p>
+            <a href="#"><img src="img/payment.png" alt=""></a>
+          </div>
+        </div>
+        <div class="col-lg-2 offset-lg-1 col-md-3 col-sm-6">
+          <div class="footer__widget">
+            <h6>Shopping</h6>
+            <ul>
+              <li><a href="#">Clothing Store</a></li>
+              <li><a href="#">Trending Shoes</a></li>
+              <li><a href="#">Accessories</a></li>
+              <li><a href="#">Sale</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-3 col-sm-6">
+          <div class="footer__widget">
+            <h6>Shopping</h6>
+            <ul>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Payment Methods</a></li>
+              <li><a href="#">Delivary</a></li>
+              <li><a href="#">Return & Exchanges</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-3 offset-lg-1 col-md-6 col-sm-6">
+          <div class="footer__widget">
+            <h6>NewLetter</h6>
+            <div class="footer__newslatter">
+              <p>Be the first to know about new arrivals, look books, sales & promos!</p>
+              <form action="#">
+                <input type="text" placeholder="Your email">
+                <button type="submit"><span class="icon_mail_alt"></span></button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 text-center">
+          <div class="footer__copyright__text">
+            <p>Copyright ©
+              <script>
+                document.write(new Date().getFullYear());
+              </script>2020
+              All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Footer Section End -->
+
+  <!-- Search Begin -->
+  <div class="search-model">
+    <div class="h-100 d-flex align-items-center justify-content-center">
+      <div class="search-close-switch">+</div>
+      <form class="search-model-form">
+        <input type="text" id="search-input" placeholder="Search here.....">
+      </form>
+    </div>
+  </div>
+  <!-- Search End -->
+
+  <!-- Js Plugins -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.nice-select.min.js"></script>
+  <script src="js/jquery.nicescroll.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+  <script src="js/jquery.countdown.min.js"></script>
+  <script src="js/jquery.slicknav.js"></script>
+  <script src="js/mixitup.min.js"></script>
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    function openTab(evt, tabId){
+      document.querySelectorAll('.tab-content').forEach(tab=>tab.classList.remove('active'));
+      document.querySelectorAll('.tab-buttons button').forEach(btn=>btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    // Simple zoom on main image hover
+    const mainImage = document.getElementById('mainImage');
+    mainImage.addEventListener('mouseenter', ()=>{ mainImage.style.transform='scale(1.5)'; });
+    mainImage.addEventListener('mouseleave', ()=>{ mainImage.style.transform='scale(1)'; });
+    function changeImage(img){
+      const mainImage = document.getElementById("mainImage");
+      mainImage.src = img.src;
+      setupZoom();
+    }
+  </script>
+</body>
+</html>

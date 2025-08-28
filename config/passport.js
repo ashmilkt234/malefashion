@@ -12,7 +12,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-
      
         let user = await User.findOne({ googleId: profile.id });
         if (user) return done(null, user);
@@ -32,10 +31,11 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser((id, done) => {
+passport.deserializeUser(async(id, done) => {
   User.findById(id)
     .then(user => done(null, user))
     .catch(err => done(err, null));
 });
+
 
 module.exports = passport;

@@ -1,0 +1,450 @@
+<style>
+    /* Footer Styles */
+    .main-footer {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        margin-top: 60px;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 50px 20px 30px;
+    }
+
+    .footer-sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+
+    .footer-section h3 {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .footer-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 30px;
+        height: 3px;
+        background: #2874f0;
+        border-radius: 2px;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: #b0b0b0;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .footer-links a:hover {
+        color: #2874f0;
+        transform: translateX(5px);
+    }
+
+    .footer-links a i {
+        margin-right: 8px;
+        width: 16px;
+    }
+
+    /* Newsletter Section */
+    .newsletter-section {
+        background: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #333;
+    }
+
+    .newsletter-form {
+        display: flex;
+        margin-top: 15px;
+        gap: 10px;
+    }
+
+    .newsletter-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #444;
+        background: #333;
+        color: #fff;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .newsletter-input::placeholder {
+        color: #888;
+    }
+
+    .newsletter-input:focus {
+        outline: none;
+        border-color: #2874f0;
+        box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.2);
+    }
+
+    .newsletter-btn {
+        background: #2874f0;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.3s ease;
+    }
+
+    .newsletter-btn:hover {
+        background: #1c5aa8;
+    }
+
+    /* Social Media Icons */
+    .social-links {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #333;
+        color: #b0b0b0;
+        border-radius: 50%;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        background: #2874f0;
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* Contact Info */
+    .contact-info {
+        margin-top: 20px;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #b0b0b0;
+        font-size: 14px;
+    }
+
+    .contact-item i {
+        margin-right: 12px;
+        color: #2874f0;
+        width: 16px;
+    }
+
+    /* App Download Section */
+    .app-download {
+        margin-top: 20px;
+    }
+
+    .app-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .app-btn {
+        display: flex;
+        align-items: center;
+        padding: 8px 15px;
+        background: #333;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid #444;
+    }
+
+    .app-btn:hover {
+        background: #2874f0;
+        border-color: #2874f0;
+        transform: translateY(-2px);
+    }
+
+    .app-btn img {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+    }
+
+    .app-btn-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .app-btn-text span:first-child {
+        font-size: 10px;
+        opacity: 0.8;
+    }
+
+    .app-btn-text span:last-child {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* Footer Bottom */
+    .footer-bottom {
+        border-top: 1px solid #333;
+        padding-top: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .footer-bottom-left {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .footer-bottom p {
+        margin: 0;
+        font-size: 14px;
+        color: #888;
+    }
+
+    .payment-methods {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .payment-method {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 28px;
+        background: #333;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: all 0.3s ease;
+    }
+
+    .payment-method:hover {
+        background: #444;
+        transform: translateY(-2px);
+    }
+
+    .payment-method i {
+        color: #b0b0b0;
+        font-size: 16px;
+    }
+
+    /* Security Badges */
+    .security-badges {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .security-badge {
+        display: flex;
+        align-items: center;
+        background: #2a5a2a;
+        color: #4CAF50;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .security-badge i {
+        margin-right: 5px;
+    }
+
+    /* Back to Top Button */
+    .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: #2874f0;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .back-to-top:hover {
+        background: #1c5aa8;
+        transform: translateY(-3px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .footer-content {
+            padding: 40px 15px 20px;
+        }
+
+        .footer-sections {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .newsletter-form {
+            flex-direction: column;
+        }
+
+        .social-links {
+            justify-content: center;
+        }
+
+        .app-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .payment-methods {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .back-to-top {
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .footer-content {
+            padding: 30px 10px 15px;
+        }
+
+        .app-buttons {
+            width: 100%;
+        }
+
+        .app-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Main Footer -->
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-sections">
+            <!-- About Section -->
+            <div class="footer-section">
+                <h3>About YourStore</h3>
+                <p style="color: #b0b0b0; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                    Your trusted online shopping destination. We offer quality products at the best prices with excellent customer service and fast delivery.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul class="footer-links">
+                    <li><a href="/help"><i class="fas fa-question-circle"></i> Help Center</a></li>
+                    <li><a href="/contact"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                    <li><a href="/track-order"><i class="fas fa-truck"></i> Track Your Order</a></li>
+                    <li><a href="/returns"><i class="fas fa-undo"></i> Returns & Exchanges</a></li>
+                    <li><a href="/shipping"><i class="fas fa-shipping-fast"></i> Shipping Info</a></li>
+                    <li><a href="/size-guide"><i class="fas fa-ruler"></i> Size Guide</a></li>
+                    <li><a href="/faq"><i class="fas fa-comments"></i> FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/products"><i class="fas fa-th-large"></i> All Products</a></li>
+                    <li><a href="/deals"><i class="fas fa-fire"></i> Hot Deals</a></li>
+                    <li><a href="/new-arrivals"><i class="fas fa-star"></i> New Arrivals</a></li>
+                    <li><a href="/bestsellers"><i class="fas fa-trophy"></i> Best Sellers</a></li>
+                    <li><a href="/categories"><i class="fas fa-list"></i> Categories</a></li>
+                    <li><a href="/brands"><i class="fas fa-tags"></i> Brands</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter & Contact -->
+            <div class="footer-section">
+                <h3>Stay Connected</h3>
+                <div class="newsletter-section">
+                    <p style="color: #b0b0b0; font-size: 14px; margin: 0 0 10px 0;">
+                        Subscribe to get updates on new products and exclusive offers!
+                    </p>
+                    <form class="newsletter-form" action="/newsletter/subscribe" method="POST">
+                        <input 
+                            type="email" 
+                            class="newsletter-input" 
+                            name="email" 
+                            placeholder="Enter your email address"
+                            required
+                        >
+                        <button type="submit" class

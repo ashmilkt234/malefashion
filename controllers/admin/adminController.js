@@ -82,6 +82,7 @@ const loadDashboard = async (req, res) => {
 // User Management
 const loadUsers = async (req, res) => {
     try {
+        const query = req.query.search || "";
         const page = parseInt(req.query.page) || 1;
         const limit = 10; // Number of users per page
         const skip = (page - 1) * limit;
@@ -95,7 +96,8 @@ const loadUsers = async (req, res) => {
             data: users,
             message: req.query.message || null,
             totalPages: totalPages,
-            currentPage: page
+            currentPage: page,
+             query:query
         });
     } catch (error) {
         console.log("Error loading users:", error);

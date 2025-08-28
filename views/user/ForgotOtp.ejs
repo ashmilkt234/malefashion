@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Verification</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<link rel="stylesheet" href="/css/verifyOTP.css">
+   <body>
+
+  </head>
+   <div class="container">
+      <div class="left">
+        <div class="title">OTP Verification Code</div>
+        <div class="subtitle">Enter the 6-digit code sent to your phone</div>
+        <div class="timer" id="timer">
+          Resend OTP in: <span id="countdown">60</span> sec
+        </div>
+        <div class="otp-box" id="otpBox">
+          <input type="text" maxlength="1" data-index="0" />
+          <input type="text" maxlength="1" data-index="1" />
+          <input type="text" maxlength="1" data-index="2" />
+          <input type="text" maxlength="1" data-index="3" />
+          <input type="text" maxlength="1" data-index="4" />
+          <input type="text" maxlength="1" data-index="5" />
+        </div>
+        <div class="resend">
+          Didn't get the code? <a href="#" id="resendLink">Resend</a>
+        </div>
+        <button class="btn" id="verifyBtn">Verify OTP</button>
+      </div>
+      <div class="right"></div>
+    </div>
+
+    <script>
+      let timeLeft = 60;
+      let timerInterval;
+      const otpInputs = document.querySelectorAll(".otp-box input");
+      const verifyBtn = document.getElementById("verifyBtn");
+      const resendLink = document.getElementById("resendLink");
+      const timer = document.getElementById("timer");
+      const countdown = document.getElementById("countdown");
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        countdown.textContent = timeLeft;
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          countdown.textContent = timeLeft;
+
+          if (timeLeft <= 60) timer.classList.add("warning");
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timer.style.display = "none";
+            resendLink.classList.add("active");
+          }
+        }, 1000);
+      }
+
+      startTimer();
+
+      otpInputs.forEach((input, index) => {
+        input.addEventListener("input", (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, "");
+          if (e.target.value) {
+            e.target.classList.add("filled");
+            if (index < otpInputs.length - 1) otpInputs[index + 1].focus();
+          } else {
+            e.target.classList.remove("filled");
+          }
+        });
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+          }
+        });
+
+        input.addEventListener("paste", (e) => {
+          e.preventDefault();
+          const pasteData = (e.clipboardData || window.clipboardData)
+            .getData("text")
+            .replace(/[^0-9]/g, "")
+            .slice(0, 6);
+          otpInputs.forEach((inp, idx) => {
+            inp.value = pasteData[idx] || "";
+            inp.classList.toggle("filled", !!pasteData[idx]);
+          });
+        });
+      });
+
+      function verifyOTP() {
+        let enteredOTP = "";
+        otpInputs.forEach((input) => (enteredOTP += input.value));
+
+        if (enteredOTP.length !== 6) {
+          showError();
+          shakeInputs();
+          return;
+        }
+
+        verifyBtn.classList.add("loading");
+        verifyBtn.disabled = true;
+
+        fetch("/resend-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ otp: enteredOTP }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            verifyBtn.classList.remove("loading");
+            verifyBtn.disabled = false;
+
+            if (data.success) {
+              showSuccess();
+            } else {
+              showError();
+              shakeInputs();
+            }
+          })
+          .catch(() => {
+            verifyBtn.classList.remove("loading");
+            verifyBtn.disabled = false;
+            showError();
+          });
+      }
+
+      function shakeInputs() {
+        otpInputs.forEach((input) => {
+          input.classList.add("error");
+          setTimeout(() => input.classList.remove("error"), 500);
+        });
+      }
+
+      function showSuccess() {
+        Swal.fire({
+          icon: "success",
+          title: "Oh Yeah!",
+          text: "You have successfully registered and logged in.",
+          confirmButtonColor: "#22c55e",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          didClose: () => {
+            window.location.href = "/reset-password";
+          },
+        })
+      }
+
+      function showError() {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid OTP!",
+          text: "The OTP you entered is incorrect, please try again.",
+          confirmButtonColor: "#ef4444",
+        });
+      }
+
+      function closePopup() {
+        document.getElementById("popupOverlay").classList.remove("show");
+        if (
+          document.getElementById("popupTitle").textContent === "Invalid OTP!"
+        ) {
+          otpInputs.forEach((input) => (input.value = ""));
+          otpInputs[0].focus();
+        }
+      }
+
+      function resendOTP() {
+        console.log("resend function called ,", resendLink);
+        if (!resendLink.classList.contains("active")) return;
+
+        timeLeft =60;
+        countdown.textContent = timeLeft;
+        timer.style.display = "block";
+        timer.classList.remove("warning");
+        resendLink.classList.remove("active");
+        startTimer();
+        otpInputs.forEach((input) => {
+          input.value = "";
+          input.classList.remove("filled", "error");
+        });
+
+        otpInputs[0].focus();
+        startTimer();
+
+        Swal.fire({
+          icon: "info",
+          title: "OTP Sent",
+          text: "A new OTP has been sent to your phone.",
+          confirmButtonColor: "#3182ce",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+
+      verifyBtn.addEventListener("click", verifyOTP);
+      resendLink.addEventListener("click", (e) => {
+        console.log("commint resent blicked");
+        e.preventDefault();
+        console.log("commint resent clicked");
+        resendOTP();
+      });
+      document.getElementById("popupOverlay").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("popupOverlay")) closePopup();
+      });
+      window.addEventListener("load", () => otpInputs[0].focus());
+      function resendOTP() {
+        clearInterval(timerInterval);
+        time = 60;
+       
+
+        $.ajax({
+          type: "POST",
+          url: "/resend-otp",
+          success: function (response) {
+            if (response.success) {
+              Swal.fire({
+                icon: "success",
+                title: "OTP Resend Successfully",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occured while resending OTP. Please try again",
+              });
+            }
+          },
+        });
+        return false;
+      }
+    </script>
+    </body>
+</html>

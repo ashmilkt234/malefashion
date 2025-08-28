@@ -1,693 +1,218 @@
-<!DOCTYPE html>
+<%- include('../partials/admin/header') %>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Products - VagueLuxe</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f9fafb;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .dashboard {
-            display: flex;
-            height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 256px;
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .logo {
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: black;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .logo-text {
-            font-weight: 600;
-            font-size: 18px;
-        }
-
-        .nav-menu {
-            margin-top: 32px;
-        }
-
-        .nav-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            text-align: left;
-            cursor: pointer;
-            color: #6b7280;
-            transition: all 0.2s;
-            border-right: 2px solid transparent;
-        }
-
-        .nav-item:hover {
-            background-color: #eff6ff;
-        }
-
-        .nav-item.active {
-            background-color: #eff6ff;
-            border-right-color: #3b82f6;
-            color: #2563eb;
-        }
-
-        .logout-btn {
-            position: absolute;
-            bottom: 24px;
-            left: 24px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: black;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .logout-btn:hover {
-            background: #374151;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .back-btn {
-            padding: 8px;
-            background: none;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #f3f4f6;
-        }
-
-        .header-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .search-container {
-            position: relative;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            color: #9ca3af;
-        }
-
-        .search-input {
-            padding: 8px 12px 8px 40px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            width: 320px;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            background: #d1d5db;
-            border-radius: 50%;
-        }
-
-        /* Form Section */
-        .form-section {
-            padding: 24px;
-            flex: 1;
-            overflow: auto;
-        }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .page-back-btn {
-            padding: 8px;
-            background: none;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .page-back-btn:hover {
-            background: #f3f4f6;
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .form-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-            max-width: 800px;
-        }
-
-        /* Photo Upload Section */
-        .photo-upload {
-            margin-bottom: 32px;
-        }
-
-        .upload-grid {
-            display: flex;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .upload-box {
-            width: 120px;
-            height: 120px;
-            border: 2px dashed #d1d5db;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #f9fafb;
-            position: relative;
-        }
-
-        .upload-box:hover {
-            border-color: #3b82f6;
-            background: #eff6ff;
-        }
-
-        .upload-box.has-image {
-            border-style: solid;
-            border-color: #e5e7eb;
-            background: white;
-        }
-
-        .upload-icon {
-            color: #9ca3af;
-            margin-bottom: 8px;
-        }
-
-        .upload-text {
-            font-size: 12px;
-            color: #3b82f6;
-            text-align: center;
-        }
-
-        .upload-input {
-            display: none;
-        }
-
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .remove-image {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* Form Fields */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            padding: 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-            background: #f9fafb;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            background: white;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .form-select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 40px;
-            appearance: none;
-            cursor: pointer;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* Submit Button */
-        .submit-section {
-            display: flex;
-            justify-content: center;
-            margin-top: 32px;
-        }
-
-        .submit-btn {
-            background: #1f2937;
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .submit-btn:hover {
-            background: #111827;
-        }
-
-        .submit-btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-    </style>
+    <title>Add Products</title>
+    <link rel="stylesheet" href="/css/addproduct.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">
-                <div class="logo-icon">VL</div>
-                <span class="logo-text">VagueLuxe</span>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h1 class="header-title">Add Products</h1>
             </div>
-
-           <nav class="nav-menu">
-    <a href="/admin/dashboard" class="nav-item active" data-menu="Dashboard">
-        <i data-lucide="home"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="/admin/product" class="nav-item" data-menu="Products">
-        <i data-lucide="package"></i>
-        <span>Products</span>
-    </a>
-    <a href="/admin/user" class="nav-item" data-menu="Users">
-        <i data-lucide="users"></i>
-        <span>Users</span>
-    </a>
-    <a href="/admin/order" class="nav-item" data-menu="Orders">
-        <i data-lucide="shopping-cart"></i>
-        <span>Orders</span>
-    </a>
-    <a href="/admin/category" class="nav-item" data-menu="Category">
-        <i data-lucide="tag"></i>
-        <span>Category</span>
-    </a>
-    <a href="/admin/coupon" class="nav-item" data-menu="Coupons">
-        <i data-lucide="percent"></i>
-        <span>Coupons</span>
-    </a>
-    <a href="/admin/offer" class="nav-item" data-menu="Offers">
-        <i data-lucide="gift"></i>
-        <span>Offers</span>
-    </a>
-</nav>
-
-
-            <button class="logout-btn">
-                <i data-lucide="log-out"></i>
-                <span>Logout</span>
-            </button>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-left">
-                    <button class="back-btn">
-                        <i data-lucide="chevron-left"></i>
-                    </button>
-                    <h1 class="header-title">Setting</h1>
-                </div>
-                
-                <div class="header-right">
-                    <div class="search-container">
-                        <i data-lucide="search" class="search-icon"></i>
-                        <input 
-                            type="text" 
-                            placeholder="Search for something"
-                            class="search-input"
-                        />
+        <!-- Form -->
+        <div class="form-container">
+            <form id="productForm" method="POST" action="/admin/editProduct/<%= product._id %>" enctype="multipart/form-data">
+                <!-- Image Upload Section -->
+                <div class="upload-section">
+                    <div class="upload-grid">
+                        <div class="upload-box" onclick="triggerFileInput('photo1')">
+                            <div class="camera-icon">📷</div>
+                        </div>
+                        <div class="upload-box" onclick="triggerFileInput('photo2')">
+                            <div class="camera-icon">📷</div>
+                        </div>
+                        <div class="upload-box" onclick="triggerFileInput('photo3')">
+                            <div class="camera-icon">📷</div>
+                        </div>
                     </div>
-                    <div class="profile-pic"></div>
-                </div>
-            </div>
-
-            <!-- Form Section -->
-            <div class="form-section">
-                <div class="page-header">
-                    <button class="page-back-btn" onclick="goBack()">
-                        <i data-lucide="chevron-left"></i>
-                    </button>
-                    <h2 class="page-title">Edit Products</h2>
+                    <div class="upload-labels">
+                        <div class="upload-label">Upload Photo 1</div>
+                        <div class="upload-label">Upload Photo 2</div>
+                        <div class="upload-label">Upload Photo 3</div>
+                    </div>
                 </div>
 
-                <div class="form-card">
-                    <form id="editProductForm">
-                        <!-- Photo Upload Section -->
-                        <div class="photo-upload">
-                            <div class="upload-grid">
-                                <div class="upload-box" onclick="triggerFileInput(1)">
-                                    <i data-lucide="camera" class="upload-icon"></i>
-                                    <div class="upload-text">Upload Photo1</div>
-                                    <input type="file" class="upload-input" id="photo1" accept="image/*" onchange="handleImageUpload(1)">
-                                </div>
-                                <div class="upload-box" onclick="triggerFileInput(2)">
-                                    <i data-lucide="camera" class="upload-icon"></i>
-                                    <div class="upload-text">Upload Photo2</div>
-                                    <input type="file" class="upload-input" id="photo2" accept="image/*" onchange="handleImageUpload(2)">
-                                </div>
-                                <div class="upload-box" onclick="triggerFileInput(3)">
-                                    <i data-lucide="camera" class="upload-icon"></i>
-                                    <div class="upload-text">Upload Photo3</div>
-                                    <input type="file" class="upload-input" id="photo3" accept="image/*" onchange="handleImageUpload(3)">
-                                </div>
-                            </div>
-                        </div>
+                <!-- File Inputs -->
+                <input type="file" name="productImage" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
+                <input type="file" name="productImage" id="photo2" class="file-input" accept="image/*" onchange="handleFileUpload(this, 1)">
+                <input type="file" name="productImage" id="photo3" class="file-input" accept="image/*" onchange="handleFileUpload(this, 2)">
 
-                        <!-- Form Fields -->
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Product Name</label>
-                                <input type="text" class="form-input" placeholder="Enter your product name" value="Loose Fit Jacket" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Category</label>
-                                <input type="text" class="form-input" placeholder="Enter your last name" value="Shirt">
-                            </div>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Price</label>
-                                <input type="number" class="form-input" placeholder="Enter price" step="0.01" value="630.00" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-textarea" placeholder="Enter Description">Comfortable loose fit jacket perfect for casual wear. Made from high-quality materials.</textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Size</label>
-                                <select class="form-select" required>
-                                    <option value="XS">XS</option>
-                                    <option value="S">S</option>
-                                    <option value="M" selected>M</option>
-                                    <option value="L">L</option>
-                                    <option value="XL">XL</option>
-                                    <option value="XXL">XXL</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Brand</label>
-                                <input type="text" class="form-input" placeholder="Enter price" value="H&M" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Stock Count</label>
-                                <input type="number" class="form-input" placeholder="Enter your stock count" min="0" value="63" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Colours</label>
-                            <select class="form-select" required>
-                                <option value="Red" selected>Red</option>
-                                <option value="Blue">Blue</option>
-                                <option value="Green">Green</option>
-                                <option value="Black">Black</option>
-                                <option value="White">White</option>
-                                <option value="Gray">Gray</option>
-                                <option value="Pink">Pink</option>
-                                <option value="Yellow">Yellow</option>
-                            </select>
-                        </div>
-
-                        <div class="submit-section">
-                            <button type="submit" class="submit-btn">Change</button>
-                        </div>
-                    </form>
+                <!-- Product Name -->
+                <div class="form-group">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" name="productName" class="form-input" placeholder="Enter product name" value="<%= product.productName %>">
+                    <div id="productName-error" class="error-message"></div>
                 </div>
-            </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        <option value="">-- Select Category --</option>
+                        <% for(let i = 0; i < category.length; i++) { %>
+                            <option value="<%= category[i].name %>" <%= product.category === category[i].name ? 'selected' : '' %>><%= category[i].name %></option>
+                        <% } %>
+                    </select>
+                    <div id="category-error" class="error-message"></div>
+                </div>
+
+                <!-- Sale Price -->
+                <div class="form-group">
+                    <label class="form-label">Sale Price</label>
+                    <input type="text" name="salePrice" class="form-input" placeholder="Enter sale price" value="<%= product.salePrice %>">
+                    <div id="salePrice-error" class="error-message"></div>
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label class="form-label">Stock Count</label>
+                    <input type="number" name="quantity" class="form-input" placeholder="Enter stock count" value="<%= product.quantity %>">
+                    <div id="quantity-error" class="error-message"></div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="description" class="form-input" placeholder="Enter description" value="<%= product.description %>">
+                    <div id="description-error" class="error-message"></div>
+                </div>
+
+                <!-- Color -->
+                <div class="form-group">
+                    <label class="form-label">Color</label>
+                    <select class="form-select" name="color">
+                        <option value="">-- Select Color --</option>
+                        <option value="red" <%= product.color === 'red' ? 'selected' : '' %>>Red</option>
+                        <option value="blue" <%= product.color === 'blue' ? 'selected' : '' %>>Blue</option>
+                    </select>
+                    <div id="color-error" class="error-message"></div>
+                </div>
+
+                <!-- Size -->
+                <div class="form-group">
+                    <label class="form-label">Size</label>
+                    <select class="form-select" name="size">
+                        <option value="">-- Select Size --</option>
+                        <option value="M" <%= product.size === 'M' ? 'selected' : '' %>>M</option>
+                        <option value="L" <%= product.size === 'L' ? 'selected' : '' %>>L</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="add-btn">Update Product</button>
+            </form>
         </div>
     </div>
 
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // Sample existing product data for editing
-        const existingProduct = {
-            id: 1,
-            name: 'Loose Fit Jacket',
-            category: 'Shirt',
-            price: 630.00,
-            description: 'Comfortable loose fit jacket perfect for casual wear. Made from high-quality materials.',
-            size: 'M',
-            brand: 'H&M',
-            stock: 63,
-            color: 'Red',
-            images: []
-        };
-
-        // Image upload functionality
-        function triggerFileInput(photoNumber) {
-            document.getElementById(`photo${photoNumber}`).click();
+        // Trigger file input
+        function triggerFileInput(inputId) {
+            document.getElementById(inputId).click();
         }
 
-        function handleImageUpload(photoNumber) {
-            const input = document.getElementById(`photo${photoNumber}`);
-            const uploadBox = input.parentElement;
-            
-            if (input.files && input.files[0]) {
+        // Show preview
+        function handleFileUpload(input, index) {
+            const file = input.files[0];
+            if (file) {
+                const uploadBox = document.querySelectorAll('.upload-box')[index];
+                uploadBox.classList.add('active');
                 const reader = new FileReader();
-                
                 reader.onload = function(e) {
-                    uploadBox.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview" class="preview-image">
-                        <button type="button" class="remove-image" onclick="removeImage(${photoNumber})">×</button>
-                        <input type="file" class="upload-input" id="photo${photoNumber}" accept="image/*" onchange="handleImageUpload(${photoNumber})">
-                    `;
-                    uploadBox.classList.add('has-image');
+                    uploadBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
                 };
-                
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
             }
         }
 
-        function removeImage(photoNumber) {
-            const uploadBox = document.getElementById(`photo${photoNumber}`).parentElement;
-            uploadBox.innerHTML = `
-                <i data-lucide="camera" class="upload-icon"></i>
-                <div class="upload-text">Upload Photo${photoNumber}</div>
-                <input type="file" class="upload-input" id="photo${photoNumber}" accept="image/*" onchange="handleImageUpload(${photoNumber})">
-            `;
-            uploadBox.classList.remove('has-image');
-            uploadBox.onclick = () => triggerFileInput(photoNumber);
-            lucide.createIcons();
-        }
-
-        // Form submission
-        document.getElementById('editProductForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get updated form data
-            const updatedData = {
-                id: existingProduct.id,
-                name: this.querySelector('input[placeholder="Enter your product name"]').value,
-                category: this.querySelector('input[placeholder="Enter your last name"]').value,
-                price: parseFloat(this.querySelector('input[placeholder="Enter price"]').value),
-                description: this.querySelector('textarea').value,
-                size: this.querySelector('select').value,
-                brand: this.querySelector('input[placeholder="Enter price"]').value,
-                stock: parseInt(this.querySelector('input[placeholder="Enter your stock count"]').value),
-                color: this.querySelectorAll('select')[1].value
-            };
-
-            console.log('Updated Product Data:', updatedData);
-            alert('Product updated successfully!');
-            
-            // You can add API call here to update the product
-            // updateProduct(updatedData);
-        });
-
-        // Navigation functionality
-        function handleNavigation() {
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
-
-        // Go back functionality
+        // Go back button
         function goBack() {
-            console.log('Going back to products list');
-            // You can implement navigation back to products list here
-            if (confirm('Are you sure you want to go back? Any unsaved changes will be lost.')) {
-                alert('Going back to products list');
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                alert('No previous page to go back to');
             }
         }
 
-        // Load existing product data (simulate API call)
-        function loadProductData() {
-            // This would typically load data from an API
-            console.log('Loading product data for editing:', existingProduct);
-            
-            // Pre-fill form fields with existing data
-            document.querySelector('input[placeholder="Enter your product name"]').value = existingProduct.name;
-            document.querySelector('input[placeholder="Enter your last name"]').value = existingProduct.category;
-            document.querySelector('input[placeholder="Enter price"]').value = existingProduct.price;
-            document.querySelector('textarea').value = existingProduct.description;
-            document.querySelector('select').value = existingProduct.size;
-            document.querySelector('input[placeholder="Enter price"]').value = existingProduct.brand;
-            document.querySelector('input[placeholder="Enter your stock count"]').value = existingProduct.stock;
-            document.querySelectorAll('select')[1].value = existingProduct.color;
+        // Display error
+        function displayErrorMessage(id, message) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = message;
         }
 
-        // Initialize the app
-        function init() {
-            handleNavigation();
-            loadProductData();
+        // Clear previous errors
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
         }
 
-        // Start the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', init);
+        // Validate form
+        function validateForm() {
+            clearErrors();
+            let valid = true;
+
+            const name = document.getElementsByName('productName')[0].value.trim();
+            const description = document.getElementsByName('description')[0].value.trim();
+            const salePrice = document.getElementsByName('salePrice')[0].value.trim();
+            const quantity = document.getElementsByName('quantity')[0].value.trim();
+            const color = document.getElementsByName('color')[0].value.trim();
+            const category = document.getElementsByName('category')[0].value.trim();
+            const images = [
+                document.getElementById('photo1').files.length,
+                document.getElementById('photo2').files.length,
+                document.getElementById('photo3').files.length
+            ];
+
+            if (!name) {
+                displayErrorMessage('productName-error', 'Please enter a product name.');
+                valid = false;
+            }
+
+            if (!category) {
+                displayErrorMessage('category-error', 'Please select a category.');
+                valid = false;
+            }
+
+            if (!salePrice || !/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0) {
+                displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
+                valid = false;
+            }
+
+            if (!quantity || parseInt(quantity) < 0) {
+                displayErrorMessage('quantity-error', 'Please enter a valid quantity.');
+                valid = false;
+            }
+
+            if (!description) {
+                displayErrorMessage('description-error', 'Please enter a description.');
+                valid = false;
+            }
+
+            if (!color) {
+                displayErrorMessage('color-error', 'Please select a color.');
+                valid = false;
+            }
+
+            if (images.every(len => len === 0)) {
+                alert('Please upload at least one image.');
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        // Attach to form
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+            }
+        });
     </script>
 </body>
 </html>

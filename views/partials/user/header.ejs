@@ -1,50 +1,7 @@
-<!-- Header Section Begin -->
+
 <header class="header" style="position: relative; z-index: 500;">
-
-  <style>
-    /* Internal CSS for Profile Dropdown */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown > a {
-      color: #111111;
-      font-weight: 600;
-      text-decoration: none;
-      padding: 6px 10px;
-      display: inline-block;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background-color:white;
-      min-width: 150px;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      z-index: 1000;
-    }
-
-    .dropdown-content a {
-      color: #333;
-      padding: 10px 15px;
-      text-decoration: none;
-      display: block;
-      transition: background 0.3s ease;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #f1f1f1;
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-  </style>
+<link rel="stylesheet" href="/css/header.css">
+  
 
   <div class="header__top">
     <div class="container">
@@ -57,28 +14,26 @@
     </div>
   </div>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-3 col-md-3">
-        <div class="header__logo">
-          <a href="./index.html"><img src="img/logo.png" alt="Logo"></a>
-        </div>
-      </div>
+<nav class="navbar navbar-expand-lg">
+  <!-- Logo on left -->
+  <a class="navbar-brand d-flex align-items-center" href="#" style="linear-gradient(90deg, #667eea, #764ba2)">
+    <img src="/img/hero/cr.jpg" alt="Logo" width="108px" height="131px" class="me-2">
+   
+  </a>
 
-      <div class="col-lg-6 col-md-6">
+
+      <div class="col-lg-6 col-md-6" >
         <nav class="header__menu mobile-menu">
+          
           <ul>
-            <li class="active"><a href="./index.html">Home</a></li>
-            <li><a href="./shop.html">Shop</a></li>
-            <li><a href="#">Pages</a>
-              <ul class="dropdown">
-                <li><a href="./about.html">About Us</a></li>
-                <li><a href="./shop-details.html">Shop Details</a></li>
-                <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                <li><a href="./checkout.html">Check Out</a></li>
-                <li><a href="./blog-details.html">Blog Details</a></li>
-              </ul>
-            </li>
+            
+            <li><a href="/Shop">Home</a></li>
+        <li><a href="/Shop">Shop</a></li> 
+        
+               <ul class="dropdown"> 
+          <li><a href="./about.html">About Us</a></li> 
+
+   
             <li><a href="./blog.html">Blog</a></li>
             <li><a href="./contact.html">Contacts</a></li>
           </ul>
@@ -90,7 +45,7 @@
           <% if (locals.user) { %>
          
             <div class="dropdown">
-              <a href="#"><%= locals.user.name %></a>
+              <a href="#" class="sign-in-link"><%= locals.user.name %></a>
               <div class="dropdown-content">
                 <a href="/userprofile">Profile</a>
                 <a href="/logout">Logout</a>

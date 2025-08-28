@@ -86,6 +86,11 @@
         background-color: #fed7d7;
         animation: shake 0.5s ease-in-out;
       }
+      .resend.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
       @keyframes shake {
         0%,
         100% {

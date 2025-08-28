@@ -23,6 +23,39 @@ const userAuth = (req, res, next) => {
     }
 };
 
+
+const checkBlocked = async (req,res,next)=>{
+  try {
+    if(!req.session.user){
+    return next()  
+    }
+
+    
+    const currentUser = await User.findById(req.session.user.id)
+
+    
+    if (currentUser && currentUser.isBlocked) {
+      req.session.destroy((err) => {
+          if (err) {
+            console.log("Error destroying session:", err);
+          }
+          return res.redirect('/login?message=Your account has been blocked. Please contact support.');// Redirect to login with message,message is shown in getLogin from req.params
+        });
+      } 
+      else {
+        next();
+      }
+    }
+    catch (error) {
+    console.log("Error during block check:", error);
+    res.status(500).send("Internal Server Error");
+    }
+ }
+
+
+
+
+
 const adminAuth = (req, res, next) => {
     if (req.session && req.session.user) {
         User.findById(req.session.user)
@@ -103,4 +136,4 @@ const unblockUser = async (req, res) => {
 
    
 
-module.exports = { adminAuth, userAuth ,unblockUser,blockUser};
+module.exports = { adminAuth, userAuth ,unblockUser,blockUser,checkBlocked};

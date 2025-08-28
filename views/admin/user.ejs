@@ -14,16 +14,35 @@
 <header class="card-header text-center mb-20">
     <form action="/admin/user/" method="get" class="d-inline">
         <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search">
+    <input type="text" class="form-control border-0 rounded-pill" 
+       placeholder="Search customers..." 
+       name="search" value="<%= query %>">
+
             <button class="btn border-0" type="submit">Search</button>
         </div>
     </form>
 </header>
 
 <div class="user-table-container">
+    
     <table class="user-table">
+        
         <thead>
+  <div class="pagination-controls">
+    <% if (totalPages && totalPages > 1) { %>
+        <ul class="pagination">
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="<%= (i === currentPage) ? 'active' : '' %>">
+                   <a href="?page=<%= i %><%= query ? '&search=' + query : '' %>"><%= i %></a>
+
+                </li>
+            <% } %>
+        </ul>
+    <% } %>
+</div>
+
             <tr>
+           
                 <th>Profile</th>
                 <th>Name</th>
                 <th>Email</th>
@@ -78,15 +97,11 @@
         const confirmText = action === 'block' ? 'block this user' : 'unblock this user';
 
         Swal.fire({
-          title: 'Do you want to allow this action?',
+          title: 'Are you sure blocked user?',
           html: `
-            <div style="text-align:left; margin-top:10px;">
-              <p><strong>Action:</strong> ${action === 'block' ? 'Block User' : 'Unblock User'}</p>
-              <p><strong>Verified by:</strong> Admin Panel</p>
-              <p><small>This change will update the user's access rights.</small></p>
-            </div>
+            
           `,
-          iconHtml: '<i class="fas fa-user-shield" style="font-size: 36px; color:#0078D7;"></i>',
+          iconHtml: '<i class="fas fa-user-shield" style="font-size: 36px; color:#0077;"></i>',
           showCancelButton: true,
           confirmButtonText: 'Yes',
           cancelButtonText: 'No',
@@ -104,4 +119,5 @@
       });
     });
   });
+  
 </script>

@@ -3,14 +3,16 @@ const { model } = require('mongoose');
 const path=require("path")
 const env=require("dotenv").config()
 const session=require("express-session")
+
 const passport=require("./config/passport.js")
 const db=require("./config/db.js")
 const nocache = require("nocache");
+const setUserData = require("./middleware/setUserData.js");
 const app=express()
 
 const adminRouter=require("./routes/adminRouter.js")
 const userRouter = require("./routes/userRouter.js")
-// const setlocals=require("./middleware/setLocals.js")
+
 
 //connect to database
 db()
@@ -20,7 +22,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(session({
   secret:process.env.SESSION_SECRET,
   resave:false,
-   saveUninitialized: true,
+   saveUninitialized: false,
   cookie:{
     secure:false,
     httpOnly:true,
@@ -28,12 +30,19 @@ app.use(session({
 
   }
 }))
+// app.use(locals)
 app.use(nocache())
 app.use(passport.initialize())
 app.use(passport.session())
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(express.static('public'));
+
+
+
+
+
 
 //set View engine and view folder
 app.set("view engine","ejs");
@@ -47,11 +56,10 @@ app.set("views", [
 app.use("/admin",adminRouter)
 app.use("/",userRouter);
 
-// app.use(setlocals)
+app.use(setUserData)
 
 app.listen(process.env.PORT,()=>{
 console.log(`Server Running on http://localhost:${3000}`);
-
 })
 
 
