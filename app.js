@@ -12,6 +12,9 @@ const app=express()
 
 const adminRouter=require("./routes/adminRouter.js")
 const userRouter = require("./routes/userRouter.js")
+const userMiddleware = require("./middleware/userMiddleware");
+const errorHandler = require('./middleware/errorMiddleware.js');
+const isGuest = require("./middleware/isGuest.js");
 
 
 //connect to database
@@ -30,10 +33,12 @@ app.use(session({
 
   }
 }))
+// app.use(userMiddleware)
 // app.use(locals)
 app.use(nocache())
 app.use(passport.initialize())
 app.use(passport.session())
+
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -57,6 +62,11 @@ app.use("/admin",adminRouter)
 app.use("/",userRouter);
 
 app.use(setUserData)
+//Error Middleware
+app.use(errorHandler)
+
+
+
 
 app.listen(process.env.PORT,()=>{
 console.log(`Server Running on http://localhost:${3000}`);

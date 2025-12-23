@@ -7,16 +7,16 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 
 // //  Generate OTP
-// function generateOtp() {
-//     return Math.floor(100000 + Math.random() * 900000).toString();
-// }
+function generateOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 //  Send OTP Email
 async function sendVerificationEmail(email, otp) {
     try {
         const transporter = nodemailer.createTransport({
             service: "gmail",
-            port: 587,
+            port: process.env.EMAIL_PORT||587,
             secure: false,
             auth: {
                 user: process.env.NODEMAILER_EMAIL,
@@ -79,7 +79,7 @@ const loadHomepage = async (req, res) => {
       return res.render("user/home", {
         user: userData,
         products: productData,
-        categories,         
+        categories    
       });
     }
 
@@ -285,7 +285,11 @@ const resendOtp = async (req, res) => {
 
         const otp = generateOtp();
         req.session.userOtp = otp;
-req.session.otpExpires = Date.now() + 1 * 60 * 1000
+// req.session.otpExpires = Date.now() + 1 * 60 * 1000
+if (Date.now() > req.session.otpExpires) {
+  return res.json({ success: false, message: "OTP expired. Please resend OTP." });
+}
+
 
         const emailSent = await sendVerificationEmail(email, otp);
         if (emailSent) {
@@ -299,9 +303,7 @@ req.session.otpExpires = Date.now() + 1 * 60 * 1000
         return res.json({ success: false, message: "Internal server error" });
     }
 };
-function generateOtp(){
-    return Math.floor(100000+Math.random()*900000).toString()
-}
+
 const loadOtpPage = (req, res) => {
   try {
     const email = req.session.userData?.email;
@@ -355,7 +357,8 @@ const login = async (req, res) => {
             return res.redirect("/login");
         }
 
-        req.session.user = findUser;
+        req.session.user = findUser._id;
+        req.session.isAdmin=false;
         req.session.success = "Logged in successfully!";
         return res.redirect("/");
     } catch (error) {
@@ -437,6 +440,7 @@ const loadResetPassword = async (req, res) => {
     try {
         
         return res.render("user/newpassword"); 
+
     } catch (error) {
         console.error("Reset password page error:", error);
         res.redirect("/pageNotFound");
@@ -446,6 +450,43 @@ const loadResetPassword = async (req, res) => {
 
 
 
+const postResetPassword=async(req,res)=>{
+    try {
+        const{userId,password,confirmPassword}=req.body;
+        if(!password||!confirmPassword){
+             return res.json({success:false,message:"All field are required"})
+    
+        }
+        if(password!==confirmPassword){
+            return res.json({success:false,message:"password do not match"})
+        }
+        const passwordHash=await bcrypt.hash(password,10)
+        await User.findByIdAndUpdate(password,{$set:{password:passwordHash}})
+        return res.json({success:true,message:"password reset successfully"})
+    } catch (error) {
+        console.error(error)
+        return res.json({success:false,message:"something went wrong"})
+    }
+}
+// -------------------- Verify OTP --------------------
+
+const verifyForgotOtp = async (req, res) => {
+    try {
+        const { otp } = req.body;
+
+        if (otp != req.session.userOtp) {
+            return res.json({ success: false, message: "Invalid OTP" });
+        }
+
+        req.session.isOtpVerified = true; // mark OTP verified
+        return res.json({ success: true, redirect: "/reset-password" });
+    } catch (error) {
+        console.error("OTP verification error:", error);
+        return res.json({ success: false, message: "Internal server error" });
+    }
+};
+
+
 
 //  Reset Password
 // --- Handle Reset Password ---
@@ -453,6 +494,7 @@ const resetPassword = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
         const { email } = req.session.userData;
+
 
         if (!email) {
             return res.json({ success: false, message: "Session expired" });
@@ -469,6 +511,8 @@ const resetPassword = async (req, res) => {
 
         findUser.password = await bcrypt.hash(password, 10);
         await findUser.save();
+console.log("Password updated successfully for:", email);
+console.log("Updated hashed password:", findUser.password);
 
         // Clear session
         delete req.session.userOtp;
@@ -512,8 +556,8 @@ module.exports = {
     resetPassword,
     loadErrorPage,
     loadOtpPage,
+    verifyForgotOtp ,
+    postResetPassword
 
-    
-    
   
 };

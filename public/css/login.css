@@ -13,7 +13,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background:black
+      background:black;
     }
 
     .login-container {
@@ -22,7 +22,7 @@
       display: flex;
       border-radius: 20px;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.08);
+      background: black;
       box-shadow: 0 8px 25px rgba(0,0,0,0.4);
       backdrop-filter: blur(15px);
       border: 2px solid rgba(255,255,255,0.15);
@@ -40,7 +40,7 @@
     .form-section h1 {
       font-size: 2.2rem;
       margin-bottom: 10px;
-      background: linear-gradient(90deg, #ff8a00, #da1b60);
+     background-color: #f5f5f5;
       -webkit-background-clip:text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 1px;
@@ -96,7 +96,7 @@
     button {
       padding: 12px;
       margin-top: 10px;
-      background: linear-gradient(120deg, #ff8a00, #da1b60);
+      background:black;
       color: white;
       border: none;
       border-radius: 6px;
@@ -118,15 +118,33 @@
       align-items: center;
       padding: 10px;
       border: 1px solid rgba(255,255,255,0.3);
-      background: linear-gradient(120deg, #ff8a00, #da1b60);
+      background:#f5f5f5;
       margin-top: 15px;
       cursor: pointer;
       border-radius: 6px;
       font-size: 0.9rem;
       font-weight: 600;
       transition: background 0.3s, transform 0.3s;
-      color: #fff;
+      /* color: #fff; */
+      color:  #333; 
     }
+
+
+
+.login-heading {
+  color: #00ffff;
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: 600;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
+  letter-spacing: 2px;
+  position: relative;
+    top: -31px
+}
+
+
+
+
 
     .google-btn img {
       width: 20px;
@@ -134,15 +152,11 @@
     }
 
     .google-btn:hover {
-      background: blue;
+      background:#f5f5f5;
       transform: translateY(-2px);
     }
 
-    .image-section {
-      flex: 1;
-      background: url('https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb') no-repeat center center/cover;
-      filter: brightness(0.9);
-    }
+
 
     /* Error Box Style */
     .error-box {

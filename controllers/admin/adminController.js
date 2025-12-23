@@ -18,49 +18,47 @@ const loadLogin = async (req, res) => {
         if (req.session.user && req.session.isAdmin) {
             return res.redirect("/admin/dashboard");
         }
-        res.render("admin/adminlogin", { message: req.query.message ||null,email:null});
+        res.render("admin/adminlogin", { message: req.query.message ||null,email:null, });
     } catch (error) {
         console.log("Login page error:", error);
         res.redirect("/admin/error?message=Failed to load login page");
     }
 };
 
-// Handle Admin Login
+
 // Handle Admin Login
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.render("admin/adminlogin", { message: "Email and password are required", email });
-        }
-
         const admin = await User.findOne({ email, isAdmin: true });
-        if (admin) {
-            const passwordMatch = await bcrypt.compare(password, admin.password);
-            if (passwordMatch) {
-                req.session.user = admin._id;
-                req.session.isAdmin = true;
 
-                return res.redirect("/admin/dashboard");
-            } else {
-                return res.render("admin/adminlogin", {
-                    message: "Incorrect password",
-                    email,
-                });
-            }
-        } else {
+        if (!admin) {
             return res.render("admin/adminlogin", {
                 message: "Admin not found",
                 email,
             });
         }
 
+        const passwordMatch = await bcrypt.compare(password, admin.password);
+        if (!passwordMatch) {
+            return res.render("admin/adminlogin", {
+                message: "Incorrect password",
+                email,
+            });
+        }
+
+        req.session.user = admin._id;
+        req.session.isAdmin = true;   // ✅ This was missing
+
+        return res.redirect("/admin/dashboard");
+
     } catch (error) {
         console.log("Login error:", error);
         res.redirect("/admin/error?message=Login failed");
     }
 };
+
+
 
 
 // Admin Dashboard

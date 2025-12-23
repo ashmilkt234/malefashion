@@ -1,94 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal</title>
-    <link rel="stylesheet" href="/css/adminlogin.css">
-   
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal</title>
+  <link rel="stylesheet" href="/css/adminlogin.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .form-group {
+      position: relative;
+      width: 100%;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 45px;
+      font-size: 16px;
+      padding-right: 45px; /* leave space for icon */
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      background: url("https://img.icons8.com/material-outlined/24/000000/visible--v1.png") no-repeat center;
+      background-size: contain;
+    }
+
+    .password-toggle.hide {
+      background: url("https://img.icons8.com/material-outlined/24/000000/closed-eye.png") no-repeat center;
+      background-size: contain;
+    }
+
+    .login-btn {
+      position: relative;
+    }
+
+    .loading {
+      display: none;
+      margin-left: 10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #3498db;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
+  <div class="particles" id="particles"></div>
+  
+  <div class="login-container">
+    <div class="logo-section">
+      <h1>Admin Login</h1>
+    </div>
+
+    <form id="loginForm" method="POST" action="/admin/login">
+      <div class="form-group">
+        <input type="text" class="input-field" placeholder="Username or Email" id="username" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>">
+      </div>
+
+      <div class="form-group">
+        <input type="password" class="input-field" placeholder="Password" id="password" name="password">
+        <div class="password-toggle" id="togglePassword"></div>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span id="btnText">Sign In</span>
+        <div class="loading" id="loading"></div>
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Particles background
+    function createParticles() {
+      const particles = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 4 + 1;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        
+        particles.appendChild(particle);
+      }
+    }
+
+    // Toggle password visibility
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", () => {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePassword.classList.add("hide");
+      } else {
+        passwordInput.type = "password";
+        togglePassword.classList.remove("hide");
+      }
+    });
+
+   
     
-    <div class="login-container">
-        <div class="logo-section">
-            <!-- <div class="logo"></div> -->
-            <h1>Admin Login</h1>
-            
-    
-
-        <form id="loginForm" method="POST" action="/admin/login">
-            <div class="form-group">
-            
-                <input type="text" class="input-field" placeholder="Username or Email" id="username" name="email" value="<%= typeof email !== 'undefined' ? email : '' %>">
-            </div>
-
-            <div clas
-        s="form-group">
-
-                <input type="password" class="input-field" placeholder="Password" id="password" name="password" >
-                <div class="password-toggle" onclick="togglePassword()"></div>
-            </div>
-</div>
 
 
-            <button type="submit" class="login-btn">
-                Sign In
-                 <div class="loading" id="loading"></div>
-            </button>
-        </form>
-    
+    window.addEventListener('load', createParticles);
 
-    <script>
-        // Create animated particles
-        function createParticles() {
-            const particles = document.getElementById('particles');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const size = Math.random() * 4 + 1;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                
-                particles.appendChild(particle);
-            }
-        }
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-       
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const btnText = document.getElementById('btnText');
+    const loading = document.getElementById('loading');
+    const btn = document.getElementById('loginBtn');
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-           
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const btnText = document.getElementById('btnText');
-            const loading = document.getElementById('loading');
-            const btn = document.querySelector('.login-btn');
-            
-            if (username && password) {
-                btnText.textContent = 'Signing In...';
-                loading.style.display = 'inline-block';
-                btn.disabled = true;
-                
-                setTimeout(() => {
-                    btnText.textContent = 'Sign In';
-                    loading.style.display = 'none';
-                    btn.disabled = false;
+    if (!username || !password) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing fields',
+            text: 'Please enter both email and password'
+        });
+        return;
+    }
 
-                    alert(`Welcome back, ${username}! 🎉`);
-                    window.location.href = "/admin";
-                }, 2000);
-            }
+    btnText.textContent = 'Signing In...';
+    loading.style.display = 'inline-block';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: username, password: password })
         });
 
-        window.addEventListener('load', createParticles);
-    </script>
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = '/admin/dashboard';
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: data.message
+            });
+        }
+
+    // } catch (error) {
+    //     Swal.fire(           {
+    //         icon: 'error',
+    //         title: 'Server Error',
+    //         text: 'Please try again later'
+    //   });
+    } finally {
+        btnText.textContent = 'Sign In';
+        loading.style.display = 'none';
+        btn.disabled = false;
+    }
+});
+
+
+        
+
+    
+  </script>
 </body>
 </html>

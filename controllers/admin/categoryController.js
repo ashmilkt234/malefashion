@@ -181,7 +181,7 @@ try{
     const{id}=req.params
     const{name:categoryName,description}=req.body
 
-    const existingCategory=await Category.findOne({name:categoryName,_id:{$ne:id},})
+    const existingCategory=await Category.findOne({name:{$regex:`^${categoryName}$`,$options:'i'},_id:{$ne:id},})
  if(existingCategory){
     return res.status(400).json({error:"Category exists,please choose another name"})
 
@@ -194,7 +194,7 @@ try{
  }else{
     res.status(404).json({error:"Category not found"})
 
-}
+} 
 }
 catch(error){
     console.error("error updating category",error)

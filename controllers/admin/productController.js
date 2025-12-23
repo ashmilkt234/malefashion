@@ -37,7 +37,7 @@ const getProduct = async (req, res) => {
  const addProducts = async (req, res) => {
   try {
     const products = req.body;
-    console.log(products);
+   
 
     const productExists = await Product.findOne({
       productName: { $regex: new RegExp("^" + products.productName + "$", "i") }

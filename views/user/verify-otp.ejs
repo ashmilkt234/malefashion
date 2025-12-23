@@ -7,79 +7,190 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="/css/verifyOTP.css" />
+    <style>
+      /* minimal inline styles for demo, keep your css file instead */
+      .warning { color: #b91c1c; }
+      .resend a.active { pointer-events: auto; opacity: 1; }
+      .resend a { pointer-events: none; opacity: 0.5; cursor: pointer; }
+      input.error { animation: shake 0.4s; }
+      @keyframes shake { 0% {transform:translateX(0)} 25%{transform:translateX(-6px)} 50%{transform:translateX(6px)} 75%{transform:translateX(-4px)} 100%{transform:translateX(0)} }
+      input.filled { background:#f0fdf4; }
+      .btn.loading { opacity:0.7; pointer-events:none; }
+    </style>
   </head>
   <body>
     <div class="container">
       <div class="left">
         <div class="title">OTP Verification Code</div>
         <div class="subtitle">Enter the 6-digit code sent to your phone</div>
-        <div class="timer" id="timer">
+
+        <!-- UNCOMMENTED TIMER (required by JS) -->
+        <div class="timer" id="timer" style="display:none;">
           Resend OTP in: <span id="countdown">60</span> sec
         </div>
+
         <div class="otp-box" id="otpBox">
-          <input type="text" maxlength="1" data-index="0" />
-          <input type="text" maxlength="1" data-index="1" />
-          <input type="text" maxlength="1" data-index="2" />
-          <input type="text" maxlength="1" data-index="3" />
-          <input type="text" maxlength="1" data-index="4" />
-          <input type="text" maxlength="1" data-index="5" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="0" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="1" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="2" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="3" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="4" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="5" />
         </div>
+
         <div class="resend">
-          Didn't get the code? <a href="#" id="resendLink">Resend</a>
+          Didn't get the code? <a href="#" id="resendLink" class="">Resend</a>
         </div>
+
         <button class="btn" id="verifyBtn">Verify OTP</button>
       </div>
       <div class="right"></div>
     </div>
 
     <script>
-      verifyBtn.addEventListener("click", verifyOTP);
-resendLink.addEventListener("click", (e) => {
-  e.preventDefault();
-  resendOTP();
-});
-
-      let timeLeft = 60;
-      let timerInterval;
-      const otpInputs = document.querySelectorAll(".otp-box input");
+      // Elements
+      const otpInputs = Array.from(document.querySelectorAll(".otp-box input"));
       const verifyBtn = document.getElementById("verifyBtn");
       const resendLink = document.getElementById("resendLink");
-      const timer = document.getElementById("timer");
-      const countdown = document.getElementById("countdown");
+      const timerEl = document.getElementById("timer");
+      const countdownEl = document.getElementById("countdown");
 
-      function startTimer() {
+      // Timer state
+      let timeLeft = 60;
+      let timerInterval = null;
+
+      // Utility: safe DOM checks
+      function hasTimerElements() {
+        return timerEl && countdownEl;
+      }
+
+      // START TIMER FUNCTION (safe checks)
+      function startTimer(initial = 60) {
+        if (!hasTimerElements()) return;
+
         clearInterval(timerInterval);
-        countdown.textContent = timeLeft;
+        timeLeft = initial;
+        countdownEl.textContent = timeLeft;
+        timerEl.style.display = "block";
+        timerEl.classList.remove("warning");
+        // disable resend link during countdown
+        resendLink.classList.remove("active");
+        resendLink.style.pointerEvents = "none";
+        resendLink.style.opacity = "0.5";
+        resendLink.textContent = "Resend";
+
         timerInterval = setInterval(() => {
           timeLeft--;
-          countdown.textContent = timeLeft;
+          if (timeLeft < 0) timeLeft = 0;
+          countdownEl.textContent = timeLeft;
 
-          if (timeLeft <= 10) timer.classList.add("warning");
+          if (timeLeft <= 10) timerEl.classList.add("warning");
 
           if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            timer.style.display = "none";
-            resendLink.classList.add("active");
+            // do NOT overwrite the timer element content (keeps countdownEl intact)
+            countdownEl.textContent = "0";
+            timerEl.classList.remove("warning");
+            timerEl.textContent = "OTP expired!"; // small UX change: replace entire text
+            // show "Resend" as active
+            setTimeout(() => {
+              // restore markup so countdownEl exists for next start
+              timerEl.innerHTML = 'Resend OTP in: <span id="countdown">60</span> sec';
+              // update reference to new countdown element
+              const newCountdown = document.getElementById("countdown");
+              if (newCountdown) {
+                // reflect new element for JS usage
+                countdownEl = newCountdown; // NOTE: this won't update outer const; we'll handle below by reassigning variable via getter approach
+              }
+              // enable resend
+              resendLink.classList.add("active");
+              resendLink.style.pointerEvents = "auto";
+              resendLink.style.opacity = "1";
+              resendLink.textContent = "Resend";
+            }, 700); // brief pause so user sees "OTP expired!"
           }
         }, 1000);
       }
 
-      startTimer();
+      // Because countdownEl is a const earlier, reassigning inside startTimer to the same name isn't allowed.
+      // To avoid complexity, we'll use functions to read/write the countdown display instead:
+      function setCountdownText(val) {
+        const el = document.getElementById("countdown");
+        if (el) el.textContent = val;
+      }
+      function getCountdownText() {
+        const el = document.getElementById("countdown");
+        return el ? el.textContent : null;
+      }
 
+      // Revised startTimer using helper functions
+      function startTimerSafe(initial = 60) {
+        if (!timerEl) return;
+        clearInterval(timerInterval);
+        timeLeft = initial;
+        setCountdownText(timeLeft);
+        timerEl.style.display = "block";
+        timerEl.classList.remove("warning");
+        resendLink.classList.remove("active");
+        resendLink.style.pointerEvents = "none";
+        resendLink.style.opacity = "0.5";
+        resendLink.textContent = "Resend";
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft < 0) timeLeft = 0;
+          setCountdownText(timeLeft);
+
+          if (timeLeft <= 10) timerEl.classList.add("warning");
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            // set a simple expired message but keep the countdown span replaced afterwards
+            timerEl.textContent = "OTP expired!";
+            // enable resend after small delay so user sees expired feedback
+            setTimeout(() => {
+              // restore timer markup
+              timerEl.innerHTML = 'Resend OTP in: <span id="countdown">60</span> sec';
+              // enable resend link
+              resendLink.classList.add("active");
+              resendLink.style.pointerEvents = "auto";
+              resendLink.style.opacity = "1";
+              resendLink.textContent = "Resend";
+            }, 700);
+          }
+        }, 1000);
+      }
+
+      // Use the safe starter (timer elements exist in the HTML)
+      if (timerEl && countdownEl) {
+        startTimerSafe(60);
+      } else {
+        // If timer elements are missing, ensure resend is enabled immediately (fallback)
+        resendLink.classList.add("active");
+        resendLink.style.pointerEvents = "auto";
+        resendLink.style.opacity = "1";
+      }
+
+      // OTP INPUT HANDLING
       otpInputs.forEach((input, index) => {
+        // ensure numeric keyboard on mobile
+        input.setAttribute("inputmode", "numeric");
+
         input.addEventListener("input", (e) => {
           e.target.value = e.target.value.replace(/[^0-9]/g, "");
-          if (e.target.value) {
-            e.target.classList.add("filled");
-            if (index < otpInputs.length - 1) otpInputs[index + 1].focus();
-          } else {
-            e.target.classList.remove("filled");
+          e.target.classList.toggle("filled", !!e.target.value);
+          if (e.target.value && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
           }
         });
 
         input.addEventListener("keydown", (e) => {
           if (e.key === "Backspace" && !e.target.value && index > 0) {
             otpInputs[index - 1].focus();
+          } else if (e.key === "ArrowLeft" && index > 0) {
+            otpInputs[index - 1].focus();
+          } else if (e.key === "ArrowRight" && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
           }
         });
 
@@ -88,17 +199,20 @@ resendLink.addEventListener("click", (e) => {
           const pasteData = (e.clipboardData || window.clipboardData)
             .getData("text")
             .replace(/[^0-9]/g, "")
-            .slice(0, 6);
+            .slice(0, otpInputs.length);
           otpInputs.forEach((inp, idx) => {
             inp.value = pasteData[idx] || "";
             inp.classList.toggle("filled", !!pasteData[idx]);
           });
+          // focus last filled or final input
+          const lastFilledIndex = Math.min(pasteData.length, otpInputs.length) - 1;
+          if (lastFilledIndex >= 0) otpInputs[lastFilledIndex].focus();
         });
       });
 
+      // VERIFY OTP
       function verifyOTP() {
-        let enteredOTP = "";
-        otpInputs.forEach((input) => (enteredOTP += input.value));
+        let enteredOTP = otpInputs.map((i) => i.value).join("");
 
         if (enteredOTP.length !== 6) {
           showError();
@@ -118,10 +232,8 @@ resendLink.addEventListener("click", (e) => {
           .then((data) => {
             verifyBtn.classList.remove("loading");
             verifyBtn.disabled = false;
-
-            if (data.success) {
-              showSuccess();
-            } else {
+            if (data.success) showSuccess();
+            else {
               showError();
               shakeInputs();
             }
@@ -149,12 +261,12 @@ resendLink.addEventListener("click", (e) => {
           timer: 2000,
           timerProgressBar: true,
           showConfirmButton: false,
-          didClose: () => {
-             resendLink.style.pointerEvents = "none";
-      resendLink.style.opacity = "0.5";
+        }).then(() => {
+          // disable resend link visually
+          resendLink.style.pointerEvents = "none";
+          resendLink.style.opacity = "0.5";
           resendLink.textContent = "Verified ✅";
-            window.location.href = "/";
-          },
+          window.location.href = "/";
         });
       }
 
@@ -167,30 +279,30 @@ resendLink.addEventListener("click", (e) => {
         });
       }
 
-      // Single resendOTP function (merged both versions)
+      // RESEND OTP
       function resendOTP() {
+        // allow clicking only when active
         if (!resendLink.classList.contains("active")) return;
 
+        // Clear old timer
         clearInterval(timerInterval);
-        timeLeft = 60;
-        countdown.textContent = timeLeft;
-        timer.style.display = "block";
-        timer.classList.remove("warning");
-        resendLink.classList.remove("active");
-        startTimer();
 
+        // Reset OTP inputs UI & value
         otpInputs.forEach((input) => {
           input.value = "";
           input.classList.remove("filled", "error");
         });
-
         otpInputs[0].focus();
 
+        // restart safe timer
+        startTimerSafe(60);
+
+        // Send OTP via AJAX
         $.ajax({
           type: "POST",
           url: "/resend-otp",
           success: function (response) {
-            if (response.success) {
+            if (response && response.success) {
               Swal.fire({
                 icon: "success",
                 title: "OTP Resent Successfully",
@@ -205,16 +317,27 @@ resendLink.addEventListener("click", (e) => {
               });
             }
           },
+          error: function () {
+            Swal.fire({
+              icon: "error",
+              title: "Network Error",
+              text: "Couldn't reach the server. Try again later.",
+            });
+          },
         });
       }
 
+      // Event listeners
       verifyBtn.addEventListener("click", verifyOTP);
       resendLink.addEventListener("click", (e) => {
         e.preventDefault();
         resendOTP();
       });
 
-      window.addEventListener("load", () => otpInputs[0].focus());
+      // focus first input on load
+      window.addEventListener("load", () => {
+        if (otpInputs && otpInputs.length) otpInputs[0].focus();
+      });
     </script>
   </body>
 </html>
