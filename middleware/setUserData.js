@@ -3,8 +3,8 @@ const User = require('../models/userSchema');
 const setUserData = async (req, res, next) => {
     // console.log("current req.user",req.user)
   try {
-    if (req.user?._id) {
-      const userData = await User.findById(req.user._id).lean();
+    if (req.session.user) {
+      const userData = await User.findById(req.session.user).lean();
       res.locals.user = userData;
       // console.log("user data set",userData)
     } else {

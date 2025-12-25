@@ -377,7 +377,7 @@ ol {
 	top: 3px;
 	right: 2px;
 }
-
+/*  */
 .header__top__hover ul {
 	background: #ffffff;
 	display: inline-block;
@@ -404,7 +404,7 @@ ol {
 }
 
 .header__logo {
-	padding: 30px 0;
+	padding: 10px 0;
 }
 
 .header__logo a {

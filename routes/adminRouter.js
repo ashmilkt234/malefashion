@@ -4,17 +4,17 @@ const adminController = require("../controllers/admin/adminController");
 const userController=require("../controllers/admin/userController")
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require("../controllers/admin/productController")
-
-const { userAuth, adminAuth } = require("../middleware/auth");
+const adminAuth=require("../middleware/adminAuth")
+const guestAdmin=require("../middleware/guestAdmin")
 const nocache = require("nocache");
 const uploads = require("../middleware/multerConfig"); 
 
 
 
 // ----------------- Admin Authentication -----------------
-router.get("/login",nocache(),adminController.loadLogin);
-router.post("/login",nocache(),adminController.login);
-router.get("/logout",adminController.logout)
+router.get("/login",guestAdmin,adminController.loadLogin);
+router.post("/login",guestAdmin,nocache(),adminController.login);
+router.get("/logout",adminAuth,adminController.logout)
 
 
 
@@ -24,10 +24,10 @@ router.get("/pageerror",adminController.errorpage)
 
 
 // ----------------- Dashboard -----------------
-router.get("/dashboard", adminAuth, adminController.loadDashboard);
+router.get("/dashboard",adminAuth, adminController.loadDashboard);
 
 
-// ----------------- Users -----------------
+//  Users -----------------
 router.get("/users", adminAuth, adminController.loadUsers);
 router.get("/user", adminAuth, userController.userInfo);
 router.get("/blockuser",adminAuth,userController.userBlocked)

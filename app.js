@@ -8,13 +8,16 @@ const passport=require("./config/passport.js")
 const db=require("./config/db.js")
 const nocache = require("nocache");
 const setUserData = require("./middleware/setUserData.js");
+const errorMiddleware = require("./middleware/errorMiddleware");
+
 const app=express()
 
 const adminRouter=require("./routes/adminRouter.js")
 const userRouter = require("./routes/userRouter.js")
-const userMiddleware = require("./middleware/userMiddleware");
-const errorHandler = require('./middleware/errorMiddleware.js');
-const isGuest = require("./middleware/isGuest.js");
+
+
+
+
 
 
 //connect to database
@@ -62,10 +65,10 @@ app.use("/admin",adminRouter)
 app.use("/",userRouter);
 
 app.use(setUserData)
-//Error Middleware
-app.use(errorHandler)
 
 
+
+app.use(errorMiddleware)
 
 
 app.listen(process.env.PORT,()=>{

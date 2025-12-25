@@ -15,7 +15,7 @@ const pageerror = async (req, res) => {
 // Login Page
 const loadLogin = async (req, res) => {
     try {
-        if (req.session.user && req.session.isAdmin) {
+        if (req.session.adminId && req.session.isAdmin) {
             return res.redirect("/admin/dashboard");
         }
         res.render("admin/adminlogin", { message: req.query.message ||null,email:null, });
@@ -47,7 +47,7 @@ const login = async (req, res) => {
             });
         }
 
-        req.session.user = admin._id;
+        req.session.adminId = admin._id;
         req.session.isAdmin = true;   // ✅ This was missing
 
         return res.redirect("/admin/dashboard");
@@ -64,7 +64,7 @@ const login = async (req, res) => {
 // Admin Dashboard
 const loadDashboard = async (req, res) => {
     try {
-        if (req.session.user && req.session.isAdmin) {
+        if (req.session.adminId&& req.session.isAdmin) {
         
             res.render("admin/dashboard");
           
@@ -129,19 +129,17 @@ const unblockUser = async (req, res) => {
 
 // Logout
 const logout = async (req, res) => {
-    try {
-        req.session.destroy((err) => {
-            if (err) {
-                console.log("Error destroying session:", err);
-                return res.redirect("/admin/error?message=Failed to log out");
-            }
-            res.redirect("/admin/login");
-        });
-    } catch (error) {
-        console.log("Unexpected error during logout:", error);
-        res.redirect("/admin/error?message=Unexpected error during logout");
-    }
+  try {
+    req.session.adminId = null;
+    req.session.isAdmin = false;
+
+    res.redirect("/admin/login");
+  } catch (error) {
+    console.log("Unexpected error during logout:", error);
+    res.redirect("/admin/error?message=Unexpected error during logout");
+  }
 };
+
 
 const errorpage=(req,res)=>{
     res.render("admin/error")

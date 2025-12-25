@@ -2,12 +2,10 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user/userController");
 const productControlleruser = require("../controllers/user/productControlleruser");
-const isGuest = require("../middleware/isGuest");
 const userProfile= require('../controllers/user/userProfile.js')
 const passport = require("passport");
-const userAuth = require("../middleware/userAuth");
-const { checkBlocked, adminAuth } = require("../middleware/auth");
-
+// const userAuth = require("../middleware/userAuth.js");
+const guestAuth=require("../middleware/guestUserAuth.js")
 
 
 
@@ -19,7 +17,7 @@ router.get("/error", userController.loadErrorPage);
 
 
 // Signup / OTP flow
-router.get("/signup",isGuest,userController.loadSignup);
+router.get("/signup",guestAuth,userController.loadSignup);
 router.post("/signup", userController.signup);
 router.get("/verify-otp", userController.loadOtpPage);  
 router.post("/verify-otp", userController.verifyotp);   
@@ -48,7 +46,7 @@ router.get("/Shop", userController.loadShopping);
 
 
 // Login / Logout
-router.get("/login", isGuest,userController.loadLogin);
+router.get("/login",guestAuth,userController.loadLogin);
 router.post("/login", userController.login);
 router.get("/logout", userController.logout);
 
