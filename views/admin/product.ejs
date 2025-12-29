@@ -1,5 +1,4 @@
 
-<%- include('../partials/admin/header') %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,240 +6,109 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Management Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/product.css">
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <link rel="stylesheet" href="/css/productt.css">
-
+<link rel="stylesheet" href="/css/dashboard.css">
+<!-- <link rel="stylesheet" href="/css/productt.css"> -->
+</head>
 <body>
-  <div class="main-content">
+  <%- include('../partials/admin/header') %>
 
- <div class="header">
-      <div class="header-left">
-        <button class="back-btn">
-          <i data-lucide="chevron-left"></i>
-        </button>
-        <h1 class="header-title">Product Page</h1>
+  <div class="main-content" style="margin-left: 190px; padding: 80px; margin-top:0;">
+    <div class="container p-4 bg-white rounded shadow" style="margin-top: 10px;">
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 style="margin-left: 100px;">Products</h3>
+
+        <!-- Search Bar -->
+        <form method="GET" action="/admin/product" class="d-flex me-2">
+          <input type="text" name="search" class="form-control" placeholder="Search Products..." value="<%= searchQuery || '' %>">
+          <button class="btn btn-secondary ms-1"><i class="fa fa-search"></i></button>
+        </form>
+
+        <!-- Add Product Button -->
+        <a href="/admin/addProduct" class="btn btn-primary"><i class="fa fa-plus"></i> Add</a>
       </div>
-      <div class="header-right">
-        <div class="search-container">
-          <i data-lucide="search" class="search-icon"></i>
-          
-        </div>
-      </div>
-    </div>
 
+      <!-- Product Table -->
+      <table class="table table-bordered table-hover text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Action</th>
+            <th>Edit</th>
+          </tr>
+        </thead>
 
- <div class="products-section">
-      <div class="products-card">
-        <div class="products-header">
-          <h2 class="products-title">Products</h2>
-          <a href="/admin/addProduct" class="add-link">+ Add Product</a>
-        </div>
-
-        <table>
-          <thead>
+        <tbody>
+          <% data.forEach(product => { %>
             <tr>
-   
-              <th>Product Name</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Action</th>
-              <th>Edit</th>
-                 
+              <td><%= product.productName %></td>
+              <td><%= product.category.name %></td>
+              <td>₹<%= product.salesPrice %></td>
+              <td><%= product.quantity %></td>
+              <td>
+                <% if (!product.isBlocked) { %>
+                  <button class="btn btn-success btn-sm" onclick="confirmBlock('<%= product._id %>')">Block</button>
+                <% } else { %>
+                  <button class="btn btn-danger btn-sm" onclick="confirmUnblock('<%= product._id %>')">Unblock</button>
+                <% } %>
+              </td>
+              <td>
+                <a href="/admin/editProduct/<%= product._id %>" class="btn btn-warning btn-sm text-dark">Edit</a>
+              </td>
             </tr>
-          </thead>
-          <tbody id="tableBody">
-          <tbody>
-<% for (let i = data.length - 1; i >= 0; i--) { %>
-  <tr>
-    <td><%= data[i].productName %></td>
-    <td><%= data[i].category.name %></td>
-    <td><%= data[i].salesPrice %></td>
-    <td><%= data[i].quantity %></td>
+          <% }) %>
+        </tbody>
+      </table>
 
-<td>
-  <% if (!data[i].isBlocked) { %>
-    <!-- Green Block button -->
-    <a href="javascript:void(0);" 
-       onclick="confirmBlock('<%= data[i]._id %>')" 
-       class="btn text-white"
-       style="width: 80px; background-color: #28a745; padding: 6px 16px; border-radius: 6px; text-decoration: none;">
-      Block
-    </a>
-  <% } else { %>
-    <!-- Red Unblock button -->
-    <a href="javascript:void(0);" 
-       onclick="confirmUnblock('<%= data[i]._id %>')" 
-       class="btn text-white"
-       style="width: 80px; background-color: #dc3545; padding: 6px 16px; border-radius: 6px; text-decoration: none;">
-      Unblock
-    </a>
-  <% } %>
-</td>
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+            <% if (currentPage > 1) { %>
+              <li class="page-item"><a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>">&laquo; Previous</a></li>
+            <% } %>
 
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
+              </li>
+            <% } %>
 
-<td>
-  <a href="/admin/editProduct/<%= data[i]._id %>"
-     class="btn text-white ms-2"
-     style="width: 80px; background-color: yellow; padding: 6px 16px; border-radius: 6px; text-decoration: none;">
-    <i class="bi bi-pencil-square fs-5"></i> Edit
-  </a>
-</td>
-
-</td>
-
-  </tr>
-<% } %>
-</tbody>
-
-        </table>
-
-        <div class="pagination">
-          <div class="pagination-info">
-            Showing <span id="showingStart">1</span>-<span id="showingEnd">0</span> of <span id="totalCount">0</span>
-          </div>
-          <div class="pagination-controls">
-            <button class="pagination-btn" id="prevBtn"><i data-lucide="chevron-left"></i></button>
-            <button class="pagination-btn" id="nextBtn"><i data-lucide="chevron-right"></i></button>
-          </div>
-        </div>
+            <% if (currentPage < totalPages) { %>
+              <li class="page-item"><a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>">Next &raquo;</a></li>
+            <% } %>
+          </ul>
+        </nav>
       </div>
+
     </div>
-  </div> 
+  </div>
 
+  <!-- SweetAlert Script -->
   <script>
-   
-
-    
-  function confirmBlock(productId) {
-    swal({
-      title: "Are you sure?",
-      text: "This product will be blocked!",
-      icon: "warning",
-      buttons: true,
-      dangerMode: true,
-    }).then((willBlock) => {
-      if (willBlock) {
-        window.location.href = `/admin/blockProduct?id=${productId}`;
-      }
-    });
-  }
-
-  function confirmUnblock(productId) {
-    swal({
-      title: "Are you sure?",
-      text: "This product will be unblocked!",
-      icon: "warning",
-      buttons: true,
-      dangerMode: false,
-    }).then((willUnblock) => {
-      if (willUnblock) {
-        window.location.href = `/admin/unblockProduct?id=${productId}`;
-      }
-    });
-  }
-
-
-    lucide.createIcons();
-
-
-
-    let filteredProducts = [...products];
-    let currentPage = 1;
-    const itemsPerPage = 5;
-
-    const tableBody = document.getElementById('tableBody');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const showingStart = document.getElementById('showingStart');
-    const showingEnd = document.getElementById('showingEnd');
-    const totalCount = document.getElementById('totalCount');
-    const searchInput = document.getElementById('searchInput');
-
-    function renderProducts() {
-      const start = (currentPage - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      const pageProducts = filteredProducts.slice(start, end);
-
-      tableBody.innerHTML = pageProducts.map(product => `
-        <tr>
-          <td><div class="product-image"></div></td>
-          <td>${product.name}</td>
-          <td>${product.brand}</td>
-          <td>${product.category}</td>
-          <td>₹${product.price.toFixed(2)}</td>
-          <td>${product.stock}</td>
-          <td>
-            <div class="color-dots">
-              ${product.colors.map(color => `<span class="color-dot color-${color}"></span>`).join('')}
-            </div>
-          </td>
-          <td>
-            <button class="action-btn" onclick="editProduct(${product.id})"><i data-lucide="edit"></i></button>
-            <button class="action-btn" onclick="deleteProduct(${product.id})"><i data-lucide="trash-2"></i></button>
-          </td>
-        </tr>
-      `).join('');
-
-      lucide.createIcons();
-
-      // Update pagination info
-      const totalItems = filteredProducts.length;
-      showingStart.textContent = totalItems > 0 ? start + 1 : 0;
-      showingEnd.textContent = Math.min(end, totalItems);
-      totalCount.textContent = totalItems;
-
-      prevBtn.disabled = currentPage === 1;
-      nextBtn.disabled = end >= totalItems;
+    function confirmBlock(id) {
+      swal({
+        title: "Block product?",
+        text: "This product will not be visible to users.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true
+      }).then((yes) => { if (yes) location.href = `/admin/blockProduct?id=${id}`; });
     }
 
-    function handleSearch() {
-      const term = searchInput.value.toLowerCase();
-      filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(term) || p.brand.toLowerCase().includes(term)
-      );
-      currentPage = 1;
-      renderProducts();
+    function confirmUnblock(id) {
+      swal({
+        title: "Unblock product?",
+        icon: "info",
+        buttons: true
+      }).then((yes) => { if (yes) location.href = `/admin/unblockProduct?id=${id}`; });
     }
-
-    function editProduct(id) {
-      alert("Edit product " + id);
-    }
-
-    function deleteProduct(id) {
-      if (confirm("Are you sure you want to delete this product?")) {
-        products = products.filter(p => p.id !== id);
-        filteredProducts = filteredProducts.filter(p => p.id !== id);
-        renderProducts();
-      }
-    }
-
-    function handlePagination() {
-      prevBtn.addEventListener("click", () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderProducts();
-        }
-      });
-
-      nextBtn.addEventListener("click", () => {
-        if ((currentPage * itemsPerPage) < filteredProducts.length) {
-          currentPage++;
-          renderProducts();
-        }
-      });
-    }
-
-    searchInput.addEventListener("input", handleSearch);
-
-    document.addEventListener("DOMContentLoaded", () => {
-      renderProducts();
-      handlePagination();
-    });
-  </script> 
+  </script>
 </body>
-</html> 

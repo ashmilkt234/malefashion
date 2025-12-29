@@ -1,4 +1,4 @@
-<%- include('../partials/admin/header') %>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,14 +6,18 @@
     <title>Add Products</title>
     <link rel="stylesheet" href="/css/addproduct.css">
     <link rel="stylesheet" href="/css/dashboard.css">
+    
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    <%- include('../partials/admin/header') %>
     <div class="container">
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <button class="back-btn" onclick="goBack()">←</button>
-                <h1 class="header-title">Add Products</h1>
+                <!-- <button class="back-btn" onclick="goBack()">←</button> -->
+                <!-- <h1 class="header-title">Add Products</h1> -->
             </div>
         </div>
 
@@ -85,34 +89,19 @@
                     <div id="description-error" class="error-message"></div>
                 </div>
 
-                <!-- Color -->
-                <div class="form-group">
-                    <label class="form-label">Color</label>
-                    <select class="form-select" name="color">
-                        <option value="">-- Select Color --</option>
-                        <option value="red" <%= product.color === 'red' ? 'selected' : '' %>>Red</option>
-                        <option value="blue" <%= product.color === 'blue' ? 'selected' : '' %>>Blue</option>
-                    </select>
-                    <div id="color-error" class="error-message"></div>
-                </div>
-
-                <!-- Size -->
-                <div class="form-group">
-                    <label class="form-label">Size</label>
-                    <select class="form-select" name="size">
-                        <option value="">-- Select Size --</option>
-                        <option value="M" <%= product.size === 'M' ? 'selected' : '' %>>M</option>
-                        <option value="L" <%= product.size === 'L' ? 'selected' : '' %>>L</option>
-                    </select>
-                </div>
-
+          
                 <!-- Submit -->
                 <button type="submit" class="add-btn">Update Product</button>
             </form>
         </div>
-    </div>
+ 
 
     <script>
+
+
+
+
+
         // Trigger file input
         function triggerFileInput(inputId) {
             document.getElementById(inputId).click();
@@ -213,6 +202,25 @@
                 e.preventDefault();
             }
         });
+document.getElementById('productForm').addEventListener('submit', function (e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    } else {
+        e.preventDefault();
+        swal({
+            title: "Updating...",
+            text: "Please wait",
+            icon: "info",
+            button: false,
+            closeOnClickOutside: false,
+            closeOnEsc: false,
+        });
+        setTimeout(() => this.submit(), 800);
+    }
+});
+
+
+
     </script>
 </body>
 </html>

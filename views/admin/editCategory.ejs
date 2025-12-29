@@ -1,21 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Category - VogueLuxe</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<%- include('../partials/admin/header') %>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/dashboard.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <link rel="stylesheet" href="/css/editCategory.css">
   
 </head>
 <body>
-  <div class="header">
-    <div class="logo">
-      <div class="logo-icon">V</div>
-      VogueLuxe
-    </div>
-    <button class="close-btn" onclick="window.history.back();">&times;</button>
-  </div>
+  
 
   <div class="container">
     <form class="reset-form" method="post" action="#" id="editCategoryForm">
@@ -48,382 +45,172 @@
     </form>
   </div>
 
-  <script>
-    const form = document.getElementById("editCategoryForm");
-    const categoryInput = document.getElementById("categoryName");
-    const descriptionInput = document.getElementById("description");
-    const submitBtn = document.getElementById("submitBtn");
+  <<script>
+const form = document.getElementById("editCategoryForm");
+const categoryInput = document.getElementById("categoryName");
+const descriptionInput = document.getElementById("description");
+const submitBtn = document.getElementById("submitBtn");
 
-    // Dynamic data variables - will be populated from server
-    let originalCategoryName = "";
-    let originalDescription = "";
-    let existingCategories = [];
-    let categoryId = "";
+let originalCategoryName = "";
+let originalDescription = "";
+let existingCategories = [];
+let categoryId = "";
 
-    // Extract category ID from URL
-    const pathSegments = window.location.pathname.split('/');
-    categoryId = pathSegments[pathSegments.length - 1];
+// Get category ID from URL
+const pathSegments = window.location.pathname.split('/');
+categoryId = pathSegments[pathSegments.length - 1];
 
-    // Fetch dynamic data from server
-    async function loadCategoryData() {
-      try {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Loading...";
-        
-        // Fetch current category data
-        const categoryResponse = await fetch(`/admin/api/category/${categoryId}`);
-        if (!categoryResponse.ok) {
-          throw new Error('Failed to fetch category data');
-        }
-        const categoryData = await categoryResponse.json();
-        
-        // Fetch all categories for duplicate check
-        const categoriesResponse = await fetch('/admin/api/categories');
-        if (!categoriesResponse.ok) {
-          throw new Error('Failed to fetch categories list');
-        }
-        const categoriesData = await categoriesResponse.json();
-        
-        // Populate dynamic data
-        originalCategoryName = categoryData.name || "";
-        originalDescription = categoryData.description || "";
-        existingCategories = categoriesData.map(cat => cat.name).filter(name => name !== originalCategoryName);
-        
-        // Populate form fields
-        categoryInput.value = originalCategoryName;
-        descriptionInput.value = originalDescription;
-        
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Update Category";
-        
-        // Initialize validation
-        validateForm();
-        
-      } catch (error) {
-        console.error('Error loading category data:', error);
-        Swal.fire({
-          icon: "error",
-          title: "Loading Error",
-          text: "Failed to load category data. Please refresh the page.",
-          confirmButtonColor: "#333",
-        });
-      }
-    }
+// Load category data from server
+async function loadCategoryData() {
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Loading...";
 
-    // Pure JavaScript validation without HTML attributes
-    function validateCategoryName(value) {
-      const errors = [];
-      const trimmedValue = value ? value.trim() : '';
+    const [categoryRes, categoriesRes] = await Promise.all([
+      fetch(`/admin/api/category/${categoryId}`),
+      fetch('/admin/api/categories')
+    ]);
 
-      // Check if empty
-      if (!trimmedValue) {
-        errors.push('Category name is required');
-        return errors;
-      }
+    if (!categoryRes.ok || !categoriesRes.ok) throw new Error('Failed to load data');
 
-      // Check minimum length
-      if (trimmedValue.length < 2) {
-        errors.push('Category name must be at least 2 characters long');
-      }
+    const categoryData = await categoryRes.json();
+    const categoriesData = await categoriesRes.json();
 
-      // Check maximum length
-      if (trimmedValue.length > 50) {
-        errors.push('Category name must be no more than 50 characters long');
-      }
+    originalCategoryName = categoryData.name || "";
+    originalDescription = categoryData.description || "";
+    existingCategories = categoriesData.map(cat => cat.name)
+                                       .filter(name => name !== originalCategoryName);
 
-      // Check pattern - only letters, numbers, spaces, & and -
-      const validPattern = /^[a-zA-Z0-9\s&-]+$/;
-      if (!validPattern.test(trimmedValue)) {
-        errors.push('Category name can only contain letters, numbers, spaces, & and -');
-      }
+    categoryInput.value = originalCategoryName;
+    descriptionInput.value = originalDescription;
 
-      // Check for duplicate (case-insensitive)
-      const isDuplicate = existingCategories.some(cat => 
-        cat.toLowerCase() === trimmedValue.toLowerCase() && 
-        trimmedValue.toLowerCase() !== originalCategoryName.toLowerCase()
-      );
-      
-      if (isDuplicate) {
-        errors.push('Category name already exists');
-      }
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Update Category";
 
-      return errors;
-    }
-
-    function validateDescription(value) {
-      const errors = [];
-      const trimmedValue = value ? value.trim() : '';
-
-      // Description is optional, but if provided, check max length
-      if (trimmedValue && trimmedValue.length > 500) {
-        errors.push('Description must be no more than 500 characters long');
-      }
-
-      return errors;
-    }
-
-    function showFieldValidation(fieldName, isValid, errors = []) {
-      const input = document.getElementById(fieldName);
-      const icon = document.getElementById(fieldName + 'Icon');
-      const errorDiv = document.getElementById(fieldName + 'Error');
-
-      // Reset classes
-      input.classList.remove('error', 'success');
-      icon.classList.remove('success', 'error');
-      errorDiv.classList.remove('show');
-
-      if (input.value.trim() === '') {
-        // Empty field - neutral state
-        icon.innerHTML = '';
-        errorDiv.textContent = '';
-        return;
-      }
-
-      if (isValid) {
-        input.classList.add('success');
-        icon.classList.add('success');
-        icon.innerHTML = '✓';
-        errorDiv.textContent = '';
-      } else {
-        input.classList.add('error');
-        icon.classList.add('error');
-        icon.innerHTML = '✗';
-        errorDiv.textContent = errors[0] || 'Invalid input';
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function validateForm() {
-      let isFormValid = true;
-
-      // Validate category name using pure JS
-      const categoryNameErrors = validateCategoryName(categoryInput.value);
-      const isCategoryNameValid = categoryNameErrors.length === 0;
-      showFieldValidation('categoryName', isCategoryNameValid, categoryNameErrors);
-      
-      if (!isCategoryNameValid) isFormValid = false;
-
-      // Validate description using pure JS
-      const descriptionErrors = validateDescription(descriptionInput.value);
-      const isDescriptionValid = descriptionErrors.length === 0;
-      showFieldValidation('description', isDescriptionValid, descriptionErrors);
-      
-      if (!isDescriptionValid) isFormValid = false;
-
-      // Update submit button state
-      submitBtn.disabled = !isFormValid;
-
-      return isFormValid;
-    }
-
-    // Real-time validation
-    categoryInput.addEventListener('input', function() {
-      setTimeout(validateForm, 300); // Debounce validation
-    });
-
-    categoryInput.addEventListener('blur', validateForm);
-
-    descriptionInput.addEventListener('input', function() {
-      setTimeout(validateForm, 300);
-    });
-
-    descriptionInput.addEventListener('blur', validateForm);
-
-    // Form submission
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      // Final validation before submission
-      if (!validateForm()) {
-        Swal.fire({
-          icon: "error",
-          title: "Validation Error",
-          text: "Please fix the errors before submitting.",
-          confirmButtonColor: "#333",
-        });
-        return;
-      }
-
-      const categoryName = categoryInput.value.trim();
-      const description = descriptionInput.value.trim();
-
-      // Check if anything actually changed
-      if (categoryName === originalCategoryName && description === originalDescription) {
-        Swal.fire({
-          icon: "info",
-          title: "No Changes",
-          text: "No changes were made to update.",
-          confirmButtonColor: "#333",
-        });
-        return;
-      }
-
-      // Confirmation dialog
-      Swal.fire({
-        title: "Confirm Update",
-        text: `Are you sure you want to update this category to "${categoryName}"?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#333",
-        cancelButtonColor: "#888",
-        confirmButtonText: "Yes, update it!",
-        cancelButtonText: "Cancel"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Show loading state
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Updating...";
-
-          // Submit form data to server
-          try {
-            const formData = new FormData();
-            formData.append('categoryName', categoryName);
-            formData.append('description', description);
-
-            const response = await fetch(`/admin/editCategory/${categoryId}`, {
-              method: 'POST',
-              body: formData
-            });
-
-            if (response.ok) {
-              const result = await response.json();
-              
-              if (result.success) {
-                Swal.fire({
-                  icon: "success",
-                  title: "Updated!",
-                  text: "Category updated successfully.",
-                  confirmButtonColor: "#333",
-                }).then(() => {
-                  // Redirect to categories list
-                  window.location.href = '/admin/categories';
-                });
-              } else {
-                throw new Error(result.message || 'Update failed');
-              }
-            } else {
-              const errorData = await response.json();
-              throw new Error(errorData.message || 'Server error occurred');
-            }
-            
-          } catch (error) {
-            console.error('Update error:', error);
-            Swal.fire({
-              icon: "error",
-              title: "Update Failed",
-              text: error.message || "Failed to update category. Please try again.",
-              confirmButtonColor: "#333",
-            });
-          } finally {
-            // Reset button state
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Update Category";
-          }
-        }
-      });
-    });
-
-    // Load category data when page loads
-    document.addEventListener('DOMContentLoaded', loadCategoryData);
-
-    // Initialize validation on page load (after data is loaded)
-   
-    // Handle success message from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("updated") === "true") {
-      Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        text: "Category updated successfully.",
-        confirmButtonColor: "#333",
-      });
-    }
-
-
-
-      form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      Swal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fix the errors before submitting.",
-        confirmButtonColor: "#333",
-      });
-      return;
-    }
-
-    const categoryName = categoryInput.value.trim();
-    const description = descriptionInput.value.trim();
-
-    if (categoryName === originalCategoryName && description === originalDescription) {
-      Swal.fire({
-        icon: "info",
-        title: "No Changes",
-        text: "No changes were made to update.",
-        confirmButtonColor: "#333",
-      });
-      return;
-    }
-
+    validateForm();
+  } catch (error) {
+    console.error(error);
     Swal.fire({
-      title: "Confirm Update",
-      text: `Are you sure you want to update this category to "${categoryName}"?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#333",
-      cancelButtonColor: "#888",
-      confirmButtonText: "Yes, update it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        (async () => {
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Updating...";
-
-          try {
-            const formData = new FormData();
-            formData.append("categoryName", categoryName);
-            formData.append("description", description);
-
-            const response = await fetch(`/admin/editCategory/${categoryId}`, {
-              method: "POST",
-              body: formData,
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-              Swal.fire({
-                icon: "success",
-                title: "Updated!",
-                text: "Category updated successfully.",
-                confirmButtonColor: "#333",
-              }).then(() => {
-                window.location.href = "/admin/categories";
-              });
-            } else {
-              throw new Error(result.message || "Update failed");
-            }
-          } catch (error) {
-            console.error("Update error:", error);
-            Swal.fire({
-              icon: "error",
-              title: "Update Failed",
-              text: error.message || "Something went wrong.",
-              confirmButtonColor: "#333",
-            });
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Update Category";
-          }
-        })();
-      }
+      icon: "error",
+      title: "Error",
+      text: "Failed to load category data",
+      confirmButtonColor: "#333"
     });
+  }
+}
+
+// Validate category name
+function validateCategoryName(value) {
+  const errors = [];
+  const trimmed = value.trim();
+
+  if (!trimmed) errors.push("Category name is required");
+  if (trimmed.length < 2) errors.push("Category name must be at least 2 characters");
+  if (trimmed.length > 50) errors.push("Category name must be no more than 50 characters");
+  if (!/^[a-zA-Z0-9\s&-]+$/.test(trimmed)) errors.push("Only letters, numbers, spaces, & and - allowed");
+  if (existingCategories.some(cat => cat.toLowerCase() === trimmed.toLowerCase())) errors.push("Category name already exists");
+
+  return errors;
+}
+
+// Validate description
+function validateDescription(value) {
+  const trimmed = value.trim();
+  if (trimmed.length > 500) return ["Description must be less than 500 characters"];
+  return [];
+}
+
+// Show validation feedback
+function showValidation(input, errors) {
+  const errorDiv = document.getElementById(input.id + "Error");
+  if (errors.length > 0) {
+    input.classList.add("error");
+    input.classList.remove("success");
+    errorDiv.textContent = errors[0];
+  } else {
+    input.classList.add("success");
+    input.classList.remove("error");
+    errorDiv.textContent = "";
+  }
+}
+
+// Validate entire form
+function validateForm() {
+  const categoryErrors = validateCategoryName(categoryInput.value);
+  const descriptionErrors = validateDescription(descriptionInput.value);
+
+  showValidation(categoryInput, categoryErrors);
+  showValidation(descriptionInput, descriptionErrors);
+
+  return categoryErrors.length === 0 && descriptionErrors.length === 0;
+}
+
+// Real-time validation
+categoryInput.addEventListener("input", () => validateForm());
+descriptionInput.addEventListener("input", () => validateForm());
+
+// Form submission
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    Swal.fire({ icon: "error", title: "Validation Error", text: "Please fix the errors", confirmButtonColor: "#333" });
+    return;
+  }
+
+  const categoryName = categoryInput.value.trim();
+  const description = descriptionInput.value.trim();
+
+  if (categoryName === originalCategoryName && description === originalDescription) {
+    Swal.fire({ icon: "info", title: "No Changes", text: "Nothing to update", confirmButtonColor: "#333" });
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Confirm Update",
+    text: `Update category to "${categoryName}"?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#333",
+    cancelButtonColor: "#888",
+    confirmButtonText: "Yes, update it!"
   });
-  </script>
+
+  if (result.isConfirmed) {
+    try {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Updating...";
+
+      const formData = new FormData();
+      formData.append("name", categoryName);
+      formData.append("description", description);
+
+      const response = await fetch(`/admin/category/edit/${categoryId}`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        Swal.fire({ icon: "success", title: "Updated!", text: "Category updated successfully", confirmButtonColor: "#333" })
+             .then(() => window.location.href = "/admin/category");
+      } else {
+        throw new Error(data.message || "Update failed");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire({ icon: "error", title: "Update Failed", text: error.message, confirmButtonColor: "#333" });
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Update Category";
+    }
+  }
+});
+
+// Load category data on page load
+document.addEventListener("DOMContentLoaded", loadCategoryData);
+</script>
+
 </body>
 </html>

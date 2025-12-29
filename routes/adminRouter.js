@@ -13,7 +13,7 @@ const uploads = require("../middleware/multerConfig");
 
 // ----------------- Admin Authentication -----------------
 router.get("/login",guestAdmin,adminController.loadLogin);
-router.post("/login",guestAdmin,nocache(),adminController.login);
+router.post("/login",guestAdmin,nocache(),adminController.adminLogin);
 router.get("/logout",adminAuth,adminController.logout)
 
 
@@ -28,7 +28,7 @@ router.get("/dashboard",adminAuth, adminController.loadDashboard);
 
 
 //  Users -----------------
-router.get("/users", adminAuth, adminController.loadUsers);
+router.get("/user", adminAuth, adminController.userList);
 router.get("/user", adminAuth, userController.userInfo);
 router.get("/blockuser",adminAuth,userController.userBlocked)
 router.get("/unblockuser",adminAuth,userController.userunBlocked)
@@ -45,6 +45,7 @@ router.post("/removeCategoryOffer", adminAuth, categoryController.removeCategory
 router.get("/addCategory", adminAuth, categoryController.loadAddCategory)
 router.get("/listCategory",adminAuth,categoryController.getListCategory)
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory)
+router.get("/edit/:id", categoryController.loadEditCategory);
 
 
 // ----------------- Products -----------------

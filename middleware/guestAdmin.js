@@ -1,9 +1,11 @@
-const adminGuest=(req,res,next)=>{
-    if(req.session.adminId){
-        return res.redirect("/admin/dashboard")
-    
-        
+// Middleware to prevent logged-in admins from accessing guest pages (like login)
+const adminGuest = (req, res, next) => {
+    // If admin is already logged in, redirect to dashboard
+    if (req.session.adminId) {
+        return res.redirect("/admin/dashboard");
     }
-    next()
+    // Otherwise, allow access to guest page
+    next();
 }
-module.exports=adminGuest;
+
+module.exports = adminGuest;

@@ -6,57 +6,8 @@
   <title>Admin Portal</title>
   <link rel="stylesheet" href="/css/adminlogin.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    .form-group {
-      position: relative;
-      width: 100%;
-    }
-
-    .input-field {
-      width: 100%;
-      height: 45px;
-      font-size: 16px;
-      padding-right: 45px; /* leave space for icon */
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      width: 20px;
-      height: 20px;
-      background: url("https://img.icons8.com/material-outlined/24/000000/visible--v1.png") no-repeat center;
-      background-size: contain;
-    }
-
-    .password-toggle.hide {
-      background: url("https://img.icons8.com/material-outlined/24/000000/closed-eye.png") no-repeat center;
-      background-size: contain;
-    }
-
-    .login-btn {
-      position: relative;
-    }
-
-    .loading {
-      display: none;
-      margin-left: 10px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #3498db;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      animation: spin 1s linear infinite;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+<link rel="stylesheet" href="/css/adminlogin.css">
+  
 </head>
 <body>
   <div class="particles" id="particles"></div>
@@ -156,15 +107,24 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
         const data = await response.json();
 
-        if (data.success) {
-            window.location.href = '/admin/dashboard';
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: data.message
-            });
-        }
+   if (data.success) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: data.message, // <-- This now shows "Welcome Admin!"
+        timer: 1500,
+        showConfirmButton: false
+    }).then(() => {
+        window.location.href = '/admin/dashboard';
+    });
+} else {
+    Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: data.message
+    });
+}
+
 
     // } catch (error) {
     //     Swal.fire(           {

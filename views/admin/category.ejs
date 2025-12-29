@@ -8,10 +8,21 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Added wrapper -->
-<div class="main-content" style="margin-left: 250px; padding: 20px;">
-  <div class="container mt-5 p-4 bg-white rounded shadow">
+<div class="main-content" style="margin-left: 190px; padding: 80px; margin-top:0;">
+  <div class="container p-4 bg-white rounded shadow" style="margin-top: 10px;">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 style="margin-left: 81px; margin-bottom: -5px;">Category</h3>
+      <h3 style="margin-left: 100px; margin-bottom: -5px;">Category</h3>
+<!--search bar-->
+<div class="search-container">
+  <form action="/admin/category" method="GET">
+    <input type="text" placeholder="Search.." name="search" value="<%= searchQuery || '' %>">
+    <button type="submit"><i class="fa fa-search"></i></button>
+  </form>
+</div>
+
+
+
       <a href="/admin/addCategory" class="btn btn-primary">Add</a>
     </div>
 
@@ -24,6 +35,8 @@
           <th>Offer</th>
           <th>Status</th>
           <th>Action</th>
+          <th>Created Date</th>
+
         </tr>
       </thead>
       <tbody>
@@ -32,6 +45,7 @@
             <td><%= category.name %></td>
             <td><%= category.description %></td>
             <td><%= category.categoryOffer ? category.categoryOffer + '%' : '0%' %></td>
+            <!-- <td><%= category.createdAt.toLocaleDateString('en-IN') %></td> -->
             <td>
               <% if (category.categoryOffer) { %>
                 <button class="btn btn-danger btn-sm" onclick="removeOffer('<%= category._id %>')">Remove</button>
@@ -47,10 +61,13 @@
               <% } %>
             </td>
             <td>
-              <a href="/admin/editCategory/<%= category._id %>" class="text-dark text-decoration-none">
-                <i class="bi bi-pencil-square fs-5">edit</i>
-              </a>
-            </td>
+  <a href="/admin/category/edit/<%= category._id %>" class="text-dark text-decoration-none">
+    <i class="bi bi-pencil-square fs-5">edit</i>
+  </a>
+</td>
+
+           <td> <%= category.createdAt.toLocaleDateString('en-IN') %></td>
+
           </tr>
         <% }) %>
       </tbody>
@@ -78,7 +95,30 @@
   </div>
 </div>
 <!--  End wrapper -->
+<style>
+.search-container {
+  display: flex;
+  justify-content: flex-end;
+}
 
+.search-container input[type=text] {
+  padding: 6px;
+  font-size: 17px;
+  border: none;
+}
+
+.search-container button {
+  padding: 6px 10px;
+  background: #ddd;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.search-container button:hover {
+  background: #ccc;
+}
+</style>
 <script>
   async function addOffer(categoryId) {
     const { value: amount } = await Swal.fire({

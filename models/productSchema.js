@@ -19,10 +19,10 @@ const productSchema = new Schema(
       ref: "Category",
       required: true,
     },
-size: {
-  type: [String], // or String, if only one size per product
-  required: true,
-},
+// size: {
+//   type: [String], // or String, if only one size per product
+//   required: true,
+// },
     salesPrice: {
       type: Number,
       required: true,
@@ -40,10 +40,10 @@ size: {
       min: 0,
       default: 1,
     },
-    color: {
-      type: String,
-      required: true,
-    },
+    // color: {
+    //   type: String,
+    //   required: true,
+    // },
     productImage: {
       type: [String], // Changed to array for multiple images
       required: true,

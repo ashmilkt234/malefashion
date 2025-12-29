@@ -1,562 +1,146 @@
+<%- include('../partials/admin/header') %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VogueLuse - Add Category</title>
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #2d3748;
-            color: #333;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: #1a202c;
-            padding: 20px 0;
-            position: fixed;
-            height: 100%;
-            left: 0;
-            top: 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            padding: 0 20px 30px;
-            border-bottom: 1px solid #2d3748;
-            margin-bottom: 20px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background-color: #fff;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-weight: bold;
-            font-size: 16px;
-            color: #000;
-        }
-
-        .logo-text {
-            color: #fff;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 5px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: #a0aec0;
-            text-decoration: none;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
-
-              text-decoration: none; /* Removes underline */
-    color: inherit;        /* Keeps text color based on theme */
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    border-left: 3px solid transparent;
-    transition: all 0.2
-        }
-
-        .nav-link:hover {
-            background-color: #2d3748;
-            color: #fff;
-        }
-
-        .nav-link.active {
-            background-color: #2d3748;
-            color: #4299e1;
-            border-left-color: #4299e1;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            opacity: 0.7;
-        }
-
-        .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-
-        .logout-btn:hover {
-            background-color: #333;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            background-color: #f7fafc;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .header {
-            background-color: #fff;
-            padding: 20px 30px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .search-container {
-            position: relative;
-            flex: 1;
-            max-width: 400px;
-            margin: 0 30px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #f7fafc;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0aec0;
-        }
-
-        .user-profile {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #4299e1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .content {
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #4a5568;
-            cursor: pointer;
-            margin-right: 15px;
-            padding: 5px;
-            transition: color 0.2s;
-        }
-
-        .back-btn:hover {
-            color: #2d3748;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        /* Form Container */
-        .form-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #4a5568;
-            font-size: 14px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #f7fafc;
-            transition: all 0.2s;
-            color: #2d3748;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #4299e1;
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-        }
-
-        .form-input::placeholder {
-            color: #a0aec0;
-        }
-
-        .submit-btn {
-            width: 100%;
-            background-color: #2d3748;
-            color: #fff;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            margin-top: 20px;
-        }
-
-        .submit-btn:hover {
-            background-color: #1a202c;
-        }
-
-        .submit-btn:active {
-            transform: translateY(1px);
-        }
-
-        /* Success Message */
-        /* .success-message {
-            background-color: #10b981;
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            animation: slideDown 0.3s ease;
-        } */
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Error Message */
-        .error-message {
-            background-color: #ef4444;
-            color: #fff;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        /* Validation Styles */
-        .form-input.error {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
-
-        .form-input.success {
-            border-color: #10b981;
-            background-color: #f0fdf4;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .header {
-                padding: 15px;
-            }
-
-            .search-container {
-                margin: 0 15px;
-                max-width: 200px;
-            }
-
-            .content {
-                padding: 15px;
-            }
-
-            .form-container {
-                padding: 30px 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-icon">V</div>
-                <span class="logo-text">VogueLuse</span>
-            </div>
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="/admin/dashboard" class="nav-link">
-                            <span class="nav-icon">📊</span>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/product" class="nav-link">
-                            <span class="nav-icon">📦</span>
-                            Products
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/user" class="nav-link">
-                            <span class="nav-icon">👥</span>
-                            Users
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/order" class="nav-link">
-                            <span class="nav-icon">📋</span>
-                            Orders
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/category" class="nav-link active">
-                            <span class="nav-icon">📁</span>
-                            Category
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">🎫</span>
-                            Coupons
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <span class="nav-icon">💼</span>
-                            Offers
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="header">
-                <h1 class="header-title">Setting</h1>
-                <div class="search-container">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Search for something">
-                </div>
-                <div class="user-profile">A</div>
-            </header>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="/css/addcategory.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
+    
 
             <div class="content">
-                <div class="form-container">
-                    <div class="page-header">
-                        <button class="back-btn" onclick="goBack()">←</button>
-                        <h2 class="page-title">Add Category</h2>
-                    </div>
+           
+  <div class="form-container">
+    
+    <h2 class="form-title">Add Category</h2>
+<form id="addCategoryForm">
 
-                    <div class="success-message" id="successMessage">
-                        <!-- Category added successfully! -->
-                    </div>
+  <div class="form-group">
+    <label>Category</label>
+    <input type="text" id="name" name="name" placeholder="Enter category name" autocomplete="off">
+    <small class="error" id="nameError"></small>
+  </div>
 
-                    <div class="error-message" id="errorMessage">
-                        Please fill in all required fields.
-                    </div>
+  <div class="form-group">
+    <label>Description</label>
+    <input type="text" id="description" name="description" placeholder="Enter description">
+    <small class="error" id="descError"></small>
+  </div>
 
-                <form id="addCategoryForm" action="/admin/addCategory" method="post">
+  <div class="form-group">
+    <label>Category Offer (%)</label>
+    <input type="number" id="categoryOffer" name="categoryOffer" min="0" max="90">
+    <small class="error" id="offerError"></small>
+  </div>
 
-                        <div class="form-group">
-                            <label for="name" class="form-label">Category</label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name"
-                                class="form-input" 
-                                placeholder="Enter category name"
-                              
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description" class="form-label">Description</label>
-                            <input 
-                                type="text" 
-                                id="description" 
-                                name="description"
-                                class="form-input" 
-                                placeholder="Enter description"
-                             
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoryOffer" class="form-label">Category Offer (%)</label>
-                            <input 
-                                type="number" 
-                                id="categoryOffer" 
-                                name="categoryOffer"
-                                class="form-input" 
-                                placeholder="Enter offer percentage (optional)"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                            >
-                        </div>
-
-                        <button type="submit" class="submit-btn" >Add Now</button>
-                    </form>
-                </div>
-            </div>
-        </main>
+  <button type="submit" class="btn-submit">Add Now</button>
+</form>
     </div>
+     </div>
+
+
 
 
 <script>
-    const form = document.getElementById('addCategoryForm');
+const form = document.getElementById('addCategoryForm');
+const submitBtn = document.querySelector('.btn-submit');
 
-    form.addEventListener('submit', async function (e) {
-        e.preventDefault();
+const nameInput = document.getElementById('name');
+const descInput = document.getElementById('description');
+const offerInput = document.getElementById('categoryOffer');
 
-        const name = document.getElementById('name').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const offer = document.getElementById('categoryOffer').value.trim();
+function setError(input, message, errorId) {
+    input.classList.add('error-input');
+    input.classList.remove('success-input');
+    document.getElementById(errorId).innerText = message;
+}
 
-        if (!name || !description) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Please fill in all required fields.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-            return;c
+function setSuccess(input, errorId) {
+    input.classList.remove('error-input');
+    input.classList.add('success-input');
+    document.getElementById(errorId).innerText = '';
+}
+
+// Live validation
+nameInput.addEventListener('input', () => {
+    if (nameInput.value.trim().length < 3) {
+        setError(nameInput, 'Minimum 3 characters', 'nameError');
+    } else {
+        setSuccess(nameInput, 'nameError');
+    }
+});
+
+descInput.addEventListener('input', () => {
+    if (!descInput.value.trim()) {
+        setError(descInput, 'Description is required', 'descError');
+    } else {
+        setSuccess(descInput, 'descError');
+    }
+});
+
+offerInput.addEventListener('input', () => {
+    const value = Number(offerInput.value);
+    if (value < 0 || value > 90) {
+        setError(offerInput, 'Offer must be 0–90', 'offerError');
+    } else {
+        setSuccess(offerInput, 'offerError');
+    }
+});
+
+// Submit
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+
+    const name = nameInput.value.trim();
+    const description = descInput.value.trim();
+    const offer = Number(offerInput.value) || 0;
+
+    let valid = true;
+
+    if (name.length < 3) {
+        setError(nameInput, 'Minimum 3 characters', 'nameError');
+        valid = false;
+    }
+
+    if (!description) {
+        setError(descInput, 'Description is required', 'descError');
+        valid = false;
+    }
+
+    if (offer < 0 || offer > 90) {
+        setError(offerInput, 'Offer must be 0–90', 'offerError');
+        valid = false;
+    }
+
+    if (!valid) {
+        submitBtn.disabled = false;
+        return;
+    }
+
+    try {
+        const response = await fetch('/admin/addCategory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, description, categoryOffer: offer })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire('Success', result.message, 'success')
+                .then(() => window.location.href = '/admin/category');
+        } else {
+            Swal.fire('Error', result.message, 'error');
         }
-
-        const categoryData = {
-            name,
-            description,
-            categoryOffer: offer || 0
-        };
-
-        try {
-            const response = await fetch('/admin/addCategory', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(categoryData)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: result.message || 'Category added successfully!',
-                    icon: 'success',
-                    confirmButtonText: 'Go to Category Page'
-                }).then(() => {
-                    window.location.href = '/admin/category';
-                });
-            } else {
-                throw new Error(result.message || 'Error adding category');
-            }
-        } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: error.message,
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        }
-    });
+    } catch {
+        Swal.fire('Error', 'Server error', 'error');
+    } finally {
+        submitBtn.disabled = false;
+    }
+});
 </script>
-
 
 
 </body>

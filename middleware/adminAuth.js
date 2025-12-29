@@ -1,28 +1,31 @@
 const User = require("../models/userSchema");
 
+// Middleware to protect admin routes
 const adminAuth = async (req, res, next) => {
   try {
-    // 1. Check admin session
+    //  Check if admin session exists
     if (!req.session.adminId || !req.session.isAdmin) {
       return res.redirect("/admin/login");
     }
 
-    // 2. Find admin using adminId
+    //  Get admin data from DB
     const admin = await User.findById(req.session.adminId);
 
-    // 3. If admin not found or blocked
+    //  If admin doesn't exist or is blocked, destroy session and redirect
     if (!admin || admin.isBlocked) {
       req.session.destroy(() => {});
       return res.redirect("/admin/login");
     }
 
-    // 4. Extra safety: role check
+    //  Extra safety: check if user really has admin role
     if (!admin.isAdmin) {
       return res.redirect("/admin/login?error=Unauthorized");
     }
 
-    // 5. Attach admin to request
+    //  Attach admin info to request for use in route handlers
     req.admin = admin;
+
+    // 6Proceed to next middleware/route
     next();
 
   } catch (error) {

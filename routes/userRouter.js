@@ -4,6 +4,9 @@ const userController = require("../controllers/user/userController");
 const productControlleruser = require("../controllers/user/productControlleruser");
 const userProfile= require('../controllers/user/userProfile.js')
 const passport = require("passport");
+// Make sure path and export match
+
+
 // const userAuth = require("../middleware/userAuth.js");
 const guestAuth=require("../middleware/guestUserAuth.js")
 

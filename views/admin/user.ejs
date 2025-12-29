@@ -16,7 +16,7 @@
         <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
     <input type="text" class="form-control border-0 rounded-pill" 
        placeholder="Search customers..." 
-       name="search" value="<%= query %>">
+       name="search" value="">
 
             <button class="btn border-0" type="submit">Search</button>
         </div>
@@ -28,52 +28,56 @@
     <table class="user-table">
         
         <thead>
-
+<input type="text" class="form-control border-0 rounded-pill" 
+       placeholder="Search customers..." 
+       name="search" 
+       value="<%= typeof search !== 'undefined' ? search : (typeof query !== 'undefined' ? query : '') %>">
             
-            <tr>
-           
-                <th>Profile</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% for(let i = 0; i < data.length; i++) { %>
-                <tr>
-                    <td>
-                        <div class="profile-icon <%= data[i].isBlocked ? 'blocked' : 'active' %>">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                    </td>
-                    <td><%= data[i].name %></td>
-                    <td><%= data[i].email %></td>
-                    <td>
-                        <% if(data[i].isBlocked === false) { %>
-  <a href="#" class="action-button block-user red" data-id="<%= data[i].id %>" data-action="block">Block</a>
-<% } else { %>
-  <a href="#" class="action-button unblock-user" data-id="<%= data[i].id %>" data-action="unblock">Unblock</a>
-<% } %>
+        <table class="table table-bordered text-center">
+  <thead class="table-dark">
+    <tr>
+      <th>No</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach((user, index) => { %>
+      <tr>
+        <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td>
+          <a href="/admin/block/<%= user._id %>" class="btn btn-warning btn-sm">Block</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
 
-                    </td>
-                </tr>
-            <% } %>
-        </tbody>
-    </table>
+<!-- Pagination UI -->
+<div class="d-flex justify-content-center mt-4">
+  <nav aria-label="User pagination">
+    <ul class="pagination">
+      <% if (currentPage > 1) { %>
+        <li class="page-item"><a class="page-link" href="?page=<%= currentPage - 1 %>">&laquo; Previous</a></li>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <% if (i === currentPage) { %>
+          <li class="page-item active"><span class="page-link"><%= i %></span></li>
+        <% } else { %>
+          <li class="page-item"><a class="page-link" href="?page=<%= i %>"><%= i %></a></li>
+        <% } %>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <li class="page-item"><a class="page-link" href="?page=<%= currentPage + 1 %>">Next &raquo;</a></li>
+      <% } %>
+    </ul>
+  </nav>
 </div>
-
-<div class="pagination-controls">
-    <% if (totalPages && totalPages > 1) { %>
-        <ul class="pagination">
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <li class="<%= (i === currentPage) ? 'active' : '' %>">
-                    <a href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-        </ul>
-    <% } %>
-</div>
-
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.block-user, .unblock-user').forEach(button => {
@@ -83,32 +87,34 @@
         const userId = this.dataset.id;
         const action = this.dataset.action;
         const url = `/admin/${action}user?id=${userId}`;
-        const confirmText = action === 'block' ? 'block this user' : 'unblock this user';
+      const confirmText = action === 'block' ? 'block this user' : 'unblock this user';
 
+Swal.fire({
+  title: `Are you sure you want to ${confirmText}?`,
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Yes',
+  cancelButtonText: 'No',
+}).then(async (result) => {
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch(url, { method: 'POST' });
+      const data = await response.json();
+
+      if (data.success) {
         Swal.fire({
-          title: 'Are you sure blocked user?',
-          html: `
-            
-          `,
-          iconHtml: '<i class="fas fa-user-shield" style="font-size: 36px; color:#0077;"></i>',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-          customClass: {
-            popup: 'swal2-uac-popup',
-            confirmButton: 'swal2-uac-yes',
-            cancelButton: 'swal2-uac-no'
-          },
-          buttonsStyling: false,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = url;
-          }
-        });
-      });
-    });
-  });
-  
+          icon: 'success',
+          title: `User ${action}ed!`,
+          text: data.message,
+        }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
+    }
+  }
+});
 
   
 </script>

@@ -342,24 +342,21 @@ const login = async (req, res) => {
         const findUser = await User.findOne({ isAdmin: false, email });
 
         if (!findUser) {
-            req.session.error = "User not found";
-            return res.redirect("/login");
+        return res.json({success:false, message:"User not found"})
         }
 
         if (findUser.isBlocked) {
-            req.session.error = "User is blocked by admin";
-            return res.redirect("/login");
+        return res.json({success:false,message:"User blocked by admin"})
         }
 
         const passwordMatch = await bcrypt.compare(password, findUser.password);
         if (!passwordMatch) {
-            req.session.error = "Incorrect password";
-            return res.redirect("/login");
+             return res.json({ success: false, message: "Incorrect password" });
         }
 
         req.session.user = findUser._id;
         req.session.isAdmin=false;
-        req.session.success = "Logged in successfully!";
+   res.json({ success: true, message: "Login successful" });
         return res.redirect("/");
     } catch (error) {
         console.error("Login error:", error);

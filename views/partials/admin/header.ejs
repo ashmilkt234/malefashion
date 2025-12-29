@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- =============== HEADER =============== -->
     <header class="header">
         <div class="logo">
@@ -62,10 +64,41 @@
                 </a>
             </li> 
         </ul>
-       <div class="logout-section">
-    <a href="/admin/login" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i>
-        <span>Logout</span>
-    </a>
+   <div class="logout-section">
+  <button id="logoutBtn" class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+  </button>
 </div>
     </aside>
+    <body>
+        
+        <script>
+            
+document.getElementById("logoutBtn").addEventListener("click", function () {
+  Swal.fire({
+    title: "Logout?",
+    text: "Are you sure you want to logout?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch("/admin/logout")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire("Logged out!", "See you again 👋", "success")
+              .then(() => {
+                window.location.href = "/admin/login";
+              });
+          }
+        });
+    }
+  });
+});
+</script>
+
+        
+    </body>

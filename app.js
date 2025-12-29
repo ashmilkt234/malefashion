@@ -63,7 +63,7 @@ app.set("views", [
 //Routes
 app.use("/admin",adminRouter)
 app.use("/",userRouter);
-
+app.use("/admin/category",adminRouter)
 app.use(setUserData)
 
 
