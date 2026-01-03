@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="/css/style.css" type="text/css">
   <link rel="stylesheet" href="/css/header.css" type="text/css">
   <link rel="stylesheet" href="/css/productdetail.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
 
 </head>
 <body>
@@ -49,12 +51,20 @@
         <% }) %>
       </div>
 
-   <div class="main-img-container">
+   <!-- <div class="main-img-container">
   <img id="mainImage" class="main-img"
        src="/Uploads/product-images/<%= product.productImage[0] %>"
        data-zoom-image="/Uploads/product-images/<%= product.productImage[0] %>"
        alt="<%= product.productName %>">
-</div>
+</div> -->
+
+<img
+  id="mainImage"
+  class="main-img zoom-img"
+  src="/uploads/product-images/<%= product.productImage[0] %>"
+  data-zoom-image="/uploads/product-images/<%= product.productImage[0] %>"
+  alt="<%= product.productName %>"
+>
 
 
       <!-- Product Info -->
@@ -77,12 +87,23 @@
             <i class="fa fa-heart-o"></i>
           </button>
         </div>
+<div class="price-section">
+  <span 
+    class="price" 
+    id="totalPrice" 
+    data-base-price="<%= product.salesPrice %>">
+    ₹<%= product.salesPrice %>
+  </span>
 
-        <div class="price-section">
-          <span class="price">₹<%= product.salesPrice %></span>
-          <span class="original-price">₹<%= Math.round(product.salesPrice * 1.3) %></span>
-        </div>
+  <span 
+    class="original-price" 
+    id="originalPrice"
+    data-original-price="<%= Math.round(product.salesPrice * 1.3) %>">
+    ₹<%= Math.round(product.salesPrice * 1.3) %>
+  </span>
+</div>
 
+      
         <p class="product-description">
           <%= product.about || 'Oxford cotton shirt with a button-down collar, chest pocket, and long sleeves. Regular fit with a classic silhouette.' %>
         </p>
@@ -96,7 +117,7 @@
 <div class="action-section">
   <div class="quantity-selector">
     <button onclick="decreaseQty()">−</button>
-    <input type="number" id="quantity" value="2" min="1" readonly>
+    <input type="number" id="quantity" value="1" min="1" readonly>
     <button onclick="increaseQty()">+</button>
   </div>
   <a href="#" class="btn btn-cart">Add to Cart</a>
@@ -202,6 +223,32 @@
   <script>
 
 
+
+function updatePrice() {
+  const qty = parseInt(document.getElementById("quantity").value);
+
+  const priceEl = document.getElementById("totalPrice");
+  const originalEl = document.getElementById("originalPrice");
+
+  const basePrice = parseFloat(priceEl.dataset.basePrice);
+  const originalPrice = parseFloat(originalEl.dataset.originalPrice);
+
+  const totalPrice = basePrice * qty;
+  const totalOriginal = originalPrice * qty;
+
+  priceEl.innerText = `₹${totalPrice.toLocaleString("en-IN")}`;
+  originalEl.innerText = `₹${totalOriginal.toLocaleString("en-IN")}`;
+}
+
+function increaseQty() {
+  const input = document.getElementById("quantity");
+  input.value = parseInt(input.value) + 1;
+  updatePrice();
+}
+
+
+
+
 function changeImage(img) {
   const mainImg = $("#mainImage");
 
@@ -234,13 +281,6 @@ function changeImage(img) {
       evt.currentTarget.classList.add('active');
     }
 
-    function changeImage(img) {
-      document.getElementById("mainImage").src = img.src;
-      document.querySelectorAll('.thumbnail-column img').forEach(thumb => {
-        thumb.classList.remove('active');
-      });
-      img.classList.add('active');
-    }
 
  
 
@@ -251,15 +291,13 @@ function changeImage(img) {
       element.classList.add('active');
     }
 
-    function increaseQty() {
-      const input = document.getElementById('quantity');
-      input.value = parseInt(input.value) + 1;
-    }
+  
 
     function decreaseQty() {
       const input = document.getElementById('quantity');
       if (parseInt(input.value) > 1) {
         input.value = parseInt(input.value) - 1;
+         updatePrice();
       }
     }
 
@@ -278,7 +316,8 @@ function selectSize(element) {
   element.classList.add('active');
 }
 
-$(document).ready(function(){
+
+$(function () {
   $("#mainImage").elevateZoom({
     zoomType: "lens",
     lensShape: "round",
@@ -286,7 +325,6 @@ $(document).ready(function(){
     scrollZoom: true
   });
 });
-
 
 
   </script>

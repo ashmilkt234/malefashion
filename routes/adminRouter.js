@@ -8,7 +8,8 @@ const adminAuth=require("../middleware/adminAuth")
 const guestAdmin=require("../middleware/guestAdmin")
 const nocache = require("nocache");
 const uploads = require("../middleware/multerConfig"); 
-
+const multer=require("multer")
+const upload=multer()
 
 
 // ----------------- Admin Authentication -----------------
@@ -29,9 +30,9 @@ router.get("/dashboard",adminAuth, adminController.loadDashboard);
 
 //  Users -----------------
 router.get("/user", adminAuth, adminController.userList);
-router.get("/user", adminAuth, userController.userInfo);
-router.get("/blockuser",adminAuth,userController.userBlocked)
-router.get("/unblockuser",adminAuth,userController.userunBlocked)
+router.get("/user/:id", adminAuth, userController.userInfo);
+router.post("/user/:id/blockuser",adminAuth,userController.userBlocked)
+router.post("/user/:id/unblockuser",adminAuth,userController.userunBlocked)
 router.post("/logout", adminAuth, adminController.logout);
 router.post("/block/:userId", adminAuth, adminController.blockUser);
 router.post("/unblock/:userId", adminAuth, adminController.unblockUser);
@@ -45,13 +46,13 @@ router.post("/removeCategoryOffer", adminAuth, categoryController.removeCategory
 router.get("/addCategory", adminAuth, categoryController.loadAddCategory)
 router.get("/listCategory",adminAuth,categoryController.getListCategory)
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory)
-router.get("/edit/:id", categoryController.loadEditCategory);
-
+router.get("/edit/:id" ,adminAuth,categoryController.loadEditCategory);
+router.post("/edit/:id",adminAuth,upload.none(),categoryController.editCategory)
 
 // ----------------- Products -----------------
 
 router.get("/addProduct",adminAuth,productController.getProductAddPage)
-router.get("/product/:id",adminAuth,productController.getProduct)
+// router.get("/product/:id",adminAuth,productController.getProduct)
 router.post("/addProduct",adminAuth,uploads.array("productImage",3),productController.addProducts)
 router.get("/product",adminAuth,productController.getAllProducts)
 router.get("/blockProduct",adminAuth,productController.blockProduct)

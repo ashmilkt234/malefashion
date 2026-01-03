@@ -5,7 +5,7 @@ const Category = require("../../models/categorySchema");
 // Import required packages
 const fs = require("fs");
 const path = require("path");
-const sharp = require("sharp"); // used for image resize (optional)
+const sharp = require("sharp"); // used for image resize
 
 
 
@@ -25,22 +25,6 @@ const getProductAddPage = async (req, res) => {
   }
 };
 
-
-
-
-// ================= Get All Products =================
-const getProduct = async (req, res) => {
-  try {
-    // Get all products with category details
-    const products = await Product.find().populate("category");
-
-    // Render product page
-    res.render("admin/product", { data: products });
-  } catch (error) {
-    console.error(error);
-    res.render("admin/pageerror");
-  }
-};
 
 
 
@@ -70,7 +54,18 @@ const addProducts = async (req, res) => {
 
     // Save image names
     if (req.files && req.files.length > 0) {
-      images = req.files.map(file => file.filename);
+      for(let file of req.files){
+        const filename=Date.now()+"-"+file.originalname
+          // Resize/crop image to 500x500
+        await sharp(file.buffer)
+          .resize(500, 500, { fit: "cover" }) // crops to square
+          .jpeg({ quality: 90 })
+          .toFile(path.join(uploadPath, filename));
+
+        images.push(filename);
+        console.log(images)
+      }
+      
     }
 
     // Get category ID
@@ -83,8 +78,7 @@ const addProducts = async (req, res) => {
       description: products.description,
       category: categoryId._id,
       salesPrice: products.salesPrice,
-      quantity: products.quantity,
-      size: products.size,
+      quantity: Number(products.quantity),
       productImage: images,
       status: "Available",
       createdOn: new Date(),
@@ -194,7 +188,7 @@ const editProduct = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
 
-    // Check duplicate product name
+    // Check duplicate product name except current product
     const exists = await Product.findOne({
       productName: data.productName,
       _id: { $ne: id }
@@ -204,35 +198,35 @@ const editProduct = async (req, res) => {
       return res.status(400).json({ error: "Product already exists" });
     }
 
-    // Collect new images
-    const images = [];
-    if (req.files) {
-      req.files.forEach(file => images.push(file.filename));
-    }
+    // Find existing product
+    const product = await Product.findById(id);
+if(!product){
+  return res.redirect("/pageerror")
+}
+ 
+     // Uploaded images
+  const newImages = req.files?.map(file => file.filename) || [];
 
-    // Update fields
-    const updateData = {
+
+    // If images .
+   const finalImages =
+      newImages.length > 0 ? newImages : product.productImage;
+    // Update data
+    await Product.findByIdAndUpdate(id, {
       productName: data.productName,
-      description: data.description,
-      salesPrice: data.salesPrice,
-      quantity: data.quantity,
-      size: data.size
-    };
+      category:data.category,
+       description: data.description,
+      salesPrice: data.salesPrice,  
+      quantity: Number(data.quantity),
+     
+      productImage: finalImages           
+    });
 
-    // Update product
-    if (images.length > 0) {
-      await Product.findByIdAndUpdate(id, {
-        $set: updateData,
-        $push: { productImage: { $each: images } }
-      });
-    } else {
-      await Product.findByIdAndUpdate(id, { $set: updateData });
-    }
-
-    res.redirect("/admin/product?updated=true");
+    return res.redirect("/admin/product?updated=true");
+    
   } catch (error) {
-    console.error(error);
-    res.redirect("/pageerror");
+    console.log("Edit Product Error =>", error);
+    return res.redirect("/pageerror");
   }
 };
 
@@ -270,7 +264,6 @@ const deleteSingleImage = async (req, res) => {
 // Export functions
 module.exports = {
   getProductAddPage,
-  getProduct,
   addProducts,
   getAllProducts,
   blockProduct,

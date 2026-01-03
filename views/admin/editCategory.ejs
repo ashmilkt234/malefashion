@@ -10,32 +10,33 @@
 
   <link rel="stylesheet" href="/css/editCategory.css">
   
-</head>
-<body>
+
   
 
   <div class="container">
-    <form class="reset-form" method="post" action="#" id="editCategoryForm">
+    <form class="reset-form" method="post" action="/admin/category/edit/<%= category._id %>" id="editCategoryForm">
+
       <h2 class="form-title">Edit Category</h2>
 
       <div class="form-group">
-        <input
-          type="text"
-          name="categoryName"
-          class="form-input"
-          id="categoryName"
-          placeholder="Category Name" >
+       <input
+  type="text"
+  name="name"
+  class="form-input"
+  id="categoryName"
+  value="<%= category.name %>"
+  placeholder="Category Name" >
         <span class="validation-icon" id="categoryNameIcon"></span>
         <div class="error-message" id="categoryNameError"></div>
       </div>
 
       <div class="form-group">
         <textarea
-          name="description"
-          class="form-input"
-          id="description"
-          placeholder="Description (Optional)"
-          rows="4"></textarea>
+  name="description"
+  class="form-input"
+  id="description"
+  placeholder="Description (Optional)"
+  rows="4"><%= category.description %></textarea>
   
         <span class="validation-icon" id="descriptionIcon"></span>
         <div class="error-message" id="descriptionError"></div>
@@ -45,7 +46,7 @@
     </form>
   </div>
 
-  <<script>
+  <script>
 const form = document.getElementById("editCategoryForm");
 const categoryInput = document.getElementById("categoryName");
 const descriptionInput = document.getElementById("description");
@@ -61,43 +62,7 @@ const pathSegments = window.location.pathname.split('/');
 categoryId = pathSegments[pathSegments.length - 1];
 
 // Load category data from server
-async function loadCategoryData() {
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Loading...";
 
-    const [categoryRes, categoriesRes] = await Promise.all([
-      fetch(`/admin/api/category/${categoryId}`),
-      fetch('/admin/api/categories')
-    ]);
-
-    if (!categoryRes.ok || !categoriesRes.ok) throw new Error('Failed to load data');
-
-    const categoryData = await categoryRes.json();
-    const categoriesData = await categoriesRes.json();
-
-    originalCategoryName = categoryData.name || "";
-    originalDescription = categoryData.description || "";
-    existingCategories = categoriesData.map(cat => cat.name)
-                                       .filter(name => name !== originalCategoryName);
-
-    categoryInput.value = originalCategoryName;
-    descriptionInput.value = originalDescription;
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Update Category";
-
-    validateForm();
-  } catch (error) {
-    console.error(error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Failed to load category data",
-      confirmButtonColor: "#333"
-    });
-  }
-}
 
 // Validate category name
 function validateCategoryName(value) {
@@ -171,8 +136,8 @@ form.addEventListener("submit", async (e) => {
     text: `Update category to "${categoryName}"?`,
     icon: "question",
     showCancelButton: true,
-    confirmButtonColor: "#333",
-    cancelButtonColor: "#888",
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "#28a745",
     confirmButtonText: "Yes, update it!"
   });
 
@@ -185,10 +150,11 @@ form.addEventListener("submit", async (e) => {
       formData.append("name", categoryName);
       formData.append("description", description);
 
-      const response = await fetch(`/admin/category/edit/${categoryId}`, {
-        method: "POST",
-        body: formData
-      });
+  
+      const response = await fetch(`/admin/edit/${categoryId}`, {
+  method: "POST",
+  body: formData
+});
 
       const data = await response.json();
 
@@ -208,8 +174,7 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Load category data on page load
-document.addEventListener("DOMContentLoaded", loadCategoryData);
+
 </script>
 
 </body>

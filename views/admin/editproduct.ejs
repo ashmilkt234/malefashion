@@ -1,227 +1,112 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Products</title>
+    <title>Edit Product</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="/css/addproduct.css">
     <link rel="stylesheet" href="/css/dashboard.css">
-    
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-    <%- include('../partials/admin/header') %>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <!-- <button class="back-btn" onclick="goBack()">←</button> -->
-                <!-- <h1 class="header-title">Add Products</h1> -->
-            </div>
-        </div>
 
-        <!-- Form -->
+    <!-- Icons & Alerts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <!-- Header (Include Only Once Here) -->
+    <%- include('../partials/admin/header') %>
+
+    <div class="container">
+
         <div class="form-container">
-            <form id="productForm" method="POST" action="/admin/editProduct/<%= product._id %>" enctype="multipart/form-data">
+            <form id="productForm" method="POST"
+                  action="/admin/editProduct/<%= product._id %>"
+                  enctype="multipart/form-data">
+
                 <!-- Image Upload Section -->
                 <div class="upload-section">
                     <div class="upload-grid">
-                        <div class="upload-box" onclick="triggerFileInput('photo1')">
-                            <div class="camera-icon">📷</div>
+                        <% for(let i = 0; i < 3; i++) { %>
+                        <div class="upload-box" onclick="triggerFileInput('photo<%= i+1 %>')">
+                            <% if(product.images && product.images[i]) { %>
+                                <img src="/uploads/<%= product.images[i] %>" 
+                                     style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+                            <% } else { %>
+                                <div class="camera-icon">📷</div>
+                            <% } %>
                         </div>
-                        <div class="upload-box" onclick="triggerFileInput('photo2')">
-                            <div class="camera-icon">📷</div>
-                        </div>
-                        <div class="upload-box" onclick="triggerFileInput('photo3')">
-                            <div class="camera-icon">📷</div>
-                        </div>
-                    </div>
-                    <div class="upload-labels">
-                        <div class="upload-label">Upload Photo 1</div>
-                        <div class="upload-label">Upload Photo 2</div>
-                        <div class="upload-label">Upload Photo 3</div>
+                        <% } %>
                     </div>
                 </div>
 
                 <!-- File Inputs -->
-                <input type="file" name="productImage" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
-                <input type="file" name="productImage" id="photo2" class="file-input" accept="image/*" onchange="handleFileUpload(this, 1)">
-                <input type="file" name="productImage" id="photo3" class="file-input" accept="image/*" onchange="handleFileUpload(this, 2)">
+                <input type="file" name="productImage[]" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
+                <input type="file" name="productImage[]" id="photo2" class="file-input" accept="image/*" onchange="handleFileUpload(this, 1)">
+                <input type="file" name="productImage[]" id="photo3" class="file-input" accept="image/*" onchange="handleFileUpload(this, 2)">
 
-                <!-- Product Name -->
+
+
+                <!-- Name -->
                 <div class="form-group">
                     <label class="form-label">Product Name</label>
-                    <input type="text" name="productName" class="form-input" placeholder="Enter product name" value="<%= product.productName %>">
-                    <div id="productName-error" class="error-message"></div>
+                    <input type="text" name="productName" class="form-input"
+                           value="<%= product.productName %>">
                 </div>
 
                 <!-- Category -->
                 <div class="form-group">
                     <label class="form-label">Category</label>
-                    <select class="form-select" name="category">
-                        <option value="">-- Select Category --</option>
-                        <% for(let i = 0; i < category.length; i++) { %>
-                            <option value="<%= category[i].name %>" <%= product.category === category[i].name ? 'selected' : '' %>><%= category[i].name %></option>
-                        <% } %>
+                    <select name="category" class="form-select">
+                        <% category.forEach(cat => { %>
+                           <option value="<%= cat._id %>" <%= product.category.toString() === cat._id.toString() ? 'selected' : '' %>>
+  <%= cat.name %>
+</option>
+                        <% }) %>
                     </select>
-                    <div id="category-error" class="error-message"></div>
                 </div>
 
                 <!-- Sale Price -->
                 <div class="form-group">
                     <label class="form-label">Sale Price</label>
-                    <input type="text" name="salePrice" class="form-input" placeholder="Enter sale price" value="<%= product.salePrice %>">
-                    <div id="salePrice-error" class="error-message"></div>
+                    <input type="number" name="salesPrice" class="form-input"
+                           value="<%= product.salesPrice %>">
                 </div>
 
                 <!-- Quantity -->
                 <div class="form-group">
                     <label class="form-label">Stock Count</label>
-                    <input type="number" name="quantity" class="form-input" placeholder="Enter stock count" value="<%= product.quantity %>">
-                    <div id="quantity-error" class="error-message"></div>
+                    <input type="number" name="quantity" class="form-input"
+                           value="<%= product.quantity %>">
                 </div>
 
                 <!-- Description -->
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <input type="text" name="description" class="form-input" placeholder="Enter description" value="<%= product.description %>">
-                    <div id="description-error" class="error-message"></div>
+                    <textarea name="description" class="form-input"><%= product.description %></textarea>
                 </div>
 
-          
                 <!-- Submit -->
                 <button type="submit" class="add-btn">Update Product</button>
             </form>
         </div>
- 
+    </div>
 
     <script>
-
-
-
-
-
-        // Trigger file input
-        function triggerFileInput(inputId) {
-            document.getElementById(inputId).click();
-        }
-
-        // Show preview
-        function handleFileUpload(input, index) {
+        function triggerFileInput(id){ document.getElementById(id).click(); }
+        function handleFileUpload(input, index){
             const file = input.files[0];
-            if (file) {
-                const uploadBox = document.querySelectorAll('.upload-box')[index];
-                uploadBox.classList.add('active');
+            if(file){
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
-                };
+                reader.onload = e => {
+                    document.querySelectorAll('.upload-box')[index].innerHTML =
+                        `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
+                }
                 reader.readAsDataURL(file);
             }
         }
-
-        // Go back button
-        function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                alert('No previous page to go back to');
-            }
-        }
-
-        // Display error
-        function displayErrorMessage(id, message) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = message;
-        }
-
-        // Clear previous errors
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-        }
-
-        // Validate form
-        function validateForm() {
-            clearErrors();
-            let valid = true;
-
-            const name = document.getElementsByName('productName')[0].value.trim();
-            const description = document.getElementsByName('description')[0].value.trim();
-            const salePrice = document.getElementsByName('salePrice')[0].value.trim();
-            const quantity = document.getElementsByName('quantity')[0].value.trim();
-            const color = document.getElementsByName('color')[0].value.trim();
-            const category = document.getElementsByName('category')[0].value.trim();
-            const images = [
-                document.getElementById('photo1').files.length,
-                document.getElementById('photo2').files.length,
-                document.getElementById('photo3').files.length
-            ];
-
-            if (!name) {
-                displayErrorMessage('productName-error', 'Please enter a product name.');
-                valid = false;
-            }
-
-            if (!category) {
-                displayErrorMessage('category-error', 'Please select a category.');
-                valid = false;
-            }
-
-            if (!salePrice || !/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0) {
-                displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
-                valid = false;
-            }
-
-            if (!quantity || parseInt(quantity) < 0) {
-                displayErrorMessage('quantity-error', 'Please enter a valid quantity.');
-                valid = false;
-            }
-
-            if (!description) {
-                displayErrorMessage('description-error', 'Please enter a description.');
-                valid = false;
-            }
-
-            if (!color) {
-                displayErrorMessage('color-error', 'Please select a color.');
-                valid = false;
-            }
-
-            if (images.every(len => len === 0)) {
-                alert('Please upload at least one image.');
-                valid = false;
-            }
-
-            return valid;
-        }
-
-        // Attach to form
-        document.getElementById('productForm').addEventListener('submit', function(e) {
-            if (!validateForm()) {
-                e.preventDefault();
-            }
-        });
-document.getElementById('productForm').addEventListener('submit', function (e) {
-    if (!validateForm()) {
-        e.preventDefault();
-    } else {
-        e.preventDefault();
-        swal({
-            title: "Updating...",
-            text: "Please wait",
-            icon: "info",
-            button: false,
-            closeOnClickOutside: false,
-            closeOnEsc: false,
-        });
-        setTimeout(() => this.submit(), 800);
-    }
-});
-
-
-
     </script>
+
 </body>
 </html>
- 

@@ -129,12 +129,10 @@
         }
 
         /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+       .main-content {
+  margin-left: 190px; /* same as category */
+  padding: 80px;
+}
 
         .header {
             background: white;

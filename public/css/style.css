@@ -144,7 +144,8 @@ ol {
 
 .text-white h1,
 .text-white h2,
-.text-white h3,
+.t
+t-white h3,
 .text-white h4,
 .text-white h5,
 .text-white h6,
@@ -319,10 +320,10 @@ ol {
 	background: #ffffff;
 }
 
-.header__top {
+/* .header__top {
 	background:black;
 	padding: 10px 0;
-}
+} */
 
 .header__top__left p {
 	color: #ffffff;
@@ -3370,6 +3371,7 @@ ol {
 @media only screen and (min-width: 1200px) {
 	.container {
 		max-width: 1170px;
+		background-color: f5f5f5;
 	}
 }
 

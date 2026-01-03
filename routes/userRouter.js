@@ -6,14 +6,15 @@ const userProfile= require('../controllers/user/userProfile.js')
 const passport = require("passport");
 // Make sure path and export match
 
-
 // const userAuth = require("../middleware/userAuth.js");
-const guestAuth=require("../middleware/guestUserAuth.js")
+const guestAuth=require("../middleware/guestUserAuth.js");
+const userAuth = require("../middleware/userAuth.js");
+const blockCheck = require("../middleware/blockMiddleware.js");
 
 
 
 // Common pages
-router.get("/",userController.loadHomepage);
+router.get("/",blockCheck,userController.loadHomepage);
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/error", userController.loadErrorPage);
 
@@ -45,7 +46,7 @@ router.get(
 
 
 // Shop
-router.get("/Shop", userController.loadShopping);
+router.get("/Shop",blockCheck, userController.loadShopping);
 
 
 // Login / Logout

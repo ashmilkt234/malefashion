@@ -18,26 +18,8 @@
             height: 100vh;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background-color: #1a202c;
-            padding: 20px 0;
-            position: fixed;
-            height: 100%;
-            left: 0;
-            top: 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            padding: 0 20px 30px;
-            border-bottom: 1px solid #2d3748;
-            margin-bottom: 20px;
-        }
-
-        .logo-icon {
+       
+        /* .logo-icon {
             width: 32px;
             height: 32px;
             background-color: #fff;
@@ -49,10 +31,10 @@
             font-weight: bold;
             font-size: 16px;
             color: #000;
-        }
+        } */
 
         .logo-text {
-            color: #fff;
+            color: #fff;    
             font-weight: 600;
             font-size: 16px;
         }
@@ -399,7 +381,7 @@
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #2d3748;
+  background: #007bff;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -407,7 +389,7 @@
 }
 
 .btn-submit:hover {
-  background: #1f2937;
+  background:#007bff;
 }
 
 .form-group {

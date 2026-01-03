@@ -1,7 +1,8 @@
 // Import models
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
-
+const mongoose = require("mongoose");
+const multer = require("multer");
 
 
 
@@ -104,7 +105,7 @@ const addCategoryOffer = async (req, res) => {
     // Update product prices
     for (const product of products) {
       product.productOffer = percentage;
-      product.salePrice = Math.floor(
+      product.salesPrice = Math.floor(
         product.regularPrice - (product.regularPrice * percentage / 100)
       );
       await product.save();
@@ -205,8 +206,8 @@ const loadEditCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).send("Category not found");
-
-    res.render("admin/editCategory", { category });
+ const categories = await Category.find();
+    res.render("admin/editCategory", { category,categories });
   } catch (error) {
     res.status(500).send("Server Error");
   }
@@ -216,18 +217,27 @@ const loadEditCategory = async (req, res) => {
 
 // ================= Edit Category =================
 const editCategory = async (req, res) => {
+
+
+  
+  
   try {
+      console.log("REq Body",req.body);
     const { id } = req.params;
     const { name, description } = req.body;
 
     // Check duplicate category
     const existingCategory = await Category.findOne({
       name: { $regex: `^${name}$`, $options: "i" },
-      _id: { $ne: id }
+      _id: { $ne: new mongoose.Types.ObjectId(id) } 
     });
 
     if (existingCategory) {
-      return res.status(400).json({ error: "Category already exists" });
+     return res.status(400).json({
+  success:false,
+  message: "Category already exists"
+});
+
     }
 
     // Update category
@@ -237,11 +247,14 @@ const editCategory = async (req, res) => {
       { new: true }
     );
 
-    res.redirect("/admin/category?updated=true");
+return res.status(200).json({
+  success:true,
+  message:"category updated successfully"
+})
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ success:false,error: "Server error" });
   }
 };
 

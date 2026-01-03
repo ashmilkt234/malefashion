@@ -93,26 +93,35 @@ const loadDashboard = async (req, res) => {
 // ================= Load Users =================
 const loadUsers = async (req, res) => {
   try {
-    const query = req.query.search || "";
+    const search = req.query.search?.trim() || "";
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 5;
     const skip = (page - 1) * limit;
 
-    // Count users
-    const totalUsers = await User.countDocuments();
+    const searchFilter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const totalUsers = await User.countDocuments(searchFilter);
     const totalPages = Math.ceil(totalUsers / limit);
 
-    // Get users
-    const users = await User.find().skip(skip).limit(limit);
+    const users = await User.find(searchFilter)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    // Render users page
     res.render("admin/user", {
-      data: users,
-      message: req.query.message || null,
-      totalPages: totalPages,
+      users,
+      search,
+      totalPages,
       currentPage: page,
-      query: query
     });
+
   } catch (error) {
     console.log("Load users error:", error);
     res.redirect("/admin/error?message=Failed to load users");
@@ -130,10 +139,10 @@ const blockUser = async (req, res) => {
     // Block user
     await User.findByIdAndUpdate(userId, { isBlocked: true });
 
-    res.redirect("/admin/user?message=User blocked");
+   res.json({ success: true, message: "User blocked" });
   } catch (error) {
-    console.log("Block user error:", error);
-    res.redirect("/admin/error?message=Failed to block user");
+
+     res.status(500).json({ success: false });
   }
 };
 
@@ -148,10 +157,9 @@ const unblockUser = async (req, res) => {
     // Unblock user
     await User.findByIdAndUpdate(userId, { isBlocked: false });
 
-    res.redirect("/admin/user?message=User unblocked");
+    res.json({ success: true, message: "User unblocked" });
   } catch (error) {
-    console.log("Unblock user error:", error);
-    res.redirect("/admin/error?message=Failed to unblock user");
+    res.status(500).json({ success: false });
   }
 };
 
@@ -186,29 +194,38 @@ const errorpage = (req, res) => {
 
 // ================= User Search =================
 const userList = async (req, res) => {
-  try {
-    const search = req.query.search || "";
+    try {
+        const search = req.query.search || "";
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
 
-    // Find users
-    const users = await User.find({
-      isAdmin: false,
-      $or: [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } }
-      ]
-    });
+        const userData = await User.find({
+            $or: [
+               { name: { $regex: search, $options: "i" }},
+               { email: { $regex: search, $options: "i" }}
+            ]
+        }).skip(skip).limit(limit);
 
-    // Render search result
-    res.render("admin/user", {
-      data: users,
-      search: search,
-      totalPages: 1,
-      currentPage: 1
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Server error");
-  }
+        const totalUsers = await User.countDocuments({
+            $or: [
+                { name: { $regex: search, $options: "i" }},
+                { email: { $regex: search, $options: "i" }}
+            ]
+        });
+
+        res.render("admin/user", {
+            users: userData,
+            search: search,          // pass search value
+            currentPage: page,
+            totalPages: Math.ceil(totalUsers / limit),
+            limit
+        });
+
+    } catch (error) {
+        console.log("User page error:", error);
+        res.redirect("/admin/error");
+    }
 };
 
 

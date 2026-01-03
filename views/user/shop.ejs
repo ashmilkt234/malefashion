@@ -6,24 +6,49 @@
     <title>Shop - E-commerce Store</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
       <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+  <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+  <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+  <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/css/header.css" type="text/css">
     <link rel="stylesheet" href="/css/shop.css">
+    
 </head>
 <body>
        
     <%- include("partials/user/header") %>
     
     <!-- Main Container -->
-    <div class="container">
+    <div class="navbar-expand-lg ">
         <!-- Shop Header -->
         <div class="shop-header">
             <h1 class="shop-title">Our Products</h1>
             <div class="search-container">
-                <form class="search-form">
-                    <input type="text" class="search-input" placeholder="Search products...">
-                    <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
+    <form action="/shop" method="get" class="search-form">
+    <input type="hidden" name="category" value="<%= selectedCategory %>">
+    <input type="hidden" name="sort" value="<%= sort %>">
+    <input type="hidden" name="minPrice" value="<%= minPrice %>">
+    <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
+
+    <input type="text" 
+           name="search" 
+           class="search-input"
+           placeholder="Search products..."
+           value="<%= products.length === 0 ? search : '' %>">
+
+    <button type="submit" class="search-btn">
+        <i class="fas fa-search"></i>
+    </button>
+
+    <a href="/shop" class="btn btn-secondary clear-btn" style=" padding: 4px 10px;
+    font-size: 12px;" >Clear</a>
+</form>
+
+
             </div>
         </div>
 

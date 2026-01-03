@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,39 +8,48 @@
     <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="/css/dashboard.css">
+
+    <!-- Croppie CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
 </head>
 <body>
   <%- include('../partials/admin/header') %>
+
 <div class="container">
-  
-    <!-- Form -->
     <div class="form-container">
         <form id="productForm" method="POST" action="/admin/addProduct" enctype="multipart/form-data">
             <!-- Image Upload Section -->
             <div class="upload-section">
                 <div class="upload-grid">
-                    <div class="upload-box" onclick="triggerFileInput('photo1')">
+                    <div class="upload-box" id="box0" onclick="triggerFileInput(0)">
                         <div class="camera-icon">📷</div>
+                        <span class="upload-text">Click to upload</span>
                     </div>
-                    <div class="upload-box" onclick="triggerFileInput('photo2')">
+                    <div class="upload-box" id="box1" onclick="triggerFileInput(1)">
                         <div class="camera-icon">📷</div>
+                        <span class="upload-text">Click to upload</span>
                     </div>
-                    <div class="upload-box" onclick="triggerFileInput('photo3')">
+                    <div class="upload-box" id="box2" onclick="triggerFileInput(2)">
                         <div class="camera-icon">📷</div>
+                        <span class="upload-text">Click to upload</span>
                     </div>
                 </div>
                 <div class="upload-labels">
-                    <div class="upload-label">Upload Photo 1</div>
+                    <div class="upload-label">Upload Photo 1 (Main)</div>
                     <div class="upload-label">Upload Photo 2</div>
                     <div class="upload-label">Upload Photo 3</div>
                 </div>
             </div>
 
-            <!-- File inputs -->
-            <input type="file" name="productImage" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
-            <input type="file" name="productImage" id="photo2" class="file-input" accept="image/*" onchange="handleFileUpload(this, 1)">
-            <input type="file" name="productImage" id="photo3" class="file-input" accept="image/*" onchange="handleFileUpload(this, 2)">
+            <!-- Hidden real file inputs (will hold cropped files) -->
+            <input type="file" name="productImage" id="croppedInput0" style="display:none;">
+            <input type="file" name="productImage" id="croppedInput1" style="display:none;">
+            <input type="file" name="productImage" id="croppedInput2" style="display:none;">
+
+            <!-- Temporary file inputs for selecting original images -->
+            <input type="file" id="tempInput0" accept="image/*" style="display:none;">
+            <input type="file" id="tempInput1" accept="image/*" style="display:none;">
+            <input type="file" id="tempInput2" accept="image/*" style="display:none;">
 
             <!-- Product Name -->
             <div class="form-group">
@@ -68,7 +77,7 @@
                 <div id="salePrice-error" class="error-message"></div>
             </div>
 
-            <!-- Quantity -->
+            <!-- Stock Count -->
             <div class="form-group">
                 <label class="form-label">Stock Count</label>
                 <input type="number" name="quantity" class="form-input" placeholder="Enter stock count">
@@ -82,163 +91,286 @@
                 <div id="description-error" class="error-message"></div>
             </div>
 
-            <!-- Submit -->
             <button type="submit" class="add-btn">Add Now</button>
         </form>
     </div>
 </div>
 
+<!-- Cropper Modal -->
+<div id="cropperModal" class="cropper-modal">
+    <div class="cropper-container">
+        <div class="cropper-header">
+            <h3>Crop Image</h3>
+            <button type="button" class="close-btn" onclick="closeCropper()">&times;</button>
+        </div>
+        <div id="croppie-demo"></div>
+        <div class="cropper-footer">
+            <button type="button" class="crop-btn" id="cropButton">Crop & Apply</button>
+        </div>
+    </div>
+</div>
+
+<!-- Croppie JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+
 <script>
-function triggerFileInput(inputId) {
-  document.getElementById(inputId).click();
+let currentIndex = 0;
+let croppieInstance = null;
+let selectedFile = null;
+
+// Trigger file selection
+function triggerFileInput(index) {
+    currentIndex = index;
+    document.getElementById(`tempInput${index}`).click();
 }
 
-function handleFileUpload(input, index) {
-  const file = input.files[0];
-  if (file) {
-    const uploadBox = document.querySelectorAll('.upload-box')[index];
-    uploadBox.classList.add('active');
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      uploadBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">`;
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function goBack() {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    Swal.fire({
-      icon: 'info',
-      title: 'Oops!',
-      text: 'No previous page to go back to',
-      confirmButtonColor: '#3085d6'
+// Handle original image selection
+document.querySelectorAll('[id^="tempInput"]').forEach(input => {
+    input.addEventListener('change', function(e) {
+        selectedFile = this.files[0];
+        if (selectedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                openCropper(e.target.result);
+            };
+            reader.readAsDataURL(selectedFile);
+        }
     });
-  }
+});
+
+function openCropper(imageSrc) {
+    document.getElementById('cropperModal').style.display = 'flex';
+
+    const demoEl = document.getElementById('croppie-demo');
+    demoEl.innerHTML = '';
+
+    croppieInstance = new Croppie(demoEl, {
+        viewport: { width: 300, height: 300, type: 'square' },
+        boundary: { width: 400, height: 420 },
+        showZoomer: true,
+        enableExif: true,
+        enableOrientation: true
+    });
+
+    croppieInstance.bind({
+        url: imageSrc
+    });
+}
+
+function closeCropper() {
+    document.getElementById('cropperModal').style.display = 'none';
+    if (croppieInstance) {
+        croppieInstance.destroy();
+        croppieInstance = null;
+    }
+}
+
+// Apply crop and convert to File object
+document.getElementById('cropButton').addEventListener('click', function() {
+    if (!croppieInstance || !selectedFile) return;
+
+    croppieInstance.result({
+        type: 'blob',
+        size: { width: 800, height: 800 },
+        format: 'jpeg',
+        quality: 0.95
+    }).then(function(blob) {
+        // Create File from blob
+        const croppedFile = new File([blob], selectedFile.name, { type: 'image/jpeg' });
+
+        // Update hidden real input
+        const realInput = document.getElementById(`croppedInput${currentIndex}`);
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(croppedFile);
+        realInput.files = dataTransfer.files;
+
+        // Show preview
+        const box = document.getElementById(`box${currentIndex}`);
+        box.innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
+        box.classList.add('active');
+
+        closeCropper();
+    });
+});
+
+// Validation
+function validateForm() {
+    clearErrors();
+    let valid = true;
+
+    const name = document.querySelector('[name="productName"]').value.trim();
+    const description = document.querySelector('[name="description"]').value.trim();
+    const salesPrice = document.querySelector('[name="salesPrice"]').value.trim();
+    const quantity = document.querySelector('[name="quantity"]').value.trim();
+    const category = document.querySelector('[name="category"]').value;
+
+    // Check at least one cropped image
+    const hasImage = Array.from(document.querySelectorAll('[id^="croppedInput"]'))
+        .some(input => input.files.length > 0);
+
+    if (!hasImage) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Image',
+            text: 'Please upload and crop at least one product image.',
+            confirmButtonColor: '#3085d6'
+        });
+        valid = false;
+    }
+
+    if (!name || name.length < 3) {
+        displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
+        valid = false;
+    }
+
+    if (!category) {
+        displayErrorMessage('category-error', 'Please select a category.');
+        valid = false;
+    }
+
+    if (!salesPrice || !/^\d+(\.\d{1,2})?$/.test(salesPrice) || parseFloat(salesPrice) <= 0) {
+        displayErrorMessage('salePrice-error', 'Enter a valid sale price greater than 0.');
+        valid = false;
+    }
+
+    if (!quantity || isNaN(quantity) || parseInt(quantity) < 0) {
+        displayErrorMessage('quantity-error', 'Enter a valid stock count.');
+        valid = false;
+    }
+
+    if (!description || description.length < 10) {
+        displayErrorMessage('description-error', 'Description must be at least 10 characters.');
+        valid = false;
+    }
+
+    return valid;
 }
 
 function displayErrorMessage(id, message) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = message;
+    const el = document.getElementById(id);
+    if (el) el.textContent = message;
 }
 
 function clearErrors() {
-  document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+    document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
 }
 
-function validateForm() {
-  clearErrors();
-  let valid = true;
-
-  const name = document.getElementsByName('productName')[0].value.trim();
-  const description = document.getElementsByName('description')[0].value.trim();
-  const salesPrice = document.getElementsByName('salesPrice')[0].value.trim();
-  const quantity = document.getElementsByName('quantity')[0].value.trim();
-  const category = document.getElementsByName('category')[0].value.trim();
-  const images = [
-    document.getElementById('photo1').files.length,
-    document.getElementById('photo2').files.length,
-    document.getElementById('photo3').files.length
-  ];
-
-  // Product Name
-  if (!name) {
-    displayErrorMessage('productName-error', 'Please enter a product name.');
-    valid = false;
-  } else if (name.length < 3) {
-    displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
-    valid = false;
-  }
-
-  // Category
-  if (!category) {
-    displayErrorMessage('category-error', 'Please select a category.');
-    valid = false;
-  }
-
-  // Sale Price
-  if (!salesPrice) {
-    displayErrorMessage('salePrice-error', 'Please enter a sale price.');
-    valid = false;
-  } else if (!/^\d+(\.\d{1,2})?$/.test(salesPrice)) {
-    displayErrorMessage('salePrice-error', 'Sale price must be a valid number (up to 2 decimals).');
-    valid = false;
-  } else if (parseFloat(salesPrice) <= 0) {
-    displayErrorMessage('salePrice-error', 'Sale price must be greater than 0.');
-    valid = false;
-  }
-
-  // Quantity (Stock Count)
-  if (quantity === "") {
-    displayErrorMessage('quantity-error', 'Please enter a stock count.');
-    valid = false;
-  } else if (isNaN(quantity)) {
-    displayErrorMessage('quantity-error', 'Stock count must be a number.');
-    valid = false;
-  } else if (parseInt(quantity) < 0) {
-    displayErrorMessage('quantity-error', 'Stock count cannot be negative.');
-    valid = false;
-  }
-
-  // Description
-  if (!description) {
-    displayErrorMessage('description-error', 'Please enter a description.');
-    valid = false;
-  } else if (description.length < 10) {
-    displayErrorMessage('description-error', 'Description must be at least 10 characters.');
-    valid = false;
-  }
-
-  // At least one image
-  if (images.every(len => len === 0)) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Oops!',
-      text: 'Please upload at least one product image.',
-      confirmButtonColor: '#3085d6'
-    });
-    valid = false;
-  }
-
-  return valid;
-}
-
-// Prevent typing negative values in stock input immediately
-document.getElementsByName('quantity')[0].addEventListener('input', function(e) {
-  if (this.value < 0) {
-    this.value = 0; // reset to 0 if negative entered
-  }
+document.querySelector('[name="quantity"]').addEventListener('input', function() {
+    if (this.value < 0) this.value = 0;
 });
 
-// Form submission
 document.getElementById('productForm').addEventListener('submit', function(e) {
-  if (!validateForm()) {
-    e.preventDefault();
-  }
+    if (!validateForm()) {
+        e.preventDefault();
+    }
 });
 
-// Show server messages if redirected with query params
+// Success/Error messages
 const urlParams = new URLSearchParams(window.location.search);
-const successMessage = urlParams.get('success');
-const errorMessage = urlParams.get('error');
-
-if (successMessage) {
-  Swal.fire({
-    icon: 'success',
-    title: 'Success!',
-    text: successMessage,
-    confirmButtonColor: '#3085d6'
-  });
+if (urlParams.get('success')) {
+    Swal.fire('Success!', urlParams.get('success'), 'success');
 }
-
-if (errorMessage) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Error!',
-    text: errorMessage,
-    confirmButtonColor: '#d33'
-  });
+if (urlParams.get('error')) {
+    Swal.fire('Error!', urlParams.get('error'), 'error');
 }
 </script>
+
+<style>
+.cropper-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.cropper-container {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 520px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.cropper-header {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.cropper-header h3 { margin: 0; font-size: 18px; }
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-btn:hover { color: #000; }
+
+#croppie-demo { margin: 20px auto; }
+
+.cropper-footer {
+    padding: 15px;
+    text-align: center;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+}
+
+.crop-btn {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.crop-btn:hover { background: #333; }
+
+.upload-box {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f8f8;
+    border: 2px dashed #ddd;
+    transition: all 0.3s;
+}
+
+.upload-box:hover { border-color: #000; }
+
+.upload-box.active { border: 2px solid #000; }
+
+.camera-icon {
+    font-size: 40px;
+    color: #aaa;
+    margin: 20px 0;
+}
+
+.upload-text {
+    position: absolute;
+    bottom: 8px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    pointer-events: none;
+}
+
+.upload-box.active .camera-icon,
+.upload-box.active .upload-text {
+    display: none;
+}
+</style>
+</body>
+</html>

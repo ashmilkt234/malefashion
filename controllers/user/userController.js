@@ -101,10 +101,13 @@ const loadHomepage = async (req, res) => {
 //  Shopping
 const loadShopping = async (req, res) => {
     try {
-        const{category,sort,page=1,minPrice,maxPrice}=req.query;
+        const{category,sort,page=1,minPrice,maxPrice,search}=req.query;
         const limit=8
         const skip=(page-1)*limit
         let filter={isBlocked:false,quantity:{$gt:0}}
+        if(search){
+            filter.productName={$regex:search,$options:"i"}
+        }
 if(category){
     filter.category=category
 }
@@ -141,6 +144,7 @@ const categories = await Category.find({ isListed: true });
              totalPages:Math.ceil(totalproducts/limit),
                       minPrice: minPrice || "",
       maxPrice: maxPrice || "",
+      search: search || "",
             title: 'Shop - Men\'s Fashion',
               breadcrumb: [
     { name: "Home", url: "/" },
@@ -173,7 +177,8 @@ const categories = await Category.find({ isListed: true });
 //  Signup
 const loadSignup = async (req, res) => {
     try {
-        return res.render("user/signup");
+        return res.render("user/signup", {
+      blocked: req.query.blocked});
     } catch (error) {
         console.log("Signup page error", error);
         res.status(500).send("Server Error");
@@ -357,11 +362,10 @@ const login = async (req, res) => {
         req.session.user = findUser._id;
         req.session.isAdmin=false;
    res.json({ success: true, message: "Login successful" });
-        return res.redirect("/");
+      
     } catch (error) {
         console.error("Login error:", error);
-        req.session.error = "Login failed. Please try again.";
-        return res.redirect("/login");
+        return res.status(500).json({ success: false, message: "Login failed. Please try again." });
     }
 };
 

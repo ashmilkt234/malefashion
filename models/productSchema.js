@@ -9,7 +9,7 @@ const productSchema = new Schema(
       required: true,
     },
     description: {
-      // Fixed typo
+    
       type: String,
       required: true,
     }
@@ -54,7 +54,7 @@ const productSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Available", "out of stock", "Discontinued"], // Fixed typo
+      enum: ["Available", "out of stock", "Discontinued"], 
       required: true,
       default: "Available",
     },
@@ -62,5 +62,5 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-const Product = mongoose.model("Product", productSchema); // Capitalized model name
+const Product = mongoose.model("Product", productSchema);
 module.exports = Product;

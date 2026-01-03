@@ -13,8 +13,8 @@ const userAuth = async (req, res, next) => {
 
     // 3. If user doesn't exist or is blocked
     if (!user || user.isBlocked) {
-      req.session.userId = null; // clear session
-      return res.redirect("/login?message=Account blocked");
+      req.session.destroy()
+      return res.redirect("/blocked");
     }
 
     // 4. Attach user to request for later use in routes
@@ -23,6 +23,7 @@ const userAuth = async (req, res, next) => {
   } catch (error) {
     console.log("User Auth Error:", error);
     res.status(500).send("Server Error");
+    res.redirect("/login");
   }
 };
 
