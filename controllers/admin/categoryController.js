@@ -13,7 +13,7 @@ const categoryInfo = async (req, res) => {
 
     // Pagination values
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 4;
     const skip = (page - 1) * limit;
 
     // Search query
@@ -139,7 +139,7 @@ const removeCategoryOffer = async (req, res) => {
 
     // Reset product offers
     for (const product of products) {
-      product.salePrice += Math.floor(
+      product.salesPrice += Math.floor(
         product.regularPrice * percentage / 100
       );
       product.productOffer = 0;
@@ -260,7 +260,7 @@ return res.status(200).json({
 
 
 
-// Export functions
+
 module.exports = {
   categoryInfo,
   addCategory,

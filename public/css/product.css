@@ -535,3 +535,6 @@ caption {
   margin-bottom: 1rem;
 }
 
+.table td .btn {
+  margin: 2px 2px; 
+}

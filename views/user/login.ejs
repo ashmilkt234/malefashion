@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/login.css">
+  <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -21,15 +22,19 @@
     <!-- LOGIN FORM -->
  
 <form onsubmit="login(event)">
-  <input type="email" id="email" placeholder="Email" required>
+  <input type="email" id="email" placeholder="Email"  required autocomplete="email">
 
   <div class="password-wrapper">
-    <input type="password" id="password" placeholder="Password" required>
+    <input type="password" id="password" placeholder="Password" required minlength="6" autocomplete="current-password">
     <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
   </div>
 
   <button type="submit" class="login-btn">Login</button>
 </form>
+
+<div class="forgot-password">
+  <a href="/forgot-password" id="forgotPassword">Forgot password?</a>
+</div>
 
     <!-- ✅ GOOGLE BUTTON MOVED OUTSIDE FORM -->
     <button class="google-btn" onclick="window.location.href='/auth/google'">

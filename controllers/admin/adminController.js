@@ -61,8 +61,14 @@ const adminLogin = async (req, res) => {
     // Set admin session
     req.session.adminId = admin._id;
     req.session.isAdmin = true;
-
-    res.json({ success: true, message: "Welcome Admin!" });
+req.session.save(err=>{
+  if(err){
+    console.log('Session save error',err);
+    return res.json({success:false,message:"Session error"})
+  }
+   res.json({ success: true, message: "Welcome Admin!" });
+})
+   
   } catch (error) {
     console.log("Admin login error:", error);
     res.json({ success: false, message: "Login failed" });
@@ -99,7 +105,7 @@ const loadUsers = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const searchFilter = search
-      ? {
+      ? { isAdmin:false,
           $or: [
             { name: { $regex: search, $options: "i" } },
             { email: { $regex: search, $options: "i" } },
@@ -111,6 +117,7 @@ const loadUsers = async (req, res) => {
     const totalPages = Math.ceil(totalUsers / limit);
 
     const users = await User.find(searchFilter)
+.sort({ createdOn: -1 }) 
       .skip(skip)
       .limit(limit)
       .lean();
@@ -135,13 +142,19 @@ const loadUsers = async (req, res) => {
 const blockUser = async (req, res) => {
   try {
     const userId = req.params.userId;
-
+const user=await User.findById(userId)
+if(!user||user.isAdmin){
+  return res.json({
+    success:false,
+    message:"Cannot block admin"
+  })
+}
     // Block user
     await User.findByIdAndUpdate(userId, { isBlocked: true });
 
    res.json({ success: true, message: "User blocked" });
   } catch (error) {
-
+ console.log("Block user error:", error);
      res.status(500).json({ success: false });
   }
 };
@@ -159,6 +172,7 @@ const unblockUser = async (req, res) => {
 
     res.json({ success: true, message: "User unblocked" });
   } catch (error) {
+        console.log("Unblock user error:", error);
     res.status(500).json({ success: false });
   }
 };
@@ -197,7 +211,7 @@ const userList = async (req, res) => {
     try {
         const search = req.query.search || "";
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;
+        const limit = 4;
         const skip = (page - 1) * limit;
 
         const userData = await User.find({
@@ -205,7 +219,7 @@ const userList = async (req, res) => {
                { name: { $regex: search, $options: "i" }},
                { email: { $regex: search, $options: "i" }}
             ]
-        }).skip(skip).limit(limit);
+        }).sort({createdOn:-1}).skip(skip).limit(limit);
 
         const totalUsers = await User.countDocuments({
             $or: [

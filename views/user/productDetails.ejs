@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/style.css" type="text/css">
   <link rel="stylesheet" href="/css/header.css" type="text/css">
   <link rel="stylesheet" href="/css/productdetail.css">
+  <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
 
@@ -156,9 +157,9 @@
           <td>Product</td>
           <td><%= product.productName%></td>
         </tr>
-       
-          <td>Category</td>
-          <td><%= product.category.name%></td>
+       <tr>
+         <td>Category</td>
+<td><%= product.category.name  %></td>
         </tr>
         <tr>
           <td>Status</td>
@@ -178,12 +179,12 @@
         <p><%= product.about %></p>
       </div>
       <div id="specs" class="tab-content">
-        <ul>
-          <li>Category: <%= product.categoryName %></li>
-          <li>Price: ₹<%= product.salesPrice %></li>
-          <li>Status: <%= product.status %></li>
-        </ul>
-      </div>
+  <ul>
+    <li>Category: <%= product.category ? product.category.name : "N/A" %></li>
+    <li>Price: ₹<%= product.salesPrice %></li>
+    <li>Status: <%= product.status %></li>
+  </ul>
+</div>
       <div id="reviews" class="tab-content">
         <p>No reviews yet. Be the first to review this product!</p>
       </div>
@@ -191,31 +192,37 @@
 
     <!-- Related Products -->
     <div class="related-products">
-      <h2>Related Items</h2>
-      <div class="related-grid">
-        <% relatedProducts.forEach(rp => { %>
-          <div class="related-item" onclick="window.location.href='/productDetails/<%= rp._id %>'">
-            <div class="related-item-img">
-              <img src="/Uploads/product-images/<%= rp.productImage[0] %>" alt="<%= rp.productName %>">
-            </div>
-            <div class="related-item-info">
-              <div class="rating">
-                <% let relRating = rp.rating || 4; %>
-                <% for(let i=0; i<5; i++) { %>
-                  <% if(i < relRating) { %>
-                    <i class="fa fa-star"></i>
-                  <% } else { %>
-                    <i class="fa fa-star-o"></i>
-                  <% } %>
-                <% } %>
-              </div>
-              <h5><%= rp.productName %></h5>
-              <div class="price">₹<%= rp.salesPrice %></div>
-            </div>
+  <h2>Related Items</h2>
+  <div class="related-grid">
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+      <% relatedProducts.forEach(rp => { %>
+        <div class="related-item" onclick="window.location.href='/productDetails/<%= rp._id %>'">
+          <div class="related-item-img">
+            <img src="/Uploads/product-images/<%= rp.productImage[0] %>" alt="<%= rp.productName %>">
           </div>
-        <% }) %>
-      </div>
-    </div>
+          <div class="related-item-info">
+            <div class="rating">
+              <% let relRating = rp.rating || 4; %>
+              <% for(let i=0; i<5; i++) { %>
+                <% if(i < relRating) { %>
+                  <i class="fa fa-star"></i>
+                <% } else { %>
+                  <i class="fa fa-star-o"></i>
+                <% } %>
+              <% } %>
+            </div>
+            <h5><%= rp.productName %></h5>
+            <div class="price">₹<%= rp.salesPrice %></div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No related products found</p>
+    <% } %>
+  </div>
+</div>
+
+      
   </div>
 
   <%- include("partials/user/footer") %>

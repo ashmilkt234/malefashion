@@ -573,6 +573,15 @@
   border: 1px solid #ddd;
   background-repeat: no-repeat;
 }
+.related-grid {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+}
+.related-item {
+  flex: 0 0 200px; /* item width */
+}
+
 
 
     @media(max-width: 1024px) {

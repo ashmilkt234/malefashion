@@ -40,6 +40,14 @@ const productSchema = new Schema(
       min: 0,
       default: 1,
     },
+    isDeleted:{
+      type:Boolean,
+      defalut:false
+    },
+    deletedAt:{
+      type:Date,
+      default:null
+    },
     // color: {
     //   type: String,
     //   required: true,

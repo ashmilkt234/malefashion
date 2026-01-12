@@ -1,8 +1,6 @@
-// Import required models
+
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
-
-// Import required packages
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp"); // used for image resize
@@ -110,7 +108,9 @@ const getAllProducts = async (req, res) => {
     })
       .limit(limit)
       .skip((page - 1) * limit)
-      .populate("category");
+      .populate("category")
+      .sort({createdAt:-1})
+      .lean();
 
     // Count products
     const count = await Product.countDocuments({
@@ -171,7 +171,8 @@ const unblockProduct = async (req, res) => {
 const getEditProduct = async (req, res) => {
   try {
     // Get product and categories
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id)
+    .populate("category");
     const category = await Category.find();
 
     res.render("admin/editProduct", { product, category });
@@ -188,7 +189,7 @@ const editProduct = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
 
-    // Check duplicate product name except current product
+    // Check duplicate product name
     const exists = await Product.findOne({
       productName: data.productName,
       _id: { $ne: id }
@@ -200,36 +201,66 @@ const editProduct = async (req, res) => {
 
     // Find existing product
     const product = await Product.findById(id);
-if(!product){
-  return res.redirect("/pageerror")
-}
- 
-     // Uploaded images
-  const newImages = req.files?.map(file => file.filename) || [];
+    if (!product) {
+      return res.redirect("/pageerror");
+    }
 
+    const uploadPath = path.join(__dirname, "../../public/uploads/product-images");
 
-    // If images .
-   const finalImages =
-      newImages.length > 0 ? newImages : product.productImage;
-    // Update data
+    // Ensure upload directory exists
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    let finalImages = [...product.productImage]; // Start with existing images
+
+    // Process up to 3 images 
+    for (let i = 1; i <= 3; i++) {
+      const croppedKey = `croppedImage${i}`;
+      if (data[croppedKey] && data[croppedKey].startsWith("data:image")) {
+        // Extract base64 data
+        const base64Data = data[croppedKey].replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+
+        // Generate unique filename
+        const filename = Date.now() + `-${i}` + ".jpg";
+
+        // Resize and save using sharp
+        await sharp(buffer)
+          .resize(500, 500, { fit: "cover" })
+          .jpeg({ quality: 90 })
+          .toFile(path.join(uploadPath, filename));
+
+        // If there was an old image in this position, delete it
+        if (finalImages[i - 1]) {
+          const oldImagePath = path.join(uploadPath, finalImages[i - 1]);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+
+    
+        finalImages[i - 1] = filename;
+      }
+      
+    }
+
+    // Update product
     await Product.findByIdAndUpdate(id, {
       productName: data.productName,
-      category:data.category,
-       description: data.description,
-      salesPrice: data.salesPrice,  
+      category: data.category,
+      description: data.description,
+      salesPrice: data.salesPrice,
       quantity: Number(data.quantity),
-     
-      productImage: finalImages           
+      productImage: finalImages
     });
 
     return res.redirect("/admin/product?updated=true");
-    
   } catch (error) {
     console.log("Edit Product Error =>", error);
     return res.redirect("/pageerror");
   }
 };
-
 
 // ================= Delete Single Image =================
 const deleteSingleImage = async (req, res) => {
@@ -261,6 +292,31 @@ const deleteSingleImage = async (req, res) => {
 
 
 
+///soft delete
+const softDelete=async (req,res)=>{
+  try {
+    await Product.findByIdAndUpdate(req.params.id,{
+      isDeleted:true,
+      deletedAt:new Date()
+    })
+    res.redirect("/admin/product")
+
+  } catch (error) {
+  res.send("softDelete error",error)
+  }
+}
+const restore=async(req,res)=>{
+  try {
+    await Product.findByIdAndUpdate(req.params.id,{
+      isDeleted:false,
+      deletedAt:null
+    })
+    res.redirect('/admin/product')
+  } catch (error) {
+    res.send("Resore error",error)
+  }
+}
+
 // Export functions
 module.exports = {
   getProductAddPage,
@@ -270,5 +326,7 @@ module.exports = {
   unblockProduct,
   getEditProduct,
   editProduct,
-  deleteSingleImage
+  deleteSingleImage,
+  softDelete,
+ restore
 };

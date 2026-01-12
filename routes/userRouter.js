@@ -72,5 +72,7 @@ router.get("/productDetails/:id",productControlleruser.getProductDetailPage);
 
 
 router.get("/userProfile",userProfile.getUserProfile)
+router.get("/changepassword",userProfile.getchangepassword)
+router.post("/changepassword",userProfile.postchangepassword)
 
 module.exports = router;

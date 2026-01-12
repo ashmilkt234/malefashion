@@ -61,6 +61,8 @@ router.get("/editProduct/:id",adminAuth,productController.getEditProduct)
 router.post("/editProduct/:id",adminAuth,uploads.array("productImage",3),productController.editProduct)
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
+router.post("/product/delete/:id",adminAuth,productController.softDelete)
+router.post("/product/restore/:id",adminAuth,productController.restore)
 
 
 module.exports = router;

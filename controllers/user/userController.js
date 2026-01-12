@@ -2,6 +2,7 @@
 const User = require("../../models/userSchema.js");
 const Category=require('../../models/categorySchema')
 const Product=require("../../models/productSchema")
+const Otp = require("../../models/otpSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -39,10 +40,106 @@ async function sendVerificationEmail(email, otp) {
     }
 }
 
+
+
+
+// //  Verify OTP
+const verifyotp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const { email } = req.session.userData;
+
+    const otpRecord = await Otp.findOne({ email, purpose: "signup" });
+
+    if (!otpRecord) {
+      return res.render("user/verify-otp", { message: "OTP expired" });
+    }
+
+    if (Date.now() > otpRecord.expiresAt) {
+      await Otp.deleteOne({ _id: otpRecord._id });
+      return res.render("user/verify-otp", { message: "OTP expired" });
+    }
+
+    const isValid = await bcrypt.compare(otp, otpRecord.otp);
+    if (!isValid) {
+      return res.render("user/verify-otp", { message: "Invalid OTP" });
+    }
+
+    // OTP SUCCESS
+    await Otp.deleteOne({ _id: otpRecord._id });
+
+    const { name, phone, password } = req.session.userData;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      phone,
+      password: hashedPassword
+    });
+
+    await user.save();
+
+    req.session.user = user._id;
+    req.session.userData = null;
+    req.session.authType = null;
+
+    return res.json({ success: true, redirect: "/" });
+
+  } catch (error) {
+    console.error(error);
+    return res.render("user/error", { message: "Server error" });
+  }
+};
+
+
+
+
+
+// Resend OTP
+const resendOtp = async (req, res) => {
+  const email = req.session.userData?.email;
+  const purpose = req.session.authType;
+
+  if (!email || !purpose) {
+    return res.json({ success: false, message: "Session expired" });
+  }
+
+  const otp = generateOtp();
+  const hashedOtp = await bcrypt.hash(otp, 10);
+
+  await Otp.deleteMany({ email, purpose });
+
+  await Otp.create({
+    email,
+    otp: hashedOtp,
+    purpose,
+    expiresAt: Date.now() + 60 * 1000
+  });
+
+  await sendVerificationEmail(email, otp);
+
+  return res.json({ success: true, message: "OTP resent successfully" });
+};
+
+
+const loadOtpPage = (req, res) => {
+  try {
+    const email = req.session.userData?.email;
+    if (!email) {
+      return res.redirect("/signup");
+    }
+    res.render("user/verify-otp", { email, message: "" });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 //404
 const pageNotFound = async (req, res) => {
     try {
-        res.render("page_404");
+        res.render("user/page_404");
     } catch (error) {
         res.redirect("/pageNotFound");
     }
@@ -58,11 +155,12 @@ const loadHomepage = async (req, res) => {
 
     const productData = await Product.find({
       isBlocked: false,
+      isDeleted:{$ne:true},
       category: { $in: categories.map(c => c._id) },
       quantity: { $gt: 0 },
     })
       .sort({ createdAt: -1 })  
-      .limit(4)
+      .limit(5)
       .lean();
 
  
@@ -100,76 +198,98 @@ const loadHomepage = async (req, res) => {
 
 //  Shopping
 const loadShopping = async (req, res) => {
-    try {
-        const{category,sort,page=1,minPrice,maxPrice,search}=req.query;
-        const limit=8
-        const skip=(page-1)*limit
-        let filter={isBlocked:false,quantity:{$gt:0}}
-        if(search){
-            filter.productName={$regex:search,$options:"i"}
-        }
-if(category){
-    filter.category=category
-}
-if (minPrice || maxPrice) {
-      filter.salePrice = {};
-      if (minPrice) filter.salePrice.$gte = Number(minPrice);
-      if (maxPrice) filter.salePrice.$lte = Number(maxPrice);
-    }
-let sortOption = { createdAt: -1 }; // default: latest
-    if (sort === "lowtohigh") {
-      sortOption = { salePrice: 1 };
-    } else if (sort === "hightolow") {
-      sortOption = { salePrice: -1 };
-    } else if (sort === "latest") {
-      sortOption = { createdAt: -1 };
-    }
-const totalproducts=await Product.countDocuments(filter)
+  try {
 
-   const products = await Product.find(filter)
+
+    const { category, sort, page = 1, minPrice, maxPrice, search } = req.query;
+
+    const limit = 8;
+    const skip = (page - 1) * limit;
+
+    // Fetch ONLY listed categories
+    const categories = await Category.find({ isListed: true }).lean();
+    const categoryIds = categories.map(c => c._id.toString());
+
+    let filter = {
+      isBlocked: false,
+ isDeleted:{$ne:true},
+      quantity: { $gt: 0 },
+      category: { $in: categoryIds } 
+    };
+
+     const totalProducts = await Product.countDocuments({isDeleted: { $ne: true },
+  quantity: { $gt: 0 },
+  category: { $in: categoryIds }})
+
+    //  Search
+    if (search) {
+      filter.productName = { $regex: search, $options: "i" };
+    }
+
+    //  Price filter
+    if (minPrice || maxPrice) {
+      filter.salesPrice = {};
+      if (minPrice) filter.salesPrice.$gte = Number(minPrice);
+      if (maxPrice) filter.salesPrice.$lte = Number(maxPrice);
+    }
+
+    // Category validation
+    if (category) {
+      if (!categoryIds.includes(category)) {
+        return res.redirect("/shop"); // blocked category
+      }
+      filter.category = category;
+    }
+
+    // Sorting
+    let sortOption = { createdAt: -1 };
+    if (sort === "lowtohigh") sortOption = { salesPrice: 1 };
+    if (sort === "hightolow") sortOption = { salesPrice: -1 };
+
+    // Count
+   ;
+
+    // Fetch products
+    const products = await Product.find(filter)
       .populate("category")
       .sort(sortOption)
       .skip(skip)
       .limit(limit)
+      .lean();
 
-const categories = await Category.find({ isListed: true });
-
-               res.render('user/shop', {
-            user: req.session.user || null,
-            products: products || [], 
-            categories: categories || [],
-             selectedCategory: category || null, 
-             sort:sort||"",
-             currentPage:parseInt(page),
-             totalPages:Math.ceil(totalproducts/limit),
-                      minPrice: minPrice || "",
+    // Render
+    res.render("user/shop", {
+      user: req.session.user || null,
+      products,
+      categories,
+      selectedCategory: category || null,
+      sort: sort || "",
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalProducts / limit),
+      minPrice: minPrice || "",
       maxPrice: maxPrice || "",
       search: search || "",
-            title: 'Shop - Men\'s Fashion',
-              breadcrumb: [
-    { name: "Home", url: "/" },
-    { name: "Shop", url: "/shop" },
-    category ? { name: categories.find(c => c._id.toString() === category)?.name, url: "#" } : null
-  ].filter(Boolean) // remove null if no category
-});
-     
-  
+      title: "Shop - Men's Fashion",
+      breadcrumb: [
+        { name: "Home", url: "/" },
+        { name: "Shop", url: "/shop" },
+        category
+          ? { name: categories.find(c => c._id.toString() === category)?.name, url: "#" }
+          : null
+      ].filter(Boolean)
+    });
 
-    } catch (error) {
-        console.log("Shopping page error", error);
-        res.status(500).send("Server Error");
-        res.render('user/shop', {
-            user: req.session.user || null,
-            products: [],  
-            categories: [],
-        
-            title: 'Shop - Men\'s Fashion',
-            error: 'Unable to load products at this time.'
-        });
-    }
+  } catch (error) {
+    console.error("Shopping page error:", error);
+    res.status(500).render("user/shop", {
+      user: req.session.user || null,
+      products: [],
+      categories: [],
+      title: "Shop - Men's Fashion",
+      error: "Unable to load products at this time."
+    });
+  }
 };
-
-
 
 
 
@@ -187,140 +307,38 @@ const loadSignup = async (req, res) => {
 
 //  Signup
 const signup = async (req, res) => {
-    const { name, email, phone, password, confirmPassword } = req.body;
-    console.log(req.body)
+  const { name, email, phone, password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-        return res.render("user/signup", { message: "Passwords do not match" });
-    }
-
-    const findUser = await User.findOne({ email });
-    if (findUser) {
-        return res.render("user/signup", { message: "User with this email already exists" });
-    }
-
-    try {
-        const otp = generateOtp();
-        const emailSent = await sendVerificationEmail(email, otp);
-
-        if (!emailSent) {
-            return res.json({ success: false, message: "Email sending failed" });
-        }
- // Store signup info & OTP in session
-        req.session.userOtp = otp;
-        console.log("session otp is vefity",req.session.userOtp)
-        req.session.userData = { name, email, phone, password };
-        req.session.authType = "signup";
-
-
-        console.log("OTP Sent:", otp);
-        return res.render("user/verify-otp");
-        
-    } catch (error) {
-        console.error("Signup error:", error);
-        return res.redirect("/pageNotFound");
-    }
-};
-
-// //  Verify OTP
-const verifyotp = async (req, res) => {
-    try {
-        const { otp } = req.body;
-
-        // Pick OTP page depending on flow
-        const otpPage = req.session.authType === "forgot-password" 
-            ? "user/forgot-otp" 
-            : "user/verify-otp";
-
-        if (!otp || !req.session.userOtp || !req.session.userData) {
-            return res.render(otpPage, { message: "Session expired or missing OTP" });
-        }
-
-        if (otp === req.session.userOtp) {
-            const { authType, userData } = req.session;
-
-            if (authType === "signup") {
-                const { name, email, phone, password } = userData;
-          
-                const passwordHash = await bcrypt.hash(password, 10);
-
-                const saveUserData = new User({ name, email, phone, password: passwordHash });
-                await saveUserData.save();
-
-             
-req.session.user = {
-    _id: saveUserData._id.toString(),
-    name: saveUserData.name,
-    email: saveUserData.email,
-};
-                // clear session
-                delete req.session.userOtp;
-                delete req.session.userData;
-                delete req.session.authType;
-
-                return res.json({success:true,redirect:"/"});
-            
-        }
-            else if (authType === "forgot-password") {
-                req.session.isOtpVerified = true;
-                return res.redirect("/reset-password");
-            } 
-            else {
-                return res.render(otpPage, { message: "Invalid authentication type" });
-            }
-        } else {
-            return res.render(otpPage, { message: "Invalid OTP." });
-        }
-    } catch (error) {
-        console.error("OTP verification error:", error);
-        return res.render("user/error", { message: "Internal server error." });
-    }
-};
-
-
-
-// Resend OTP
-const resendOtp = async (req, res) => {
-    try {
-      
-        const { email } = req.session.userData;
-        if (!email) {
-            return res.json({ success: false, message: "Email not found in session" });
-        }
-
-        const otp = generateOtp();
-        req.session.userOtp = otp;
-// req.session.otpExpires = Date.now() + 1 * 60 * 1000
-if (Date.now() > req.session.otpExpires) {
-  return res.json({ success: false, message: "OTP expired. Please resend OTP." });
-}
-
-
-        const emailSent = await sendVerificationEmail(email, otp);
-        if (emailSent) {
-            console.log("Resend OTP:", otp);
-            return res.json({ success: true, message: "OTP resent successfully" });
-        } else {
-            return res.json({ success: false, message: "Failed to resend OTP" });
-        }
-    } catch (error) {
-        console.error("Resend OTP error:", error);
-        return res.json({ success: false, message: "Internal server error" });
-    }
-};
-
-const loadOtpPage = (req, res) => {
-  try {
-    const email = req.session.userData?.email;
-    if (!email) {
-      return res.redirect("/signup");
-    }
-    res.render("user/verify-otp", { email, message: "" });
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).send("Internal Server Error");
+  if (password !== confirmPassword) {
+    return res.render("user/signup", { message: "Passwords do not match" });
   }
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.render("user/signup", { message: "Email already exists" });
+  }
+
+  const otp = generateOtp();
+  const hashedOtp = await bcrypt.hash(otp, 10);
+
+  // delete old OTPs
+  await Otp.deleteMany({ email, purpose: "signup" });
+
+  await Otp.create({
+    email,
+    otp: hashedOtp,
+    purpose: "signup",
+    expiresAt: Date.now() + 60 * 1000
+  });
+
+  await sendVerificationEmail(email, otp);
+
+  req.session.userData = { name, email, phone, password };
+  req.session.authType = "signup";
+
+  return res.render("user/verify-otp");
 };
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Login
 const loadLogin = async (req, res) => {
@@ -401,35 +419,31 @@ const loadForgotPassword = async (req, res) => {
 
 //  Forgot Password
 const forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const findUser = await User.findOne({ email, isAdmin: false });
+  const { email } = req.body;
 
-        if (!findUser) {
-            return res.json({ success: false, message: "User not found" });
-        }
+  const user = await User.findOne({ email, isAdmin: false });
+  if (!user) {
+    return res.json({ success: false, message: "User not found" });
+  }
 
-        if (findUser.isBlocked) {
-            return res.json({ success: false, message: "User is blocked by admin" });
-        }
+  const otp = generateOtp();
+  const hashedOtp = await bcrypt.hash(otp, 10);
 
-        const otp = generateOtp();
-        const emailSent = await sendVerificationEmail(email, otp);
+  await Otp.deleteMany({ email, purpose: "forgot-password" });
 
-        if (!emailSent) {
-            return res.json({ success: false, message: "Failed to send OTP" });
-        }
+  await Otp.create({
+    email,
+    otp: hashedOtp,
+    purpose: "forgot-password",
+    expiresAt: Date.now() + 60 * 1000
+  });
 
-        req.session.userOtp = otp;
-        req.session.userData = { email };
-        req.session.authType = "forgot-password";
+  await sendVerificationEmail(email, otp);
 
-        console.log("Password reset OTP sent:", otp);
-        return res.render("user/ForgotOtp");
-    } catch (error) {
-        console.error("Forgot password error:", error);
-        return res.json({ success: false, message: "Internal server error" });
-    }
+  req.session.userData = { email };
+  req.session.authType = "forgot-password";
+
+  return res.render("user/ForgotOtp");
 };
 
 
@@ -462,7 +476,10 @@ const postResetPassword=async(req,res)=>{
             return res.json({success:false,message:"password do not match"})
         }
         const passwordHash=await bcrypt.hash(password,10)
-        await User.findByIdAndUpdate(password,{$set:{password:passwordHash}})
+     await User.findOneAndUpdate(
+  { email: req.session.userData.email },
+  { password: passwordHash }
+)
         return res.json({success:true,message:"password reset successfully"})
     } catch (error) {
         console.error(error)
@@ -472,21 +489,30 @@ const postResetPassword=async(req,res)=>{
 // -------------------- Verify OTP --------------------
 
 const verifyForgotOtp = async (req, res) => {
-    try {
-        const { otp } = req.body;
+  const { otp } = req.body;
+  const { email } = req.session.userData;
 
-        if (otp != req.session.userOtp) {
-            return res.json({ success: false, message: "Invalid OTP" });
-        }
+  const otpRecord = await Otp.findOne({ email, purpose: "forgot-password" });
 
-        req.session.isOtpVerified = true; // mark OTP verified
-        return res.json({ success: true, redirect: "/reset-password" });
-    } catch (error) {
-        console.error("OTP verification error:", error);
-        return res.json({ success: false, message: "Internal server error" });
-    }
+  if (!otpRecord) {
+    return res.json({ success: false, message: "OTP expired" });
+  }
+
+  if (Date.now() > otpRecord.expiresAt) {
+    await Otp.deleteOne({ _id: otpRecord._id });
+    return res.json({ success: false, message: "OTP expired" });
+  }
+
+  const valid = await bcrypt.compare(otp, otpRecord.otp);
+  if (!valid) {
+    return res.json({ success: false, message: "Invalid OTP" });
+  }
+
+  await Otp.deleteOne({ _id: otpRecord._id });
+
+  req.session.isOtpVerified = true;
+  return res.json({ success: true, redirect: "/reset-password" });
 };
-
 
 
 //  Reset Password

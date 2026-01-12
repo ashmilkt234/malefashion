@@ -12,6 +12,9 @@
     <!-- Icons & Alerts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Cropper.js CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 </head>
 
 <body>
@@ -27,26 +30,33 @@
 
                 <!-- Image Upload Section -->
                 <div class="upload-section">
-                    <div class="upload-grid">
-                        <% for(let i = 0; i < 3; i++) { %>
-                        <div class="upload-box" onclick="triggerFileInput('photo<%= i+1 %>')">
-                            <% if(product.images && product.images[i]) { %>
-                                <img src="/uploads/<%= product.images[i] %>" 
-                                     style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
-                            <% } else { %>
-                                <div class="camera-icon">📷</div>
-                            <% } %>
-                        </div>
-                        <% } %>
-                    </div>
-                </div>
-
+             <div class="upload-grid">
+    <% for(let i = 0; i < 3; i++) { %>
+    <div class="upload-box" data-index="<%= i %>" onclick="triggerFileInput('photo<%= i+1 %>')">
+        <% if(product.productImage && product.productImage[i]) { %>
+            <img src="/uploads/product-images/<%= product.productImage[i] %>" 
+                 alt="Product image <%= i+1 %>" 
+                 style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+            <!-- Optional: Add a small remove button -->
+            <div class="remove-img-btn" onclick="removeImage(event, <%= i %>, '<%= product.productImage[i] %>')">
+                <i class="fas fa-times"></i>
+            </div>
+        <% } else { %>
+            <div class="camera-icon">📷</div>
+            <span class="upload-text">Upload Image <%= i+1 %></span>
+        <% } %>
+    </div>
+    <% } %>
+</div>
                 <!-- File Inputs -->
-                <input type="file" name="productImage[]" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
-                <input type="file" name="productImage[]" id="photo2" class="file-input" accept="image/*" onchange="handleFileUpload(this, 1)">
-                <input type="file" name="productImage[]" id="photo3" class="file-input" accept="image/*" onchange="handleFileUpload(this, 2)">
+                <input type="file" name="productImage[]" id="photo1" class="file-input" accept="image/*">
+                <input type="file" name="productImage[]" id="photo2" class="file-input" accept="image/*">
+                <input type="file" name="productImage[]" id="photo3" class="file-input" accept="image/*">
 
-
+                <!-- Hidden inputs to hold cropped data URLs (will be replaced on submit) -->
+                <input type="hidden" name="croppedImage1" id="cropped1">
+                <input type="hidden" name="croppedImage2" id="cropped2">
+                <input type="hidden" name="croppedImage3" id="cropped3">
 
                 <!-- Name -->
                 <div class="form-group">
@@ -93,19 +103,137 @@
         </div>
     </div>
 
+    <!-- Crop Modal -->
+    <div id="cropModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#fff; padding:20px; border-radius:8px; max-width:90%; max-height:90%;">
+            <h3 style="margin-top:0;">Crop Image</h3>
+            <div id="cropperContainer" style="max-height:70vh;">
+                <img id="cropImage" src="" style="max-width:100%;">
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+                <button id="cancelCrop" style="margin-right:10px;">Cancel</button>
+                <button id="doneCrop">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
-        function triggerFileInput(id){ document.getElementById(id).click(); }
-        function handleFileUpload(input, index){
-            const file = input.files[0];
-            if(file){
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.querySelectorAll('.upload-box')[index].innerHTML =
-                        `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
-                }
-                reader.readAsDataURL(file);
-            }
+        function triggerFileInput(id) {
+            document.getElementById(id).click();
         }
+
+        let currentIndex = null;
+        let cropper = null;
+        let originalFile = null;
+
+        // Store original previews for old images
+        const originalPreviews = [];
+        document.querySelectorAll('.upload-box').forEach(box => {
+            originalPreviews.push(box.innerHTML);
+        });
+
+        document.querySelectorAll('.file-input').forEach((input, idx) => {
+            input.addEventListener('change', function(e) {
+                const file = this.files[0];
+                if (file) {
+                    originalFile = file;
+                    currentIndex = idx;
+
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        document.getElementById('cropImage').src = ev.target.result;
+                        document.getElementById('cropModal').style.display = 'flex';
+
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(document.getElementById('cropImage'), {
+                            aspectRatio: NaN, // free crop (change to 1/1 for square, etc.)
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                            ready: function() {
+                                // optional: set responsive
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        document.getElementById('cancelCrop').onclick = function() {
+            if (cropper) cropper.destroy();
+            document.getElementById('cropModal').style.display = 'none';
+            currentIndex = null;
+            originalFile = null;
+        };
+
+        document.getElementById('doneCrop').onclick = function() {
+            if (cropper && currentIndex !== null) {
+                cropper.getCroppedCanvas({
+                    width: 800,  // adjust desired output width
+                    height: 800, // adjust if needed; remove for proportional
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                }).toBlob(function(blob) {
+                    const croppedURL = URL.createObjectURL(blob);
+
+                    // Update preview box
+                    const box = document.querySelectorAll('.upload-box')[currentIndex];
+                    box.innerHTML = `<img src="${croppedURL}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`;
+
+                    // Store cropped blob in a global array or directly in hidden input as data URL
+                    // Using data URL for simplicity (works fine for most cases)
+                    const dataReader = new FileReader();
+                    dataReader.onload = function() {
+                        document.getElementById(`cropped${currentIndex + 1}`).value = dataReader.result;
+                    };
+                    dataReader.readAsDataURL(blob);
+
+                    // Clear the original file input (so only cropped is sent if new)
+                    document.getElementById(`photo${currentIndex + 1}`).value = '';
+
+                    cropper.destroy();
+                    document.getElementById('cropModal').style.display = 'none';
+                    currentIndex = null;
+                    originalFile = null;
+                }, 'image/jpeg', 0.95); // quality 95%
+            }
+        };
+
+
+
+        function removeImage(event, index, imageName) {
+    event.stopPropagation(); // Prevent triggering file input
+
+    Swal.fire({
+        title: 'Remove this image?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, remove',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Clear preview
+            const box = document.querySelectorAll('.upload-box')[index];
+            box.innerHTML = `
+                <div class="camera-icon">📷</div>
+                <span class="upload-text">Upload Image ${index + 1}</span>
+            `;
+
+            // Send AJAX request to delete from server
+            fetch('/admin/deleteSingleImage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    imageNameToServer: imageName,
+                    productIdToServer: '<%= product._id %>'
+                })
+            });
+        }
+    });
+}
     </script>
 
 </body>

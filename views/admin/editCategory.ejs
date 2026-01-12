@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <link rel="stylesheet" href="/css/dashboard.css">
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <link rel="stylesheet" href="/css/editCategory.css">
@@ -14,7 +15,7 @@
   
 
   <div class="container">
-    <form class="reset-form" method="post" action="/admin/category/edit/<%= category._id %>" id="editCategoryForm">
+    <form class="reset-form" id="editCategoryForm">
 
       <h2 class="form-title">Edit Category</h2>
 
@@ -46,7 +47,10 @@
     </form>
   </div>
 
+
   <script>
+
+    
 const form = document.getElementById("editCategoryForm");
 const categoryInput = document.getElementById("categoryName");
 const descriptionInput = document.getElementById("description");
@@ -56,10 +60,17 @@ let originalCategoryName = "";
 let originalDescription = "";
 let existingCategories = [];
 let categoryId = "";
-
 // Get category ID from URL
 const pathSegments = window.location.pathname.split('/');
 categoryId = pathSegments[pathSegments.length - 1];
+
+
+window.addEventListener("DOMContentLoaded", () => {
+  originalCategoryName = categoryInput.value.trim();
+  originalDescription = descriptionInput.value.trim();
+});
+
+
 
 // Load category data from server
 
@@ -69,13 +80,32 @@ function validateCategoryName(value) {
   const errors = [];
   const trimmed = value.trim();
 
-  if (!trimmed) errors.push("Category name is required");
-  if (trimmed.length < 2) errors.push("Category name must be at least 2 characters");
-  if (trimmed.length > 50) errors.push("Category name must be no more than 50 characters");
-  if (!/^[a-zA-Z0-9\s&-]+$/.test(trimmed)) errors.push("Only letters, numbers, spaces, & and - allowed");
-  if (existingCategories.some(cat => cat.toLowerCase() === trimmed.toLowerCase())) errors.push("Category name already exists");
+  if (!trimmed) {
+  errors.push("Category name is required");
+}
 
-  return errors;
+if (trimmed.length < 2) {
+  errors.push("Category name must be at least 2 characters");
+}
+
+if (trimmed.length > 50) {
+  errors.push("Category name must be no more than 50 characters");
+}
+
+if (! /^[a-zA-Z0-9\s&\-_,.'’()]+$/.test(trimmed)) {
+  errors.push("Only letters, numbers, spaces, and basic symbols are allowed");
+}
+
+if (
+  existingCategories.some(
+    cat =>
+      cat.toLowerCase() === trimmed.toLowerCase() &&
+      trimmed.toLowerCase() !== (originalCategoryName || "").toLowerCase()
+  )
+) {
+  errors.push("Category name already exists");
+}
+return errors;
 }
 
 // Validate description
@@ -173,6 +203,8 @@ form.addEventListener("submit", async (e) => {
     }
   }
 });
+
+
 
 
 </script>

@@ -1,0 +1,45 @@
+
+  <div class="sidebar">
+    <div class="user-info">
+      <i class="fa-solid fa-user-circle user-icon"></i>
+      <h3 class="username">
+        <%= user?.name || "User" %>
+      </h3>
+      <p class="user-email">
+        <%= user?.email || "" %>
+      </p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="/userprofile">
+            <i class="fa-solid fa-id-card"></i>
+            Profile
+          </a>
+        </li>
+
+        <li>
+          <a href="/orders">
+            <i class="fa-solid fa-box"></i>
+            Orders
+          </a>
+        </li>
+
+        <li>
+          <a href="/wishlist">
+            <i class="fa-solid fa-heart"></i>
+            Wishlist
+          </a>
+        </li>
+
+        <li>
+          <a href="/logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
