@@ -3,6 +3,8 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const { restore, softDelete } = require("./productController");
+const category = require("../../models/categorySchema");
 
 
 
@@ -21,6 +23,8 @@ const categoryInfo = async (req, res) => {
       name: { $regex: search, $options: "i" }
     };
 
+
+    
     const totalCategories = await Category.countDocuments(query);
     const categories = await Category.find(query)
       .skip(skip)
@@ -47,8 +51,8 @@ const categoryInfo = async (req, res) => {
 
 // ================= Add Category =================
 const addCategory = async (req, res) => {
-  const { name, description } = req.body;
-
+  const { name, description} = req.body;
+const hasSize=!!req.body.hasSize;
   try {
     // Check category exists
     const existingCategory = await Category.findOne({ name });
@@ -58,7 +62,7 @@ const addCategory = async (req, res) => {
     }
 
     // Save new category
-    const newCategory = new Category({ name, description });
+    const newCategory = new Category({ name, description ,hasSize});
     await newCategory.save();
 
     res.status(201).json({ message: "Category added successfully" });
@@ -132,7 +136,7 @@ const removeCategoryOffer = async (req, res) => {
       return res.json({ status: false, message: "Category not found" });
     }
 
-    const percentage = category.categoryOffer;
+    const percentage = category.categoryOffer;  
 
     // Get products
     const products = await Product.find({ category: category._id });
@@ -258,9 +262,35 @@ return res.status(200).json({
   }
 };
 
+const softDeletecategory =async (req,res)=>{
+  try {
+  let categoryId=req.params.id
+console.log("SOFT DELETE HIT:", categoryId); 
+  await Category.findByIdAndUpdate(categoryId,{
+    isDeleted:true,
+    isListed:false
+  })
+  res.redirect("/admin/category")
+}
 
 
-
+catch (error) {
+    console.log(error);
+    
+  }
+}
+const restorecategory=async(req,res)=>{
+  try {
+    let categoryId=req.params.id
+    await Category.findByIdAndUpdate(categoryId,{
+      isDeleted:false,
+        isListed:false
+    })
+      res.redirect("/admin/category")
+  } catch (error) {
+    console.log(error)
+  }
+}
 module.exports = {
   categoryInfo,
   addCategory,
@@ -270,5 +300,7 @@ module.exports = {
   getListCategory,
   getUnlistCategory,
   loadEditCategory,
-  editCategory
+  editCategory,
+  restorecategory,
+  softDeletecategory
 };

@@ -109,7 +109,20 @@
           <%= product.about || 'Oxford cotton shirt with a button-down collar, chest pocket, and long sleeves. Regular fit with a classic silhouette.' %>
         </p>
 
-    
+    <% if (product.sizes && product.sizes.length > 0) { %>
+  <div class="product-sizes mt-3">
+    <h6>Select Size</h6>
+
+    <div class="size-options">
+      <% product.sizes.forEach(size => { %>
+        <label class="size-box">
+          <input type="radio" name="size" value="<%= size %>">
+          <span><%= size %></span>
+        </label>
+      <% }) %>
+    </div>
+  </div>
+<% } %>
 
    
 
@@ -227,113 +240,99 @@
 
   <%- include("partials/user/footer") %>
 
-  <script>
-
-
-
-function updatePrice() {
-  const qty = parseInt(document.getElementById("quantity").value);
-
-  const priceEl = document.getElementById("totalPrice");
-  const originalEl = document.getElementById("originalPrice");
-
-  const basePrice = parseFloat(priceEl.dataset.basePrice);
-  const originalPrice = parseFloat(originalEl.dataset.originalPrice);
-
-  const totalPrice = basePrice * qty;
-  const totalOriginal = originalPrice * qty;
-
-  priceEl.innerText = `₹${totalPrice.toLocaleString("en-IN")}`;
-  originalEl.innerText = `₹${totalOriginal.toLocaleString("en-IN")}`;
-}
-
-function increaseQty() {
-  const input = document.getElementById("quantity");
-  input.value = parseInt(input.value) + 1;
-  updatePrice();
-}
 
 
 
 
-function changeImage(img) {
-  const mainImg = $("#mainImage");
+<script>
+  // Quantity functions
+  function updatePrice() {
+    const qty = parseInt(document.getElementById("quantity").value);
+    const priceEl = document.getElementById("totalPrice");
+    const originalEl = document.getElementById("originalPrice");
 
-  // Update main image & zoom source
-  mainImg.attr("src", img.src);
-  mainImg.attr("data-zoom-image", img.src);
+    const basePrice = parseFloat(priceEl.dataset.basePrice);
+    const originalPrice = parseFloat(originalEl.dataset.originalPrice);
 
-  // Remove old zoom container
-  $('.zoomContainer').remove();
-  mainImg.removeData('elevateZoom');
-  
-  // Reinitialize zoom
-  mainImg.elevateZoom({
-    zoomType: "lens",
-    lensShape: "round",
-    lensSize: 200,
-    scrollZoom: true
-  });
+    const totalPrice = basePrice * qty;
+    const totalOriginal = originalPrice * qty;
 
-  // Switch thumbnail active class
-  document.querySelectorAll('.thumbnail-column img')
-    .forEach(t => t.classList.remove('active'));
-  img.classList.add('active');
-}
+    priceEl.innerText = `₹${totalPrice.toLocaleString("en-IN")}`;
+    originalEl.innerText = `₹${totalOriginal.toLocaleString("en-IN")}`;
+  }
 
-    function openTab(evt, tabId) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      evt.currentTarget.classList.add('active');
+  function increaseQty() {
+    const input = document.getElementById("quantity");
+    input.value = parseInt(input.value) + 1;
+    updatePrice();
+  }
+
+  function decreaseQty() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+      input.value = parseInt(input.value) - 1;
+      updatePrice();
     }
+  }
 
+  // Tab switching
+  function openTab(evt, tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-buttons button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
 
- 
+  // Thumbnail image change + zoom reinitialize
+  function changeImage(thumb) {
+    const mainImg = $("#mainImage");
 
-    function selectSize(element) {
-      document.querySelectorAll('.size-option').forEach(opt => {
-        opt.classList.remove('active');
-      });
-      element.classList.add('active');
-    }
+    // Update sources
+    const newSrc = thumb.src;
+    mainImg.attr("src", newSrc);
+    mainImg.data("zoom-image", newSrc);   // ← important: use .data()
 
-  
+    // Remove previous zoom completely
+    $('.zoomContainer').remove();
+    mainImg.removeData('elevateZoom');
 
-    function decreaseQty() {
-      const input = document.getElementById('quantity');
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-         updatePrice();
-      }
-    }
+    // Re-apply zoom with Flipkart-like settings
+    mainImg.elevateZoom({
+      zoomType: "lens",
+      lensShape: "round",
+      lensSize: 180,                // size of the lens (adjust 150–250)
+      lensBorderSize: 2,
+      lensBorderColour: "#333",
+      borderSize: 1,
+      borderColour: "#ddd",
+      cursor: "zoom-in",            // or "crosshair"
+      containLensZoom: true,        // keeps lens inside image bounds
+      scrollZoom: true,             // zoom with mouse wheel
+      responsive: true              // good if your layout is responsive
+    });
 
+    // Update active thumbnail class
+    document.querySelectorAll('.thumbnail-column img')
+      .forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+  }
 
-    function selectColor(element) {
-  document.querySelectorAll('.color-option').forEach(opt => {
-    opt.classList.remove('active');
+  // Initial zoom setup on page load
+  $(function () {
+    $("#mainImage").elevateZoom({
+      zoomType: "lens",
+      lensShape: "round",
+      lensSize: 180,
+      lensBorderSize: 2,
+      lensBorderColour: "#333",
+      borderSize: 1,
+      borderColour: "#ddd",
+      cursor: "zoom-in",
+      containLensZoom: true,
+      scrollZoom: true,
+      responsive: true
+    });
   });
-  element.classList.add('active');
-}
-
-function selectSize(element) {
-  document.querySelectorAll('.size-option').forEach(opt => {
-    opt.classList.remove('active');
-  });
-  element.classList.add('active');
-}
-
-
-$(function () {
-  $("#mainImage").elevateZoom({
-    zoomType: "lens",
-    lensShape: "round",
-    lensSize: 200,
-    scrollZoom: true
-  });
-});
-
-
-  </script>
+</script>
 </body>
 </html>

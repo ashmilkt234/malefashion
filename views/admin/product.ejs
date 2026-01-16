@@ -51,20 +51,24 @@
               <td><%= product.productName %></td>
             <td><%= product.category ? product.category.name : "No Category" %></td>
                 <td><%=product.description %></td>
-                <td><%if(!product.isDeleted){%>
-                <form action="/admin/product/delete/<%=product._id%>" method="post">
-                <button class="btn btn-warning btn-sm" onclick="return confirm('Soft delete this product?')">
-                  Delete
-                </button>
-                </form>
-                <%}else{%>
-                  <form action="/admin/product/restore/<%=product._id%>"  method="post">
-                  <button class="btn btn-success btn-sm">
-                    Restore
-                  </button>
-                  </form>
-                  <%}%>
-                </td>
+          <td>
+  <% if (!product.isDeleted) { %>
+    <form action="/admin/product/delete/<%= product._id %>" method="post">
+      <button class="btn btn-warning btn-sm"
+              onclick="return confirm('Soft delete this product?')">
+        Delete
+      </button>
+    </form>
+  <% } else { %>
+    <form action="/admin/product/restore/<%= product._id %>" method="post">
+      <button class="btn btn-success btn-sm"
+              onclick="return confirm('Restore this product?')">
+        Restore
+      </button>
+    </form>
+  <% } %>
+</td>
+
          
               <td>₹<%= product.salesPrice %></td>
           <td><%= product.quantity > 0 ? product.quantity : 0 %></td>
@@ -144,5 +148,10 @@
       }
     });
   }
+
+
+
+
+ 
 </script>
 

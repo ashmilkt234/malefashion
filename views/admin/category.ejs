@@ -35,6 +35,8 @@
         <tr>
           <th>Category Name</th>
           <th>Description</th>
+      <th>SoftDelete</th>
+          <th>Size</th>
           <th>Offer Price</th>
           <th>Offer</th>
           <th>Status</th>
@@ -48,6 +50,35 @@
           <tr>
             <td><%= category.name %></td>
             <td><%= category.description %></td>
+            <td>
+  <% if (!category.isDeleted) { %>
+    <!-- DELETE -->
+    <form action="/admin/category/delete/<%= category._id %>" method="POST" style="display:inline;">
+      <button type="submit" class="btn btn-danger btn-sm"
+        onclick="return confirm('Delete this category?')">
+        Delete
+      </button>
+    </form>
+  <% } else { %>
+    <!-- RESTORE -->
+    <form action="/admin/category/restore/<%= category._id %>" method="POST" style="display:inline;">
+      <button type="submit" class="btn btn-success btn-sm"
+        onclick="return confirm('Restore this category?')">
+        Restore
+      </button>
+    </form>
+  <% } %>
+</td>
+
+   
+<td>
+  <% if (category.hasSize) { %>
+    <span class="badge bg-success">Yes</span>
+  <% } else { %>
+    <span class="badge bg-secondary">No</span>
+  <% } %>
+</td>
+
             <td><%= category.categoryOffer ? category.categoryOffer + '%' : '0%' %></td>
             <!-- <td><%= category.createdAt.toLocaleDateString('en-IN') %></td> -->
             <td>
@@ -203,4 +234,7 @@
       console.error(err);
     }
   }
-</script>
+
+
+  
+  </script>

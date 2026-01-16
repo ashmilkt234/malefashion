@@ -1,7 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const adminController = require("../controllers/admin/adminController");
-const userController=require("../controllers/admin/userController")
+
+const adminDashboardController=require("../controllers/admin/adminDashboardController")
+const adminUserController=require("../controllers/admin/adminUserController")
+const adminAuthController=require("../controllers/admin/adminAuthController")
+const adminErrorController=require("../controllers/admin/adminErrorController")
+
+// const userController=require("../controllers/admin/userController")
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require("../controllers/admin/productController")
 const adminAuth=require("../middleware/adminAuth")
@@ -13,29 +18,27 @@ const upload=multer()
 
 
 // ----------------- Admin Authentication -----------------
-router.get("/login",guestAdmin,adminController.loadLogin);
-router.post("/login",guestAdmin,nocache(),adminController.adminLogin);
-router.get("/logout",adminAuth,adminController.logout)
+router.get("/login",guestAdmin,adminAuthController.loadLogin);
+router.post("/login",guestAdmin,nocache(),adminAuthController.adminLogin);
+router.get("/logout",adminAuth,adminAuthController.logout)
 
 
 
 // Error page
-router.get("/pageerror",adminController.errorpage)
+router.get("/pageerror", adminErrorController.pageerror)
 
 
 
 // ----------------- Dashboard -----------------
-router.get("/dashboard",adminAuth, adminController.loadDashboard);
+router.get("/dashboard",adminAuth, adminDashboardController.loadDashboard);
 
 
 //  Users -----------------
-router.get("/user", adminAuth, adminController.userList);
-router.get("/user/:id", adminAuth, userController.userInfo);
-router.post("/user/:id/blockuser",adminAuth,userController.userBlocked)
-router.post("/user/:id/unblockuser",adminAuth,userController.userunBlocked)
-router.post("/logout", adminAuth, adminController.logout);
-router.post("/block/:userId", adminAuth, adminController.blockUser);
-router.post("/unblock/:userId", adminAuth, adminController.unblockUser);
+router.get("/user", adminAuth, adminUserController.userInfo);
+router.post("/user/:id/block", adminAuth, adminUserController.userBlocked);
+router.post("/user/:id/unblock", adminAuth, adminUserController.userunBlocked);
+
+router.post("/logout", adminAuth, adminAuthController.logout);
 
 
 // ----------------- Categories -----------------
@@ -48,7 +51,8 @@ router.get("/listCategory",adminAuth,categoryController.getListCategory)
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory)
 router.get("/edit/:id" ,adminAuth,categoryController.loadEditCategory);
 router.post("/edit/:id",adminAuth,upload.none(),categoryController.editCategory)
-
+router.post("/category/delete/:id",adminAuth,categoryController.softDeletecategory)
+router.post("/category/restore/:id",adminAuth,categoryController.restorecategory)
 // ----------------- Products -----------------
 
 router.get("/addProduct",adminAuth,productController.getProductAddPage)

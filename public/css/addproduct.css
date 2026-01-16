@@ -1,4 +1,36 @@
-   
+   .size-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.size-box {
+    cursor: pointer;
+}
+
+.size-box input {
+    display: none;
+}
+
+.size-box span {
+    display: inline-block;
+    padding: 10px 18px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.size-box input:checked + span {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.size-box span:hover {
+    border-color: #000;
+}
+
 
 
 

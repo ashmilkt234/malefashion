@@ -150,7 +150,7 @@ const pageNotFound = async (req, res) => {
 const loadHomepage = async (req, res) => {
   try {
 
-    const categories = await Category.find({ isListed: true }).lean();
+    const categories = await Category.find({ isListed: true ,isDeleted:false}).lean();
 
 
     const productData = await Product.find({
@@ -207,7 +207,7 @@ const loadShopping = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Fetch ONLY listed categories
-    const categories = await Category.find({ isListed: true }).lean();
+    const categories = await Category.find({ isListed: true,isDeleted:false }).lean();
     const categoryIds = categories.map(c => c._id.toString());
 
     let filter = {

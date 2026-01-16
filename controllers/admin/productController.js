@@ -31,6 +31,7 @@ const getProductAddPage = async (req, res) => {
 const addProducts = async (req, res) => {
   try {
     const products = req.body;
+console.log("REQ BODY:", req.body);
 
     // Check if product already exists
     const productExists = await Product.findOne({
@@ -55,7 +56,7 @@ const addProducts = async (req, res) => {
       for(let file of req.files){
         const filename=Date.now()+"-"+file.originalname
           // Resize/crop image to 500x500
-        await sharp(file.buffer)
+        await sharp(file.path)
           .resize(500, 500, { fit: "cover" }) // crops to square
           .jpeg({ quality: 90 })
           .toFile(path.join(uploadPath, filename));
@@ -70,17 +71,31 @@ const addProducts = async (req, res) => {
     const categoryId = await Category.findOne({ name: products.category });
     if (!categoryId) return res.status(400).json("Invalid category");
 
+
+    //size 
+
+    let sizesArray=[]
+    if(categoryId.hasSize){
+      if(!products.sizes||products.sizes.length===0){
+        return res.redirect("/admin/addProduct?error=Please select at least one size")
+      
+      }
+      sizesArray=Array.isArray(products.sizes)?products.sizes:[products.sizes]
+    }
+
     // Create product object
     const newProduct = new Product({
       productName: products.productName,
       description: products.description,
       category: categoryId._id,
+      sizes: sizesArray,
       salesPrice: products.salesPrice,
       quantity: Number(products.quantity),
       productImage: images,
       status: "Available",
       createdOn: new Date(),
     });
+console.log("FINAL SIZES:", sizesArray);
 
     // Save product
     await newProduct.save();
@@ -101,11 +116,12 @@ const getAllProducts = async (req, res) => {
     const search = req.query.search || "";
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
-
-    // Find products by name
-    const productData = await Product.find({
+   const query = {
       productName: { $regex: search, $options: "i" }
-    })
+ 
+    };
+    // Find products by name
+    const productData = await Product.find(query)
       .limit(limit)
       .skip((page - 1) * limit)
       .populate("category")
@@ -113,9 +129,7 @@ const getAllProducts = async (req, res) => {
       .lean();
 
     // Count products
-    const count = await Product.countDocuments({
-      productName: { $regex: search, $options: "i" }
-    });
+    const count = await Product.countDocuments(query);
 
     // Render page
     res.render("admin/product", {
@@ -293,7 +307,7 @@ const deleteSingleImage = async (req, res) => {
 
 
 ///soft delete
-const softDelete=async (req,res)=>{
+const     softDelete=async (req,res)=>{
   try {
     await Product.findByIdAndUpdate(req.params.id,{
       isDeleted:true,

@@ -1,4 +1,3 @@
-// models/productSchema.js
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -7,68 +6,84 @@ const productSchema = new Schema(
     productName: {
       type: String,
       required: true,
+      trim: true,
+      minlength: 3
     },
+
     description: {
-    
       type: String,
       required: true,
-    }
-    ,
+      minlength: 10
+    },
+
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
+      required: true
     },
-// size: {
-//   type: [String], // or String, if only one size per product
-//   required: true,
-// },
+
+    
+    sizes: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function (value) {
+          // if category has size, at least one size required
+          if (this._hasSizeCategory && value.length === 0) {
+            return false;
+          }
+          return true;
+        },
+        message: "Size is required for this category"
+      }
+    },
+
     salesPrice: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
+
     productOffer: {
-      // Fixed typo
       type: Number,
-      default: 0,
+      default: 0
     },
+
     quantity: {
-      // Changed from quality to quantity
       type: Number,
       required: true,
       min: 0,
-      default: 1,
+      default: 1
     },
-    isDeleted:{
-      type:Boolean,
-      defalut:false
-    },
-    deletedAt:{
-      type:Date,
-      default:null
-    },
-    // color: {
-    //   type: String,
-    //   required: true,
-    // },
+
     productImage: {
-      type: [String], // Changed to array for multiple images
+      type: [String],
       required: true,
+      validate: [arr => arr.length > 0, "At least one image required"]
     },
+
     isBlocked: {
       type: Boolean,
-      default: false,
+      default: false
     },
+
     status: {
       type: String,
-      enum: ["Available", "out of stock", "Discontinued"], 
-      required: true,
-      default: "Available",
+      enum: ["Available", "Out of Stock", "Discontinued"],
+      default: "Available"
     },
+
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null
+    }
   },
   { timestamps: true }
 );
 
-const Product = mongoose.model("Product", productSchema);
-module.exports = Product;
+module.exports = mongoose.model("Product", productSchema);
