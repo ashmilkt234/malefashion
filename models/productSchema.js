@@ -52,8 +52,7 @@ const productSchema = new Schema(
     quantity: {
       type: Number,
       required: true,
-      min: 0,
-      default: 1
+      min:[0,"stock cannot be negative"]
     },
 
     productImage: {

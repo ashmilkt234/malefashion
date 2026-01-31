@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 // ================= User Profile =================
 const getUserProfile = async (req, res) => {
   try {
-    // Check if user is logged in
+
     if (!req.session.user) {
       return res.redirect("/login");
     }
@@ -76,7 +76,6 @@ console.log("USER PASSWORD:", user.password)
 }
 
 
-// Export function
 module.exports = {
   getUserProfile,
   getchangepassword,

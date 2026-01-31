@@ -1,62 +1,68 @@
-// Import models
+const Category = require("../../models/categorySchema"); 
 const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema");
-
-
-
-
-// ================= Product Details Page =================
 const getProductDetailPage = async (req, res) => {
   try {
-    // Get product id from URL
     const productId = req.params.id;
-console.log("PRODUCT ID", productId);
-    // Get active categories
-    const categories = await Category.find({ status: "active" }).lean();
 
-    // Get product details
-    const productData = await Product.findById(productId).populate("category").lean();
+    const categories = await Category.find({ isDeleted: false, isListed: true }).lean();
 
-    // If product not found
-    if (!productData) {
-      return res.status(404).send("Product not found");
-    }
-if(!productData.category){
-  console.log('category for null',productId)
-  return res.redirect("/shop")
-}
-console.log("PRODUCT CATEGORY", productData.category);
-console.log("CATEGORY ID", productData.category._id)
-    // Get related products from same category
-    const relatedProducts = await Product.find({
-      
-      category: productData.category._id,
-      _id: { $ne: productId } 
-    })
-    .populate("category")
-      .limit(4)
-      .sort({createdAt:-1})
+    const productData = await Product.findById(productId)
+      .populate("category")
       .lean();
-      console.log("PRODUCT CATEGORY", productData.category);
-console.log("TYPE", typeof productData.category);
-console.log("realtd product",relatedProducts);
-    // Breadcrumb data
+
+    //  Product not found or deleted
+    if (!productData || productData.isDeleted) {
+      return res.status(404).render("user/productUnavailable", {
+        title: "Product Unavailable",
+        message: "This product is no longer available."
+      });
+    }
+
+
+    if (productData.isBlocked) {
+      return res.status(403).render("user/productUnavailable", {
+        title: "Product Blocked",
+        message: "This product is temporarily blocked by admin."
+      });
+    }
+
+ 
+    if (
+      !productData.category ||
+      productData.category.isDeleted ||
+      !productData.category.isListed
+    ) {
+      return res.status(403).render("user/productUnavailable", {
+        title: "Category Unavailable",
+        message: "This product category is no longer available."
+      });
+    }
+
+    // Related products
+    const relatedProducts = await Product.find({
+      category: productData.category._id,
+      _id: { $ne: productId },
+      isDeleted: false,
+      isListed: true
+    })
+      .populate("category")
+      .limit(4)
+      .sort({ createdAt: -1 })
+      .lean();
+
     const breadcrumb = [
       { name: "Home", url: "/" },
       { name: "Shop", url: "/shop" },
       { name: productData.productName, url: `/product/${productId}` }
     ];
 
-
-    // Render product details page
     res.render("user/productDetails", {
       product: productData,
-      products: relatedProducts,
-      salesPrice: productData.salesPrice,
       relatedProducts,
       breadcrumb,
       selectedCategory: productData.category,
-      categories
+      categories,
+      isBlocked: false
     });
 
   } catch (error) {
@@ -64,10 +70,4 @@ console.log("realtd product",relatedProducts);
     res.status(500).send("error");
   }
 };
-
-
-
-// Export function
-module.exports = {
-  getProductDetailPage
-};
+module.exports={getProductDetailPage}

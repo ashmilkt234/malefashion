@@ -260,6 +260,12 @@ body {
   background: #000;
   color: #fff;
 }
+.clear-btn {
+  display: inline-block; /* ensures padding and width behave properly */
+  text-decoration: none; /* remove underline */
+  text-align: center; /* centers text if width is larger */
+}
+
 
 /* ================= RESPONSIVE ================= */
 @media(max-width: 768px) {

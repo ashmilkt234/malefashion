@@ -2,20 +2,35 @@ const User = require("../models/userSchema");
 
 const blockCheck = async (req, res, next) => {
   try {
-    if (req.session.user) {
-      const user = await User.findById(req.session.user);
-
-      if (!user || user.isBlocked) {
-        req.session.destroy();
-        return res.render("user/blocked")
-      }
-
-      req.user = user;
+    // Allow guests
+    if (!req.session.user) {
+      return next();
     }
 
+    const user = await User.findById(req.session.user._id).lean();
+
+    // User removed from DB
+    if (!user) {
+      return req.session.destroy(() => {
+        res.redirect("/login");
+      });
+    }
+
+    // User blocked by admin
+    if (user.isBlocked) {
+      return req.session.destroy(() => {
+        res.render("user/blocked", {
+          title: "Account Restricted"
+        });
+      });
+    }
+
+    //  user to request
+    req.user = user;
     next();
+
   } catch (error) {
-    console.log("Block Check Error:", error);
+    console.error("Block Check Error:", error);
     next();
   }
 };

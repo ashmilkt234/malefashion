@@ -444,3 +444,17 @@
   background: #a5b4fc;
   cursor: not-allowed;
 }
+
+
+.back-btn {
+            padding: 8px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        } 
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        } 

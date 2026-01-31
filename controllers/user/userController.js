@@ -145,8 +145,7 @@ const pageNotFound = async (req, res) => {
     }
 };
 
-// Homepage
-// controller
+
 const loadHomepage = async (req, res) => {
   try {
 
@@ -164,16 +163,15 @@ const loadHomepage = async (req, res) => {
       .lean();
 
  
-    const userId =
-      req.session?.user?._id ||
-      req.session?.user?.id ||
-      req.session?.user || null;
+    const userId =req.session.user || null;
+     
 
     if (userId) {
       const userData = await User.findById(userId).lean();
       if (!userData) {
         return res.render("user/error", { message: "User not found" });
       }
+      
       return res.render("user/home", {
         user: userData,
         products: productData,
@@ -199,8 +197,6 @@ const loadHomepage = async (req, res) => {
 //  Shopping
 const loadShopping = async (req, res) => {
   try {
-
-
     const { category, sort, page = 1, minPrice, maxPrice, search } = req.query;
 
     const limit = 8;
@@ -212,7 +208,7 @@ const loadShopping = async (req, res) => {
 
     let filter = {
       isBlocked: false,
- isDeleted:{$ne:true},
+ isDeleted:false,
       quantity: { $gt: 0 },
       category: { $in: categoryIds } 
     };
@@ -246,8 +242,7 @@ const loadShopping = async (req, res) => {
     if (sort === "lowtohigh") sortOption = { salesPrice: 1 };
     if (sort === "hightolow") sortOption = { salesPrice: -1 };
 
-    // Count
-   ;
+
 
     // Fetch products
     const products = await Product.find(filter)
@@ -560,12 +555,6 @@ const loadErrorPage = (req, res) => {
 };
 
 
-
-
-
-
-
-
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -585,6 +574,4 @@ module.exports = {
     loadOtpPage,
     verifyForgotOtp ,
     postResetPassword
-
-  
 };

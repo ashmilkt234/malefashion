@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+    }
+
+    .unavailable-wrapper {
+      width: 92%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 45px 38px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+      animation: slideUp 0.6s ease;
+    }
+
+    .icon-box {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      box-shadow: 0 14px 40px rgba(239, 68, 68, 0.6);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: #cbd5f5;
+      margin-bottom: 30px;
+    }
+
+    .action-btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 35px rgba(37, 99, 235, 0.65);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="unavailable-wrapper">
+    <div class="icon-box">🚫</div>
+
+    <h2><%= title %></h2>
+    <p><%= message %></p>
+
+    <a href="/shop" class="action-btn">Back to Shop</a>
+  </div>
+
+</body>
+</html>

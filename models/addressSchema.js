@@ -3,7 +3,7 @@ const { schema } = require("./userschema");
  const {Schema}=mongoose;
  const addressSchema=new Schema({
     userId:{
-        type:schema.Types.Objectid,
+        type:schema.Types.ObjectId,
         ref:"User",
         required:true
     },
@@ -17,24 +17,24 @@ const { schema } = require("./userschema");
             required:true,
         },
         city:{
-            type:string,
+            type:String,
             required:true
         },
          landMark:{
-            type:string,
+            type:String,
             required:true
         }, state:{
-            type:string,
+            type:String,
             required:true
         }, pincode:{
             type:Number,
             required:true
         }, phone:{
-            type:string,
+            type:String,
             required:true
         },
          altphone:{
-            type:string,
+            type:String,
             required:true
         },
 

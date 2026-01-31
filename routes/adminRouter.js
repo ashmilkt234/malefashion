@@ -18,7 +18,7 @@ const upload=multer()
 
 
 // ----------------- Admin Authentication -----------------
-router.get("/login",guestAdmin,adminAuthController.loadLogin);
+router.get("/login",guestAdmin,nocache(),adminAuthController.loadLogin);
 router.post("/login",guestAdmin,nocache(),adminAuthController.adminLogin);
 router.get("/logout",adminAuth,adminAuthController.logout)
 
@@ -59,14 +59,21 @@ router.get("/addProduct",adminAuth,productController.getProductAddPage)
 // router.get("/product/:id",adminAuth,productController.getProduct)
 router.post("/addProduct",adminAuth,uploads.array("productImage",3),productController.addProducts)
 router.get("/product",adminAuth,productController.getAllProducts)
-router.get("/blockProduct",adminAuth,productController.blockProduct)
-router.get("/unblockProduct",adminAuth,productController.unblockProduct)
-router.get("/editProduct/:id",adminAuth,productController.getEditProduct)
-router.post("/editProduct/:id",adminAuth,uploads.array("productImage",3),productController.editProduct)
-router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
-router.post("/product/delete/:id",adminAuth,productController.softDelete)
-router.post("/product/restore/:id",adminAuth,productController.restore)
+router.patch("/product/:id/block",adminAuth,productController.blockProduct)//
+router.patch('/product/:id/updatestock',adminAuth,productController.updatestock)
+router.patch("/product/:id/unblock",adminAuth,productController.unblockProduct)
+
+router.get("/editProduct/:id",adminAuth,productController.getEditProduct)
+
+router.post("/editProduct/:id",adminAuth,uploads.array("productImage",3),productController.editProduct)//
+
+router.delete("/deleteImage",adminAuth,productController.deleteSingleImage)
+
+
+router.post("/product/:id/soft-delete",adminAuth,productController.softDelete)
+
+router.post("/product/:id/restore",adminAuth,productController.restore)
 
 
 module.exports = router;

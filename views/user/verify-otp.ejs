@@ -49,6 +49,8 @@
     </div>
 
     <script>
+      let isOtpExprired=false
+
       // Elements
       const otpInputs = Array.from(document.querySelectorAll(".otp-box input"));
       const verifyBtn = document.getElementById("verifyBtn");
@@ -146,6 +148,7 @@
 
           if (timeLeft <= 0) {
             clearInterval(timerInterval);
+            isOtpExpired = true;  
             // set a simple expired message but keep the countdown span replaced afterwards
             timerEl.textContent = "OTP expired!";
             // enable resend after small delay so user sees expired feedback
@@ -213,6 +216,15 @@
 
       // VERIFY OTP
       function verifyOTP() {
+        if (isOtpExpired) {
+    Swal.fire({
+      icon: "error",
+      title: "OTP Expired!",
+      text: "Your OTP has expired. Please resend OTP.",
+      confirmButtonColor: "#ef4444",
+    });
+    return;
+  }
         let enteredOTP = otpInputs.map((i) => i.value).join("");
 
         if (enteredOTP.length !== 6) {
@@ -282,6 +294,7 @@
 
       // RESEND OTP
       function resendOTP() {
+        isOtpExpired = false;
         // allow clicking only when active
         if (!resendLink.classList.contains("active")) return;
 

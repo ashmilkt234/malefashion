@@ -1,21 +1,22 @@
   <%- include('../partials/admin/header') %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/product.css">
 <link rel="stylesheet" href="/css/dashboard.css">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
- <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- <link rel="stylesheet" href="/css/productt.css"> -->
 
 
 
   <div class="main-content ">
+  
     <div class="container p-4 bg-white rounded shadow" style="margin-top: 7px;">
-
+  
       <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="back-btn" onclick="goBack()">← Back</button>
         <h3 style="margin-left: 100px;">Products</h3>
 
         <!-- Search Bar -->
@@ -39,59 +40,71 @@
                <th>Description</th>
           <th>Soft Delete</th>
             <th>Price</th>
-            <th>Stock</th>
+            <th>Stock</th> 
             <th>Action</th>
             <th>Edit</th>
           </tr>
         </thead>
 
-        <tbody>
-          <% data.forEach(product => { %>
-            <tr>
-              <td><%= product.productName %></td>
-            <td><%= product.category ? product.category.name : "No Category" %></td>
-                <td><%=product.description %></td>
-          <td>
+      <tbody>
+       
+
+  <% if (data && data.length > 0) { %>
+    <% data.forEach(product => { %>
+      <tr>
+        <td><%= product.productName %></td>
+
+        <td><%= product.category ? product.category.name : "No Category" %></td>
+
+        <td><%= product.description %></td>
+
+ <td>
   <% if (!product.isDeleted) { %>
-    <form action="/admin/product/delete/<%= product._id %>" method="post">
-      <button class="btn btn-warning btn-sm"
-              onclick="return confirm('Soft delete this product?')">
-        Delete
-      </button>
-    </form>
+    <button class="btn btn-danger btn-sm"
+      onclick="confirmDelete('<%= product._id %>')">
+      Delete
+    </button>
   <% } else { %>
-    <form action="/admin/product/restore/<%= product._id %>" method="post">
-      <button class="btn btn-success btn-sm"
-              onclick="return confirm('Restore this product?')">
-        Restore
-      </button>
-    </form>
+    <button class="btn btn-success btn-sm"
+      onclick="confirmRestore('<%= product._id %>')">
+      Restore
+    </button>
   <% } %>
 </td>
 
-         
-              <td>₹<%= product.salesPrice %></td>
-          <td><%= product.quantity > 0 ? product.quantity : 0 %></td>
+        <td>₹<%= product.salesPrice %></td>
 
-              <td>
-               <% if (!product.isBlocked) { %>
-  <button class="btn btn-danger btn-sm"
-          onclick="confirmBlock('<%= product._id %>')">
-    Block
-  </button>
-<% } else { %>
-  <button class="btn btn-success btn-sm"
-          onclick="confirmUnblock('<%= product._id %>')">
-    Unblock
-  </button>
-<% } %>
+        <!--  Stock will always be 200+ -->
+        <td><%= product.quantity %></td>
 
-              </td>
-              <td>
-                <a href="/admin/editProduct/<%= product._id %>" class="btn btn-warning btn-sm text-dark">Edit</a>
-              </td>
-            </tr>
-          <% }) %>
+        <td>
+          <% if (!product.isBlocked) { %>
+            <button class="btn btn-danger btn-sm"
+              onclick="confirmBlock('<%= product._id %>')">
+              Block
+            </button>
+          <% } else { %>
+            <button class="btn btn-success btn-sm"
+              onclick="confirmUnblock('<%= product._id %>')">
+              Unblock
+            </button>
+          <% } %>
+        </td>
+
+        <td>
+          <a href="/admin/editProduct/<%= product._id %>"
+             class="btn btn-warning btn-sm text-dark">
+            Edit
+          </a>
+        </td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="8" class="text-center">No products with stock ≥ 200</td>
+    </tr>
+  <% } %>
+
         </tbody>
       </table>
 
@@ -122,35 +135,114 @@
   <!-- SweetAlert Script -->
 
     <script>
-  function confirmBlock(id) {
-    swal({
-      title: "Block Product?",
-      text: "This product will not be visible to customers.",
-      icon: "warning",
-      buttons: ["Cancel", "Yes, Block"],
-      dangerMode: true,
-    }).then(function (willBlock) {
-      if (willBlock) {
-        window.location.href = "/admin/blockProduct?id=" + id;
+
+      function goBack() {
+            window.history.back();
+        }
+ function confirmBlock(productId) {
+  swal({
+    title: "Block Product?",
+    text: "This product will not be visible to customers.",
+    icon: "warning",
+    buttons: ["Cancel", "Yes, Block"],
+    dangerMode: true,
+  }).then(async(willblock)=>{
+    if(willblock){
+      try {
+        const response=await fetch(`/admin/product/${productId}/block`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        const data=await response.json()
+        if(response.ok&&data.success){
+          swal("Blocked!",data.message,"success")
+          .then(()=>window.location.reload())
+        }else{
+          swal("Error", data.message || "Failed to block product", "error");
+        }
+      } catch (error) {
+        swal("Error", "Server error", "error");
       }
-    });
-  }
+    }
+  })
+ }
 
-  function confirmUnblock(id) {
-    swal({
-      title: "Unblock Product?",
-      text: "This product will be visible to customers again.",
-      icon: "info",
-      buttons: ["Cancel", "Yes, Unblock"],
-    }).then(function (willUnblock) {
-      if (willUnblock) {
-        window.location.href = "/admin/unblockProduct?id=" + id;
+function confirmUnblock(productId) {
+  swal({
+    title: "Unblock Product?",
+    text: "This product will be visible to customers again.",
+    icon: "info",
+    buttons: ["Cancel", "Yes, Unblock"],
+  }).then(async (willUnblock) => {
+    if (willUnblock) {
+      try {
+        const response = await fetch(`/admin/product/${productId}/unblock`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          swal("Unblocked!", data.message, "success")
+            .then(() => window.location.reload());
+        } else {
+          swal("Error", data.message || "Failed to unblock product", "error");
+        }
+      } catch (error) {
+        swal("Error", "Server error", "error");
       }
-    });
-  }
+    }
+  });
+}
 
 
+function confirmDelete(id) {
+  Swal.fire({
+    title: "Delete Product?",
+    text: "Product will be hidden from users",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete"
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const res = await fetch(`/admin/product/${id}/soft-delete`, {
+        method: "POST"
+      });
+      const data = await res.json();
 
+      if (data.status) {
+        Swal.fire("Deleted!", data.message, "success")
+          .then(() => location.reload());
+      }
+    }
+  });
+}
+
+function confirmRestore(id) {
+  Swal.fire({
+    title: "Restore Product?",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonText: "Restore"
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const res = await fetch(`/admin/product/${id}/restore`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      if (data.status) {
+        Swal.fire("Restored!", data.message, "success")
+          .then(() => location.reload());
+      }
+    }
+  });
+}
 
  
 </script>

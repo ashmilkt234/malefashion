@@ -17,30 +17,42 @@
   <%- include('../partials/admin/header') %>
 
 <div class="container">
+
     <div class="form-container">
+            <button class="back-btn" onclick="goBack()">← Back</button>
         <form id="productForm" method="POST" action="/admin/addProduct" enctype="multipart/form-data">
+    
+            <div id="error-summary" class="error-summary" style="display:none;">
+                       
+    Please correct the following errors
+            </div>
             <!-- Image Upload Section -->
             <div class="upload-section">
-                <div class="upload-grid">
-                    <div class="upload-box" id="box0" onclick="triggerFileInput(0)">
-                        <div class="camera-icon">📷</div>
-                        <span class="upload-text">Click to upload</span>
-                    </div>
-                    <div class="upload-box" id="box1" onclick="triggerFileInput(1)">
-                        <div class="camera-icon">📷</div>
-                        <span class="upload-text">Click to upload</span>
-                    </div>
-                    <div class="upload-box" id="box2" onclick="triggerFileInput(2)">
-                        <div class="camera-icon">📷</div>
-                        <span class="upload-text">Click to upload</span>
-                    </div>
-                </div>
-                <div class="upload-labels">
-                    <div class="upload-label">Upload Photo 1 </div>
-                    <div class="upload-label">Upload Photo 2</div>
-                    <div class="upload-label">Upload Photo 3</div>
-                </div>
-            </div>
+         <div class="upload-grid">
+
+    <div class="image-field">
+        <div class="upload-box" id="box0" onclick="triggerFileInput(0)">
+            <i class="fa fa-camera"></i>
+        </div>
+        <div id="image0-error" class="image-error">Image is required</div>
+    </div>
+
+    <div class="image-field">
+        <div class="upload-box" id="box1" onclick="triggerFileInput(1)">
+            <i class="fa fa-camera"></i>
+        </div>
+        <div id="image1-error" class="image-error">Image is required</div>
+    </div>
+
+    <div class="image-field">
+        <div class="upload-box" id="box2" onclick="triggerFileInput(2)">
+            <i class="fa fa-camera"></i>
+        </div>
+        <div id="image2-error" class="image-error">Image is required</div>
+    </div>
+
+</div>
+
 
             <!-- Hidden real file inputs (will hold cropped files) -->
             <input type="file" name="productImage" id="croppedInput0" style="display:none;">
@@ -54,6 +66,7 @@
 
             <!-- Product Name -->
             <div class="form-group">
+
                 <label class="form-label">Product Name</label>
                 <input type="text" name="productName" class="form-input" placeholder="Enter product name">
                 <div id="productName-error" class="error-message"></div>
@@ -245,19 +258,27 @@ function validateForm() {
     const quantity = document.querySelector('[name="quantity"]').value.trim();
     const category = document.querySelector('[name="category"]').value;
 
-    // Check at least one cropped image
-    const hasImage = Array.from(document.querySelectorAll('[id^="croppedInput"]'))
-        .some(input => input.files.length > 0);
+   let imageErrorFound = false;
+const imageInputs = document.querySelectorAll('[id^="croppedInput"]');
 
-    if (!hasImage) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Missing Image',
-            text: 'Please upload and crop at least one product image.',
-            confirmButtonColor: '#3085d6'
-        });
+imageInputs.forEach((input, index) => {
+    const errorEl = document.getElementById(`image${index}-error`);
+    const box = document.getElementById(`box${index}`);
+
+    if (!input.files.length) {
+        errorEl.style.display = 'block';
+        box.classList.add('error');
+        imageErrorFound = true;
         valid = false;
+    } else {
+        errorEl.style.display = 'none';
+        box.classList.remove('error');
     }
+});
+
+if (imageErrorFound) {
+    document.getElementById('error-summary').style.display = 'block';
+}
 
     if (!name || name.length < 3) {
         displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
@@ -304,11 +325,35 @@ document.querySelector('[name="quantity"]').addEventListener('input', function()
     if (this.value < 0) this.value = 0;
 });
 
-document.getElementById('productForm').addEventListener('submit', function(e) {
-    if (!validateForm()) {
-        e.preventDefault();
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const formData = new FormData(this);
+
+    try {
+        const res = await fetch('/admin/addProduct', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            Swal.fire('Error', data.message, 'error');
+            return;
+        }
+
+        Swal.fire('Success', data.message, 'success')
+            .then(() => window.location.href = '/admin/product');
+
+    } catch (err) {
+        Swal.fire('Error', 'Server error', 'error');
     }
 });
+
+
 
 // Success/Error messages
 const urlParams = new URLSearchParams(window.location.search);
@@ -318,6 +363,10 @@ if (urlParams.get('success')) {
 if (urlParams.get('error')) {
     Swal.fire('Error!', urlParams.get('error'), 'error');
 }
+
+      function goBack() {
+            window.history.back();
+        }
 </script>
 
 <style>
@@ -383,14 +432,32 @@ if (urlParams.get('error')) {
 .crop-btn:hover { background: #333; }
 
 .upload-box {
-    position: relative;
-    cursor: pointer;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f8f8f8;
-    border: 2px dashed #ddd;
-    transition: all 0.3s;
+    width: 120px;
+    height: 120px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
 }
+.upload-box i {
+    font-size: 32px;
+    color: #777;
+}
+
+.upload-box.error {
+    border-color: #e74c3c;
+}
+
+.image-error {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+
 
 .upload-box:hover { border-color: #000; }
 
@@ -415,6 +482,18 @@ if (urlParams.get('error')) {
 .upload-box.active .camera-icon,
 .upload-box.active .upload-text {
     display: none;
+}
+.error-summary {
+    background: linear-gradient(#f36c6c, #e74c3c);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.image-field {
+    text-align: center;
 }
 </style>
 </body>

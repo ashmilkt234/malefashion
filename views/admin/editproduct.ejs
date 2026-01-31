@@ -22,8 +22,8 @@
     <%- include('../partials/admin/header') %>
 
     <div class="container">
-
         <div class="form-container">
+               <button class="back-btn" onclick="goBack()">← Back</button>
             <form id="productForm" method="POST"
                   action="/admin/editProduct/<%= product._id %>"
                   enctype="multipart/form-data">
@@ -119,6 +119,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
+
+
+    function goBack() {
+            window.history.back();
+        }
         function triggerFileInput(id) {
             document.getElementById(id).click();
         }

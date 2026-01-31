@@ -11,9 +11,9 @@
     
 
             <div class="content">
-           
+                
   <div class="form-container">
-    
+  <button class="back-btn" onclick="goBack()">← Back</button>
     <h2 class="form-title">Add Category</h2>
 <form id="addCategoryForm">
 
@@ -144,7 +144,7 @@ form.addEventListener('submit', async (e) => {
             Swal.fire('Success', result.message, 'success')
                 .then(() => window.location.href = '/admin/category');
         } else {
-            Swal.fire('Error', result.message, 'error');
+            Swal.fire('Error', result.error || 'Something went wrong', 'error');
         }
     } catch {
         Swal.fire('Error', 'Server error', 'error');
@@ -159,6 +159,11 @@ body: JSON.stringify({
   categoryOffer: offer,
   hasSize
 })
+
+
+ function goBack() {
+            window.history.back();
+        }
 
 </script>
 

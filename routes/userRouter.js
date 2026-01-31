@@ -4,9 +4,9 @@ const userController = require("../controllers/user/userController");
 const productControlleruser = require("../controllers/user/productControlleruser");
 const userProfile= require('../controllers/user/userProfile.js')
 const passport = require("passport");
-// Make sure path and export match
 
-// const userAuth = require("../middleware/userAuth.js");
+
+
 const guestAuth=require("../middleware/guestUserAuth.js");
 const userAuth = require("../middleware/userAuth.js");
 const blockCheck = require("../middleware/blockMiddleware.js");
@@ -26,7 +26,7 @@ router.post("/signup", userController.signup);
 router.get("/verify-otp", userController.loadOtpPage);  
 router.post("/verify-otp", userController.verifyotp);   
 router.post("/resend-otp", userController.resendOtp)
-router.get("/shop",userController.loadShopping)
+
 
 
 
@@ -52,7 +52,7 @@ router.get("/Shop",blockCheck, userController.loadShopping);
 // Login / Logout
 router.get("/login",guestAuth,userController.loadLogin);
 router.post("/login", userController.login);
-router.get("/logout", userController.logout);
+router.get("/logout",userAuth, userController.logout);
 
 
 

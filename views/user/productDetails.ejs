@@ -123,6 +123,12 @@
     </div>
   </div>
 <% } %>
+<% if (isBlocked) { %>
+  <div class="alert alert-danger" style="margin: 15px 0;">
+    🚫 This product is currently unavailable.
+  </div>
+<% } %>
+
 
    
 
@@ -134,8 +140,13 @@
     <input type="number" id="quantity" value="1" min="1" readonly>
     <button onclick="increaseQty()">+</button>
   </div>
+<% if (isBlocked) { %>
+  <button class="btn btn-secondary" disabled>Product Unavailable</button>
+  <button class="btn btn-secondary" disabled>Buy Now</button>
+<% } else { %>
   <a href="#" class="btn btn-cart">Add to Cart</a>
   <a href="#" class="btn btn-buy">Buy Now</a>
+<% } %>
   <div class="cart-icon">
     <i class="fa fa-shopping-cart"></i>
   </div>
@@ -176,7 +187,9 @@
         </tr>
         <tr>
           <td>Status</td>
-          <td><%= product.status %></td>
+         <td>
+  <%= product.isBlocked ? "Blocked by Admin" : "Available" %>
+</td>
         </tr>
       </table>
     </div>

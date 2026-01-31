@@ -13,12 +13,12 @@ const categoryInfo = async (req, res) => {
     try {
     const search = req.query.search || "";
 
-    // Pagination values
+
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
     const skip = (page - 1) * limit;
 
-    // Search query
+
     const query = {
       name: { $regex: search, $options: "i" }
     };
@@ -32,12 +32,13 @@ const categoryInfo = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const totalPages = Math.ceil(totalCategories / limit);
-
+const message = req.session.message || null;
     res.render("admin/category", {
       categories,
       currentPage: page,
       totalPages,
-      searchQuery: search
+      searchQuery: search,
+      message
     });
 
   } catch (err) {
@@ -51,12 +52,16 @@ const categoryInfo = async (req, res) => {
 
 // ================= Add Category =================
 const addCategory = async (req, res) => {
+  
+  
+  
   const { name, description} = req.body;
 const hasSize=!!req.body.hasSize;
   try {
     // Check category exists
-    const existingCategory = await Category.findOne({ name });
-
+    const existingCategory = await Category.findOne({
+       name: { $regex: new RegExp("^" + name + "$", "i") }
+      });
     if (existingCategory) {
       return res.status(400).json({ error: "Category already exists" });
     }
@@ -262,7 +267,7 @@ return res.status(200).json({
   }
 };
 
-const softDeletecategory =async (req,res)=>{
+const   softDeletecategory =async (req,res)=>{
   try {
   let categoryId=req.params.id
 console.log("SOFT DELETE HIT:", categoryId); 
@@ -270,14 +275,19 @@ console.log("SOFT DELETE HIT:", categoryId);
     isDeleted:true,
     isListed:false
   })
-  res.redirect("/admin/category")
+ res.json({
+      status: true,
+      message: "Category soft-deleted successfully"
+    });
 }
 
-
-catch (error) {
-    console.log(error);
-    
-  }
+catch (error) { 
+console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "Soft delete failed"
+    })
+}
 }
 const restorecategory=async(req,res)=>{
   try {
@@ -286,9 +296,16 @@ const restorecategory=async(req,res)=>{
       isDeleted:false,
         isListed:false
     })
-      res.redirect("/admin/category")
+     res.json({
+      status: true,
+      message: "Category restored successfully"
+    });
   } catch (error) {
-    console.log(error)
+  console.log(error);
+    res.status(500).json({
+      status: false,
+      message: "Restore failed"
+    });
   }
 }
 module.exports = {

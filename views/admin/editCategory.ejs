@@ -16,7 +16,7 @@
 
   <div class="container">
     <form class="reset-form" id="editCategoryForm">
-
+  <button class="back-btn" onclick="goBack()">← Back</button>
       <h2 class="form-title">Edit Category</h2>
 
       <div class="form-group">
@@ -203,6 +203,10 @@ form.addEventListener("submit", async (e) => {
     }
   }
 });
+ function goBack() {
+            window.history.back();
+        }
+
 
 
 

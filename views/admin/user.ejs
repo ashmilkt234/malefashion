@@ -7,10 +7,12 @@
 <link rel="stylesheet" href="/css/user-list.css">
 
 <div class="main-content" style="margin-left: 190px; padding: 106px;">
+ 
   <div class="container p-4 bg-white rounded shadow">
-
+     
     <!-- Header + Search -->
     <div class="d-flex justify-content-between align-items-center mb-4">
+   <button class="back-btn" onclick="goBack()">← Back</button>
       <h3>Users</h3>
 
       <form method="GET" action="/admin/user" class="d-flex">
@@ -148,6 +150,11 @@ document.addEventListener("click", (e) => {
     });
   }
 });
+
+ function goBack() {
+            window.history.back();
+        }
+
 </script>
 
 

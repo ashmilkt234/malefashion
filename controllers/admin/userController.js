@@ -18,7 +18,7 @@ const userInfo = async (req, res) => {
       page = req.query.page;
     }
 
-    const limit = 3; // Users per page
+    const limit = 3;
 
     // Find non-admin users with search
     const userData = await User.find({
@@ -96,7 +96,7 @@ const userunBlocked = async (req, res) => {
   }
 };
 
-// Export functions
+
 module.exports = {
   userInfo,
   userBlocked,

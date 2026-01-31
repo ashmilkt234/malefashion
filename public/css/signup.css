@@ -95,7 +95,7 @@ form input::placeholder {
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 12px;
+  font-size: 10px;
   color: #000;
   cursor: pointer;
   letter-spacing: 0.5px;
@@ -180,6 +180,23 @@ form button:hover {
   color: #000;
   text-decoration: underline;
 }
+
+.show-password {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #000;
+  margin: 8px 0 12px;
+  cursor: pointer;
+}
+
+.show-password input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {
