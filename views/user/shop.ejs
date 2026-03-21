@@ -28,24 +28,25 @@
         <div class="shop-header">
             <h1 class="shop-title">Our Products</h1>
             <div class="search-container">
-    <form action="/shop" method="get" class="search-form">
-    <input type="hidden" name="category" value="<%= selectedCategory %>">
-    <input type="hidden" name="sort" value="<%= sort %>">
-    <input type="hidden" name="minPrice" value="<%= minPrice %>">
-    <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
+ <form action="/shop" method="get" class="search-form">
+    <input type="hidden" name="category" value="<%= selectedCategory || '' %>">
+    <input type="hidden" name="sort" value="<%= sort || '' %>">
+    <input type="hidden" name="minPrice" value="<%= minPrice || '' %>">
+    <input type="hidden" name="maxPrice" value="<%= maxPrice || '' %>">
 
-    <input type="text"  
-           name="search" 
+    <input type="text"
+           name="search"
            class="search-input"
            placeholder="Search products..."
-           value="<%=search || '' %>">
+           value="<%= search || '' %>">
 
     <button type="submit" class="search-btn">
         <i class="fas fa-search"></i>
     </button>
 
-    <a href="/shop" class="btn btn-dark clear-btn" >Clear</a>
+    <a href="/shop" class="btn btn-dark clear-btn">Clear</a>
 </form>
+
 
 
             </div>
@@ -105,25 +106,36 @@
                         Showing <%= products.length %> products
                     </div>
                     <div class="sort-container">
-                        <form id="sortForm" method="get" action="/shop">
-                            <select class="sort-select" name="sort" onchange="document.getElementById('sortForm').submit()">
-                                <option value="">Sort by popularity</option>
-                                <option value="latest" <%= sort === 'latest' ? 'selected' : '' %>>Sort by latest</option>
-                                <option value="lowtohigh" <%= sort === 'lowtohigh' ? 'selected' : '' %>>Sort by price: low to high</option>
-                                <option value="hightolow" <%= sort === 'hightolow' ? 'selected' : '' %>>Sort by price: high to low</option>
-                            </select>
-                            
-                            <!-- Preserve other filters -->
-                            <% if (selectedCategory) { %>
-                                <input type="hidden" name="category" value="<%= selectedCategory %>">
-                            <% } %>
-                            <% if (minPrice) { %>
-                                <input type="hidden" name="minPrice" value="<%= minPrice %>">
-                            <% } %>
-                            <% if (maxPrice) { %>
-                                <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
-                            <% } %>
-                        </form>
+                 <form id="sortForm" method="get" action="/shop">
+    <select class="sort-select" name="sort"
+        onchange="document.getElementById('sortForm').submit()">
+
+        <option value="">Sort by popularity</option>
+        <option value="latest" <%= sort === 'latest' ? 'selected' : '' %>>
+            Sort by latest
+        </option>
+        <option value="lowtohigh" <%= sort === 'lowtohigh' ? 'selected' : '' %>>
+            Sort by price: low to high
+        </option>
+        <option value="hightolow" <%= sort === 'hightolow' ? 'selected' : '' %>>
+            Sort by price: high to low
+        </option>
+    </select>
+
+    <% if (selectedCategory) { %>
+        <input type="hidden" name="category" value="<%= selectedCategory %>">
+    <% } %>
+    <% if (minPrice) { %>
+        <input type="hidden" name="minPrice" value="<%= minPrice %>">
+    <% } %>
+    <% if (maxPrice) { %>
+        <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
+    <% } %>
+    <% if (search) { %>
+        <input type="hidden" name="search" value="<%= search %>">
+    <% } %>
+</form>
+
                     </div>
                 </div>
 
@@ -133,12 +145,17 @@
                         <% for (let i=0; i < products.length; i++) { %>
                             <div class="product__item" onclick="window.location.href='/productDetails/<%= products[i]._id %>'">
                                 <div class="product__item__pic">
-                                    <a href="/productDetails/<%= products[i]._id %>">
+                                  <a href="/productDetails/<%= products[i]._id %>">
                                         <img src="/Uploads/product-images/<%= products[i].productImage[0] %>"
-                                             alt="<%= products[i].productName %>"/>
+                                             alt="<%= products[i].productName %>"/> 
                                     </a>
+                                    <!-- <button class="wishlist-btn"
+        onclick="event.stopPropagation(); addToWishlist('<%= products[i]._id %>')">
+        <i class="fa fa-heart"></i>
+    </button> -->
                                     <span class="label">New</span>
-                                </div>
+                               
+                            </div>
                                 <div class="product__item__text">
                                     <h6><%= products[i].productName %></h6>
                                     <div class="rating">
@@ -151,8 +168,22 @@
                                             <% } %>
                                         <% } %>
                                     </div>
-                                    <h5>$<%= products[i].salesPrice %></h5>
-                                    <a href="#" class="add-cart" onclick="event.stopPropagation(); addToCart(<%= products[i]._id %>)">+ Add To Cart</a>
+                              <h5>$<%= products[i].salesPrice %></h5>
+ </div>
+<div class="product-actions">
+
+    <!-- Add to Cart -->
+    <a href="#" class="add-cart"
+       onclick="event.stopPropagation(); addToCart('<%= products[i]._id %>')">
+        + Add To Cart
+    </a>
+
+    <!-- Wishlist Button -->
+    <button class="wishlist-btn"
+        onclick="event.stopPropagation(); addToWishlist('<%= products[i]._id %>')">
+        <i class="fa fa-heart"></i>
+    </button>
+
                                 </div>
                             </div>
                         <% } %>
@@ -174,18 +205,29 @@
                             </a>
                         <% } %>
 
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <a href="/shop?page=<%= i %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>"
-                               class="page-btn <%= i === currentPage ? 'active' : '' %>">
-                                <%= i %>
-                            </a>
-                        <% } %>
+             <% for (let i = 1; i <= totalPages; i++) { -%>
+    <a class="page-btn <%= currentPage === i ? 'active' : '' %>"
+       href="/shop?page=<%= i -%>
+             &category=<%= selectedCategory || '' -%>
+             &sort=<%= sort || '' -%>
+             &minPrice=<%= minPrice || '' -%>
+             &maxPrice=<%= maxPrice || '' -%>
+             &search=<%= search || '' %>">
+        <%= i %>
+    </a>
+<% } %>
 
-                        <% if (currentPage < totalPages) { %>
-                            <a href="/shop?page=<%= currentPage + 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>" class="page-btn">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </a>
-                        <% } %>
+                    <% if (currentPage > 1) { %>
+    <a href="/shop?page=<%= currentPage - 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
+        <i class="fas fa-chevron-left"></i> Prev
+    </a>
+<% } %>
+
+<% if (currentPage < totalPages) { %>
+    <a href="/shop?page=<%= currentPage + 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
+        Next <i class="fas fa-chevron-right"></i>
+    </a>
+<% } %>
                     </div>
                 <% } %>
             </main>
@@ -193,33 +235,10 @@
     </div>
 
     <script>
-        // Add to cart functionality
-        function addToCart(productId) {
-            const btn = event.target;
-            
-            // Add animation feedback
-            btn.style.transform = 'scale(0.95)';
-            btn.textContent = '✓ Added!';
-            btn.style.background = '#28a745';
-            
-            setTimeout(() => {
-                btn.style.transform = 'scale(1)';
-                btn.textContent = '+ Add To Cart';
-                btn.style.background = '';
-            }, 1500);
-
-            // Here you would make an AJAX call to add to cart
-            console.log('Adding product to cart:', productId);
-        }
+       
 
         // Search functionality
-        document.querySelector('.search-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const searchTerm = document.querySelector('.search-input').value;
-            if (searchTerm.trim()) {
-                window.location.href = `/shop?search=${encodeURIComponent(searchTerm)}`;
-            }
-        });
+      
 
         // Smooth scroll to top when changing pages
         if (window.location.search.includes('page=')) {
@@ -232,6 +251,137 @@
                 document.querySelector('.products-container').style.opacity = '0.6';
             });
         });
+
+
+        async function addToCart(productId) {
+  const response = await fetch("/add-to-cart", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      productId: productId,
+      quantity: 1
+    })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    window.location.href = "/cart";  // 🔥 This opens cart page
+  } else {
+    alert(data.message);
+  }
+}
+
+
+ if(window.location.search.includes('page=')) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('a[href^="/shop"]').forEach(link => {
+    link.addEventListener('click', function() {
+        document.querySelector('.products-container').style.opacity = '0.6';
+    });
+});
+
+async function addToCart(productId) {
+  try {
+    const response = await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        productId: productId,
+        quantity: 1
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      window.location.href = "/cart";
+    } else {
+      alert(data.message);
+    }
+
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+
+async function addToWishlist(productId) {
+  const response = await fetch("/add-to-wishlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    alert("Added to wishlist ❤️");
+  } else {
+    alert(data.message);
+  }
+}
+
+
+// Remove from Wishlist
+async function removeFromWishlist(productId) {
+  const response = await fetch("/remove-from-wishlist", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    location.reload();
+  }
+}
+
+
+// Move to Cart
+async function moveToCart(productId) {
+  const response = await fetch("/move-to-cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    location.reload();
+  } else {
+    alert(data.message);
+  }
+}
+
+
+// Add to Cart (Shop Page)
+async function addToCart(productId) {
+  const response = await fetch("/add-to-cart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      productId,
+      quantity: 1
+    })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    window.location.href = "/cart";
+  } else {
+    alert(data.message);
+  }
+}
     </script>
 </body>
 </html>

@@ -1,0 +1,389 @@
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f0f2f5;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1a1a2e;
+  }
+  .page-wrapper { max-width: 1100px; margin: 32px auto; padding: 0 20px; }
+
+  /* Header */
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 26px; font-weight: 800; }
+  .page-header p  { font-size: 13px; color: #888; margin-top: 3px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .stat-card .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a2e;
+  }
+  .stat-card .value.warning  { color: #f59e0b; }
+  .stat-card .value.danger   { color: #e53935; }
+  .stat-card.system {
+    background: #5c35d4;
+    color: #fff;
+  }
+  .stat-card.system .label { color: rgba(255,255,255,0.7); }
+  .stat-card.system .value { color: #fff; font-size: 14px; font-weight: 600; }
+  .sync-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #a5f3a5;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  /* Main grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+  }
+
+  /* Table card */
+  .table-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .inv-table thead tr {
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+  }
+  .inv-table th {
+    padding: 14px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #888;
+    text-align: left;
+  }
+  .inv-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+  }
+  .inv-table tr:last-child td { border-bottom: none; }
+
+  .product-name { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+  .product-sub  { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+  /* Alert badge */
+  .alert-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .alert-badge.critical {
+    background: #e8d5ff;
+    color: #6600cc;
+  }
+  .alert-badge.low {
+    background: #fff3cd;
+    color: #b8860b;
+  }
+
+  /* Status */
+  .stock-status {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .stock-status.out   { color: #e53935; }
+  .stock-status.low   { color: #f59e0b; }
+  .stock-status.ok    { color: #2e7d32; }
+
+  /* Quick adjust */
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qty-display {
+    width: 52px;
+    height: 36px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+    background: #fff;
+  }
+  .qty-btn {
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .qty-btn:hover {
+    background: #5c35d4;
+    color: #fff;
+    border-color: #5c35d4;
+  }
+
+  /* History card */
+  .history-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  }
+  .history-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .history-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .history-item .h-action {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .history-item .h-time {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .main-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1>Inventory Management</h1>
+    <p>System Administrator Dashboard</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="label">Total SKUs</div>
+      <div class="value"><%=totalproduct %></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Low Stock Warning</div>
+      <div class="value warning"><%=    lowstock %></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Out of Stock</div>
+      <div class="value danger"><%= outOfStock %></div>
+    </div>
+    <div class="stat-card system">
+      <div class="label">System Status</div>
+      <div class="sync-badge">✅ Sync Active</div>
+    </div>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+
+    <!-- Table -->
+    <div class="table-card">
+      <table class="inv-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>In Stock</th>
+            <th>Status</th>
+            <th>Quick Adjust</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody">
+          <% products.forEach(product => { %>
+          <tr id="row-<%= product._id %>">
+
+            <td>
+              <div class="product-name"><%= product.productName %></div>
+              <div class="product-sub"><%= product._id.toString().slice(-4).toUpperCase() %> • <%= product.category?.name || 'N/A' %></div>
+              <% if (product.stock === 0) { %>
+                <span class="alert-badge critical">⚠ CRITICAL: OUT OF STOCK. IMMEDIATE REPLENISHMENT REQUIRED.</span>
+              <% } else if (product.stock <= 5) { %>
+                <span class="alert-badge low">⚠ LOW STOCK WARNING</span>
+              <% } %>
+            </td>
+
+            <td>
+              <input 
+                type="number" 
+                class="qty-display" 
+                id="stock-<%= product._id %>" 
+                value="<%= product.quantity %>" 
+                readonly
+              >
+            </td>
+
+            <td>
+              <% if (product.quantity === 0) { %>
+                <div class="stock-status out">Out of<br>Stock</div>
+              <% } else if (product.quantity <= 5) { %>
+                <div class="stock-status low">Low Stock</div>
+              <% } else { %>
+                <div class="stock-status ok">In Stock</div>
+              <% } %>
+            </td>
+
+            <td>
+              <div class="qty-control">
+                <button class="qty-btn" onclick="adjustStock('<%= product._id %>', 'dec')">-</button>
+                <button class="qty-btn" onclick="adjustStock('<%= product._id %>', 'inc')">+</button>
+              </div>
+            </td>
+
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- History -->
+    <div class="history-card">
+      <h3>🕐 Inventory History</h3>
+      <div id="historyList">
+        <% if (history.length === 0) { %>
+          <p style="color:#bbb; font-size:13px;">No history yet.</p>
+        <% } else { %>
+          <% history.forEach(h => { %>
+          <div class="history-item">
+            <div class="h-name"><%= h.productName %></div>
+            <div class="h-action"><%= h.action %></div>
+            <div class="h-time"><%= h.time %></div>
+          </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+async function adjustStock(productId, action) {
+  try {
+    const res = await fetch('/admin/inventory/adjust', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId, action })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // ✅ Update stock display
+      document.getElementById(`stock-${productId}`).value = data.stock;
+
+      // ✅ Add to history list
+      const historyList = document.getElementById('historyList');
+      const time = new Date().toLocaleTimeString();
+      const productName = document.querySelector(`#row-${productId} .product-name`).textContent;
+
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="h-name">${productName}</div>
+        <div class="h-action">Admin Overwrite</div>
+        <div class="h-time">${time}</div>
+      `;
+      historyList.prepend(item);
+
+      // ✅ Update status and alert badge without reload
+      updateRowStatus(productId, data.stock);
+
+    } else {
+      Swal.fire({ icon: 'error', title: 'Failed', text: data.message || 'Could not update stock' });
+    }
+
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Connection problem' });
+  }
+}
+
+function updateRowStatus(productId, stock) {
+  const row = document.getElementById(`row-${productId}`);
+  const statusEl = row.querySelector('.stock-status');
+  const badgeEl  = row.querySelector('.alert-badge');
+
+  // Update status text
+  if (stock === 0) {
+    statusEl.className = 'stock-status out';
+    statusEl.innerHTML = 'Out of<br>Stock';
+    if (badgeEl) {
+      badgeEl.className = 'alert-badge critical';
+      badgeEl.textContent = '⚠ CRITICAL: OUT OF STOCK. IMMEDIATE REPLENISHMENT REQUIRED.';
+    }
+  } else if (stock <= 5) {
+    statusEl.className = 'stock-status low';
+    statusEl.textContent = 'Low Stock';
+    if (badgeEl) {
+      badgeEl.className = 'alert-badge low';
+      badgeEl.textContent = '⚠ LOW STOCK WARNING';
+    }
+  } else {
+    statusEl.className = 'stock-status ok';
+    statusEl.textContent = 'In Stock';
+    if (badgeEl) badgeEl.remove();
+  }
+}
+</script>

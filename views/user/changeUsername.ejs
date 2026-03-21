@@ -1,0 +1,240 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <h3 class="text-center mb-4">Change Full Name</h3>
+
+          <% if (message) { %>
+            <div class="alert <%= type === 'success' ? 'alert-success' : 'alert-danger' %>">
+              <%= message %>
+            </div>
+          <% } %>
+
+          <form action="/profile/change-username" method="POST">
+            <div class="mb-3">
+              <label for="username" class="form-label">New Full Name</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="username" 
+                name="username" 
+                placeholder="Enter new full name" 
+                required 
+                minlength="3" 
+                maxlength="20"
+                oninput="validateInput(this)"
+              >
+              <!-- ✅ Live validation message -->
+              <small id="inputFeedback" class="feedback-text"></small>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
+              Send OTP
+            </button>
+          </form>
+
+          <div class="text-center mt-4">
+            <a href="/profile" class="back-link">← Back to Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function validateInput(input) {
+  const feedback = document.getElementById('inputFeedback');
+  const submitBtn = document.getElementById('submitBtn');
+  const value = input.value.trim();
+
+  // Empty
+  if (value.length === 0) {
+    feedback.textContent = '';
+    feedback.className = 'feedback-text';
+    input.className = 'form-control';
+    submitBtn.disabled = true;
+    return;
+  }
+
+  // Too short
+  if (value.length < 3) {
+    feedback.textContent = '✖ Minimum 3 characters required';
+    feedback.className = 'feedback-text error';
+    input.className = 'form-control input-error';
+    submitBtn.disabled = true;
+    return;
+  }
+
+  // Invalid characters
+  if (!/^[a-zA-Z0-9_ ]+$/.test(value)) {
+    feedback.textContent = '✖ Only letters, numbers, underscore allowed';
+    feedback.className = 'feedback-text error';
+    input.className = 'form-control input-error';
+    submitBtn.disabled = true;
+    return;
+  }
+
+  // ✅ Valid
+  feedback.textContent = '✔ Looks good!';
+  feedback.className = 'feedback-text success';
+  input.className = 'form-control input-success';
+  submitBtn.disabled = false;
+}
+</script>
+
+<style>
+  body {
+    background: #f5f7fa;
+    color: #222;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .container {
+    max-width: 680px;
+  }
+
+  /* Card */
+  .card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-body {
+    padding: 2.5rem !important;
+  }
+
+  /* Title */
+  h3 {
+    color: #1a237e;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+  }
+
+  .form-label {
+    color: #37474f;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* Input */
+  .form-control {
+    background: #f8f9fa;
+    border: 1.5px solid #cfd8dc;
+    border-radius: 10px;
+    color: #222;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control::placeholder {
+    color: #90a4ae;
+  }
+
+  .form-control:focus {
+    background: #fff;
+    border-color: #1a237e;
+    box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.15);
+    color: #222;
+    outline: none;
+  }
+
+  /* Validation states */
+  .form-control.input-error {
+    border-color: #e53935 !important;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.15) !important;
+  }
+
+  .form-control.input-success {
+    border-color: #2e7d32 !important;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15) !important;
+  }
+
+  /* Feedback text */
+  .feedback-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .feedback-text.error   { color: #e53935; }
+  .feedback-text.success { color: #2e7d32; }
+
+  /* Button */
+  .btn-primary {
+    background: #1a237e;
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #283593;
+    box-shadow: 0 6px 20px rgba(26, 35, 126, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active,
+  .btn-primary:focus {
+    background: #0d1257 !important;
+    box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.4) !important;
+  }
+
+  .btn-primary:disabled {
+    background: #b0bec5;
+    color: #fff;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Alert */
+  .alert {
+    border-radius: 10px;
+    font-size: 0.9rem;
+    border: none;
+    padding: 12px 16px;
+  }
+
+  .alert-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+  }
+
+  .alert-danger {
+    background: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #e53935;
+  }
+
+  /* Back link */
+  .text-muted {
+    color: #78909c !important;
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.3s;
+  }
+
+  .text-muted:hover {
+    color: #1a237e !important;
+  }
+
+  @media (max-width: 576px) {
+    .card-body { padding: 1.8rem 1.2rem !important; }
+  }
+</style>

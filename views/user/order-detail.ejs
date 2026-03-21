@@ -1,0 +1,203 @@
+<link rel="stylesheet" href="/css/order-detail.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<h2 class="page-title">Order History</h2>
+
+<style>
+.product-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+.item-subtotal {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+.cancel-item-btn {
+  padding: 7px 18px;
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancel-item-btn:hover { background: #c62828; }
+
+.order-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+}
+.cancel-btn {
+  padding: 11px 24px;
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancel-btn:hover { background: #c62828; }
+</style>
+
+<div class="order-card">
+
+<!-- HEADER -->
+<div class="order-header">
+  <div>
+    <p class="label">ORDER ID</p>
+    <h3><%= order.orderID %></h3>
+  </div>
+
+  <div class="header-right">
+    <div>
+      <p class="label">STATUS</p>
+      <span class="status-badge <%= (order.address?.status || 'pending').toLowerCase().replace(/\s/g,'-') %>">
+        <%= order.address?.status || "Pending" %>
+      </span>
+    </div>
+
+    <div>
+      <p class="label">TOTAL</p>
+      <strong>₹<%= order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) %></strong>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<% order.items.forEach(item => { %>
+
+<div class="order-product">
+  <%
+    const product = item.productId;
+    const imgSrc = product?.productImage?.[0]
+      ? "/uploads/product-images/" + product.productImage[0]
+      : "/images/placeholder.jpg"
+  %>
+
+  <img src="<%= imgSrc %>" class="product-img">
+
+  <div class="product-info">
+    <h4><%= product?.productName %></h4>
+    <p>Qty: <%= item.quantity %> × ₹<%= item.price %></p>
+  </div>
+
+  <!-- ✅ Right side: subtotal + cancel item button -->
+  <div class="product-right">
+    <span class="item-subtotal">Subtotal: ₹<%= item.quantity * item.price %></span>
+
+    <% if(!["Cancelled","Delivered","Returned"].includes(order.address?.status || "Pending")){ %>
+    <button class="cancel-item-btn"
+      onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">
+      Cancel Item
+    </button>
+    <% } %>
+  </div>
+
+</div>
+
+<% }) %>
+
+<hr>
+
+<!-- ACTION BUTTONS -->
+<div class="order-actions">
+
+  <!-- ✅ Cancel Entire Order -->
+  <% if(!["Cancelled","Delivered","Returned"].includes(order.address?.status || "Pending")){ %>
+  <button class="cancel-btn" onclick="cancelOrder('<%= order._id %>')">
+    Cancel Entire Order
+  </button>
+  <% } %>
+
+  <a href="/order/<%= order._id %>/invoice" class="invoice-btn">
+    Download Invoice
+  </a>
+
+</div>
+
+</div>
+
+<script>
+// ✅ Cancel entire order
+async function cancelOrder(id) {
+  const { value: reason } = await Swal.fire({
+    title: "Cancel Entire Order",
+    input: "text",
+    inputLabel: "Reason for cancellation",
+    inputPlaceholder: "Enter reason (optional)",
+    showCancelButton: true,
+    confirmButtonColor: "#e53935",
+    confirmButtonText: "Yes, Cancel Order",
+    cancelButtonText: "Close"
+  });
+
+  if (reason === undefined) return;
+
+  const res = await fetch(`/order/${id}/cancel`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reason })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire({
+      icon: "success",
+      title: "Order Cancelled",
+      text: "Your order has been cancelled.",
+      timer: 1500,
+      showConfirmButton: false
+    });
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    Swal.fire({ icon: "error", title: "Error", text: data.message || "Cannot cancel order" });
+  }
+}
+
+// ✅ Cancel individual item
+async function cancelItem(orderId, itemId) {
+  const { value: reason } = await Swal.fire({
+    title: "Cancel Item",
+    input: "text",
+    inputLabel: "Reason for cancellation",
+    inputPlaceholder: "Enter reason (optional)",
+    showCancelButton: true,
+    confirmButtonColor: "#e53935",
+    confirmButtonText: "Yes, Cancel Item",
+    cancelButtonText: "Close"
+  });
+
+  if (reason === undefined) return;
+
+  const res = await fetch(`/order/${orderId}/cancel-item`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ itemId, reason })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire({
+      icon: "success",
+      title: "Item Cancelled",
+      text: "The item has been cancelled.",
+      timer: 1500,
+      showConfirmButton: false
+    });
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    Swal.fire({ icon: "error", title: "Error", text: data.message || "Cannot cancel item" });
+  }
+}
+</script>

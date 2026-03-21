@@ -3,7 +3,7 @@ const { model } = require('mongoose');
 const path=require("path")
 const env=require("dotenv").config()
 const session=require("express-session")
-
+const flash = require('connect-flash');
 const passport=require("./config/passport.js")
 const db=require("./config/db.js")
 const nocache = require("nocache");
@@ -14,11 +14,9 @@ const app=express()
 
 const adminRouter=require("./routes/adminRouter.js")
 const userRouter = require("./routes/userRouter.js")
+const profileRoutes = require("./routes/userRouter.js");
 
-
-
-
-
+const cartCountMiddleware=require("./middleware/cartCount.js")
 
 //connect to database
 db()
@@ -36,6 +34,14 @@ app.use(session({
 
   }
 }))
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error   = req.flash('error');
+  next();
+});
+app.use(cartCountMiddleware)
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
@@ -69,12 +75,11 @@ app.set("views", [
 app.use("/admin",adminRouter)
 app.use("/",userRouter);
 app.use("/admin/category",adminRouter)
+app.use("/profile", profileRoutes);
+
 app.use(setUserData)
 
-
-
 app.use(errorMiddleware)
-
 
 app.listen(process.env.PORT,()=>{
 console.log(`Server Running on http://localhost:${3000}`);

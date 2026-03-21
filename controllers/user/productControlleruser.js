@@ -43,7 +43,8 @@ const getProductDetailPage = async (req, res) => {
       category: productData.category._id,
       _id: { $ne: productId },
       isDeleted: false,
-      isListed: true
+      isListed: true,
+      isBlocked:false
     })
       .populate("category")
       .limit(4)

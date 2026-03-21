@@ -45,3 +45,28 @@
 background:white;
 
       }
+
+
+      .cart-icon {
+  position: relative;
+  font-size: 22px;
+  color: #333;
+  margin-left: 15px;
+  text-decoration: none;
+}
+
+.cart-icon:hover {
+  color: #667eea;
+}
+
+.cart-count {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #ff3b3b;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+}

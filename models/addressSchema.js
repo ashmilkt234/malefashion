@@ -1,47 +1,57 @@
 const mongoose=require("mongoose");
-const { schema } = require("./userschema");
+// const { schema } = require("./userschema");
  const {Schema}=mongoose;
  const addressSchema=new Schema({
-    userId:{
-        type:schema.Types.ObjectId,
+    user_id:{
+        type:Schema.Types.ObjectId,
         ref:"User",
-        required:true
+        required:true,
     },
-    address:[{
-        addressType:{
-            type:String,
-            required:true,
-        },
-        name:{
-            type:String,
-            required:true,
-        },
-        city:{
-            type:String,
-            required:true
-        },
-         landMark:{
-            type:String,
-            required:true
-        }, state:{
-            type:String,
-            required:true
-        }, pincode:{
-            type:Number,
-            required:true
-        }, phone:{
-            type:String,
-            required:true
-        },
-         altphone:{
-            type:String,
-            required:true
-        },
+    name:{
+        type:String,
+        required:true,
+    },
+    phone:{
+        type:String,
+        required:false,
+    },
+    address_line:{
+        type:String,
+        required:true,
+    },
+    landmark:{
+        type:String,
+    },
+    city:{
+        type:String,
+        required:true,
+    },
+    district:{
+        type:String,
+        required:true,
+    },
+    state:{
+        type:String,
+        required:true,
+    },
+    pincode:{
+        type:String,
+       required:true
+    },
+    
+    country: {
+      type: String,
+      default: "India",
+    },
+
+    is_default: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 
-
-    }]
- })
-
- const Address=mongoose.model("Adress".addressSchema)
+ const Address=mongoose.model("Address",addressSchema)
  module.exports=Address

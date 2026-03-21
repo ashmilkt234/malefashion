@@ -22,6 +22,7 @@
   <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 <body>
@@ -106,7 +107,7 @@
 
       
         <p class="product-description">
-          <%= product.about || 'Oxford cotton shirt with a button-down collar, chest pocket, and long sleeves. Regular fit with a classic silhouette.' %>
+          <%= product. description %>
         </p>
 
     <% if (product.sizes && product.sizes.length > 0) { %>
@@ -140,13 +141,20 @@
     <input type="number" id="quantity" value="1" min="1" readonly>
     <button onclick="increaseQty()">+</button>
   </div>
-<% if (isBlocked) { %>
-  <button class="btn btn-secondary" disabled>Product Unavailable</button>
-  <button class="btn btn-secondary" disabled>Buy Now</button>
-<% } else { %>
-  <a href="#" class="btn btn-cart">Add to Cart</a>
-  <a href="#" class="btn btn-buy">Buy Now</a>
-<% } %>
+
+  <% if (product.isBlocked || product.stock <= 0) { %>
+    <button class="btn btn-secondary" disabled>
+      <%= product.stock <= 0 ? "Out of Stock" : "Product Unavailable" %>
+    </button>
+  <% } else { %>
+    <button 
+      class="btn btn-cart"
+      onclick="addToCart('<%= product._id %>')">
+      Add to Cart
+    </button>
+    <a href="/checkout" class="btn btn-buy">Buy Now</a>
+  <% } %>
+
   <div class="cart-icon">
     <i class="fa fa-shopping-cart"></i>
   </div>
@@ -274,19 +282,33 @@
     originalEl.innerText = `₹${totalOriginal.toLocaleString("en-IN")}`;
   }
 
-  function increaseQty() {
-    const input = document.getElementById("quantity");
-    input.value = parseInt(input.value) + 1;
+const maxStock = <%= product.stock %>
+
+function increaseQty() {
+  const input = document.getElementById("quantity");
+  let current = parseInt(input.value);
+
+  if (current < maxStock) {
+    input.value = current + 1;
+    updatePrice();
+  } else {
+    Swal.fire({
+      icon: "info",
+      text: "No more stock available"
+    });
+  }
+}
+
+function decreaseQty() {
+  const input = document.getElementById("quantity");
+  let current = parseInt(input.value);
+
+  if (current > 1) {
+    input.value = current - 1;
     updatePrice();
   }
+}
 
-  function decreaseQty() {
-    const input = document.getElementById('quantity');
-    if (parseInt(input.value) > 1) {
-      input.value = parseInt(input.value) - 1;
-      updatePrice();
-    }
-  }
 
   // Tab switching
   function openTab(evt, tabId) {
@@ -346,6 +368,49 @@
       responsive: true
     });
   });
+
+
+  
+async function addToCart(productId) {
+  const qty = document.getElementById("quantity").value;
+
+  try {
+    const res = await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        productId,
+        quantity: qty
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Added to Cart",
+        text: "Product added successfully",
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Error",
+        text: data.message || "Could not add to cart"
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Please try again later"
+    });
+  }
+}
 </script>
 </body>
 </html>

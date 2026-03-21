@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment</title>
+
+  <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/css/header.css" type="text/css">
+  <link rel="stylesheet" href="/css/checkout.css">
+  <link rel="stylesheet" href="/css/cart.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+    .page-wrapper { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+    .left-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .section-header { display: flex; align-items: center; gap: 10px; padding: 18px 24px; border-bottom: 1px solid #eee; }
+    .section-header .circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+    .circle.done  { background: #1a73e8; color: #fff; }
+    .circle.active{ background: #222;    color: #fff; }
+    .section-header h4 { font-size: 15px; font-weight: 600; color: #222; }
+    .shipping-body { padding: 16px 24px 20px; }
+    .shipping-body p { font-size: 13.5px; color: #444; line-height: 1.7; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 0; }
+    .payment-body { padding: 20px 24px 28px; }
+    .payment-body > p { font-size: 13px; color: #666; margin-bottom: 16px; }
+    .payment-option { display: flex; align-items: center; gap: 12px; border: 2px solid #ddd; border-radius: 8px; padding: 14px 16px; cursor: default; background: #fafafa; margin-bottom: 16px; }
+    .payment-option input[type="radio"] { accent-color: #1a73e8; width: 17px; height: 17px; }
+    .payment-option strong { font-size: 14px; color: #222; display: block; }
+    .payment-option small  { font-size: 12px; color: #888; }
+    .field-label { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; display: block; }
+    .comments-box { width: 100%; border: 1px solid #ddd; border-radius: 6px; padding: 10px 12px; font-size: 13px; resize: vertical; color: #444; background: #fafafa; outline: none; }
+    .comments-box:focus { border-color: #1a73e8; background: #fff; }
+    .terms-row { display: flex; align-items: center; gap: 8px; margin: 16px 0 20px; font-size: 13px; color: #444; }
+    .terms-row a { color: #1a73e8; text-decoration: underline; }
+    .action-row { display: flex; gap: 12px; }
+    .btn-back { flex: 1; padding: 12px; border: 1px solid #bbb; border-radius: 6px; background: #fff; font-size: 13px; font-weight: 600; color: #444; text-align: center; text-decoration: none; cursor: pointer; transition: background .2s; }
+    .btn-back:hover { background: #f0f0f0; }
+    .btn-place { flex: 2; padding: 12px; border: none; border-radius: 6px; background: #222; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: .5px; cursor: pointer; transition: background .2s; }
+    .btn-place:hover { background: #000; }
+    .right-card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; position: sticky; top: 20px; }
+    .summary-header { background: #111; color: #fff; padding: 16px 20px; font-size: 15px; font-weight: 700; letter-spacing: .3px; }
+    .summary-body { padding: 20px; }
+    .mini-product { display: flex; gap: 12px; margin-bottom: 16px; }
+    .mini-product img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #eee; }
+    .mini-product .info p { font-size: 13.5px; font-weight: 600; color: #222; margin-bottom: 3px; }
+    .mini-product .info small { font-size: 12px; color: #777; }
+    .summary-divider { border: none; border-top: 1px solid #eee; margin: 14px 0; }
+    .s-row { display: flex; justify-content: space-between; font-size: 13.5px; color: #444; margin-bottom: 10px; }
+    .s-row.discount span:last-child { color: #c0392b; font-weight: 500; }
+    .s-row.free     span:last-child {  font-weight: 500; }
+    .s-row.total-row { font-size: 16px; font-weight: 700; color: #111; margin-top: 4px; }
+    .summary-continue { display: block; width: 100%; margin-top: 18px; padding: 13px; background: #111; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; letter-spacing: .5px; cursor: pointer; text-align: center; transition: background .2s; }
+    .summary-continue:hover { background: #000; }
+    @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } .right-card { position: static; } }
+
+
+    .success-popup{
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;  
+  background: rgba(0,0,0,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  visibility:hidden;
+  opacity:0;
+  transition:0.3s;
+}
+
+.success-popup.show{
+  visibility:visible;
+  opacity:1;
+}
+
+.popup-card{
+  background:#fff;
+  padding:35px;
+  border-radius:10px;
+  text-align:center;
+  width:360px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.check-icon{
+  width:70px;
+  height:70px;
+  background:#28a745;
+  color:#fff;
+  font-size:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 15px;
+}
+
+.popup-buttons{
+  margin-top:20px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+}
+
+.btn-shop{
+  background:#f39c12;
+  padding:10px 18px;
+  border-radius:6px;
+  color:#fff;
+  text-decoration:none;
+}
+
+.btn-orders{
+  background:#2c3e50;
+  padding:10px 18px;
+  border-radius:6px;
+  color:#fff;
+  text-decoration:none;
+}     
+  </style>
+</head>
+<body>
+
+<%- include("partials/user/header") %>
+
+
+<!-- Success Popup -->
+<div id="orderSuccessPopup" class="success-popup">
+  <div class="popup-card">
+    <div class="check-icon">✔</div>
+    <h3>Order Placed Successfully!</h3>
+    <p>Thank you for shopping with Pawsome 🐾<br>Your order has been confirmed.</p>
+
+    <div class="popup-buttons">
+      <a href="/shop" class="btn-shop">Back to Shop</a>
+      <a href="/order" class="btn-orders">My Orders</a>
+    </div>
+  </div>
+</div>
+<div class="page-wrapper">
+  <div class="checkout-grid">
+
+    <!-- LEFT -->
+    <div class="left-card">
+
+      <div class="section-header">
+        <div class="circle done">✓</div>
+        <h4>Shipping Address</h4>
+      </div>
+      <div class="shipping-body">
+        <p><strong><%= address?.name  %></strong></p>
+     
+
+        <p><%= address?.phone  %></p>
+ 
+          <%= address?.address_line || '567 Cherry Lane Apt B12' %>,
+          <%= address?.city %>,
+          <%= address?.state  %>
+          <%= address?.pincode  %>
+        </p>
+      </div>
+
+      <hr class="divider">
+
+      <div class="section-header">
+        <div class="circle active">2</div>
+        <h4>Payment</h4>
+      </div>
+      <div class="payment-body">
+        <p>Please confirm your payment method</p>
+
+        <form id="paymentForm">
+
+          <div class="payment-option">
+            <input type="radio" name="paymentMethod" value="cod" checked readonly>
+            <div>
+              <strong>Cash on Delivery</strong>
+              <small>Pay with cash when your order is delivered</small>
+            </div>
+          </div>
+
+   
+
+          <div class="terms-row">
+            <input type="checkbox" id="termsCheckbox" name="terms" required>
+            <label for="termsCheckbox">
+              I accept the <a href="/terms-and-conditions" target="_blank">Terms and Conditions</a>
+            </label>
+          </div>
+
+          <div class="action-row">
+            <a href="/checkout" class="btn-back">BACK</a>
+            <button type="submit" class="btn-place" id="proceedBtn">PLACE ORDER (COD)</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-card">
+      <div class="summary-header">Order Summary</div>
+      <div class="summary-body">
+
+        <% if (cartItems && cartItems.length > 0) { %>
+          <div class="mini-product">
+            <% if (previewItem?.images?.[0]) { %>
+              <img src="<%= previewItem.images[0] %>" alt="<%= previewItem.productName %>" onerror="this.src='/img/placeholder.jpg'">
+            <% } %>
+            <div class="info">
+              <p><%= previewItem?.productName || 'Items in Cart' %></p>
+              <small>Qty: <%= cartItems.reduce((s, i) => s + i.quantity, 0) %></small>
+            </div>
+          </div>
+          <hr class="summary-divider">
+        <% } %>
+
+        <div class="s-row">
+          <span>Subtotal</span>
+          <span>₹<%= parseFloat(subtotal || 0).toFixed(2) %></span>
+        </div>
+
+        <% if (typeof couponDiscount !== 'undefined' && parseFloat(couponDiscount) > 0) { %>
+        <div class="s-row discount">
+          <span>Coupon Discount</span>
+          <span>-₹<%= parseFloat(couponDiscount).toFixed(2) %></span>
+        </div>
+        <% } %>
+
+        <div class="s-row free">
+          <span>Delivery Charge</span>
+          <span><%= (parseFloat(deliveryCharge || 0) === 0) ? 'Free' : '₹' + parseFloat(deliveryCharge).toFixed(2) %></span>
+        </div>
+
+     
+
+        <% if (typeof productDiscount !== 'undefined' && parseFloat(productDiscount) > 0) { %>
+        <div class="s-row discount">
+          <span>Product Discount</span>
+          <span>-₹<%= parseFloat(productDiscount).toFixed(2) %></span>
+        </div>
+        <% } %>
+
+        <%
+          const totalDiscountVal = parseFloat(typeof couponDiscount !== 'undefined' ? couponDiscount : 0)
+                                 + parseFloat(typeof productDiscount !== 'undefined' ? productDiscount : 0);
+        %>
+        <% if (totalDiscountVal > 0) { %>
+        <div class="s-row discount">
+          <span>Total Discount</span>
+          <span>-₹<%= totalDiscountVal.toFixed(2) %></span>
+        </div>
+        <% } %>
+
+        <hr class="summary-divider">
+
+        <div class="s-row total-row">
+          <span>Total</span>
+          <span>₹<%= parseFloat(total || 0).toFixed(2) %></span>
+        </div>
+
+        <button class="summary-continue" onclick="document.getElementById('proceedBtn').click()">
+          CONTINUE
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const termsChecked = document.getElementById('termsCheckbox').checked;
+
+
+  if (!termsChecked) {
+    return Swal.fire({ icon: 'warning', title: 'Terms Required', text: 'Please accept the Terms & Conditions to continue.' });
+  }
+
+  const confirm = await Swal.fire({
+    title: 'Confirm Order?',
+    html: `You will pay <b>Cash on Delivery</b>.<br>Proceed to place the order?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#222',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, Place Order'
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  Swal.fire({ title: 'Placing Order...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+  try {
+    const res = await fetch('/place-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentMethod: 'cod'})
+    });
+
+    const data = await res.json();
+    Swal.close();
+
+    if (data.success) {
+      await Swal.fire({ icon: 'success', title: 'Order Placed!', text: 'You will pay cash on delivery.', timer: 3000, showConfirmButton: false });
+  window.location.href = '/order-success';
+    } else {
+      Swal.fire({ icon: 'error', title: 'Order Failed', text: data.message || 'Something went wrong.' });
+    }
+  } catch (err) {
+    Swal.close();
+    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Unable to connect. Please try again.' });
+  }
+});
+</script>
+
+<%- include("partials/user/footer") %>
+</body>
+</html>

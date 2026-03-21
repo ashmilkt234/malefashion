@@ -1,0 +1,265 @@
+.page-title {
+  font-size: 1.8rem;
+  margin: 1.5rem 0 1rem;
+  color: #333;
+  text-align: center;
+}
+
+.order-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-form {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 400px;
+}
+
+.search-form input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.search-form button {
+  padding: 0.6rem 1.2rem;
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #eee;
+}
+
+.order-id strong {
+  font-size: 1.1rem;
+  color: #111;
+}
+
+.order-date {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.order-body {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.order-image img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.order-info {
+  flex: 1;
+}
+
+.order-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-pending        { background: #f59e0b; } /* yellow */
+.status-shipped        { background: #3b82f6; } /* blue */
+.status-out-for-delivery { background: #8b5cf6; } /* purple */
+.status-delivered      { background: #10b981; } /* green */
+.status-cancelled      { background: #ef4444; } /* red */
+.status-returned       { background: #6b7280; } /* gray */
+
+.order-total {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #111;
+}
+
+.order-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.btn-view, .btn-cancel, .btn-return {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-view {
+  background: #111;
+  color: white;
+  border: none;
+}
+
+.btn-cancel {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.btn-return {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+}
+
+.page-link {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #333;
+}
+
+.page-link.active {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+
+
+
+
+
+.order-table thead tr {
+  background: #2d3748;
+  color: #ffffff;
+}
+
+.order-table thead th {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: left;
+  color: #ffffff;
+}
+
+/* ✅ Table body rows */
+.order-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.order-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.order-table tbody td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #444;
+  vertical-align: middle;
+}
+
+/* ✅ Pagination like products page */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 30px;
+  padding-bottom: 20px;
+}
+
+.page-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.page-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.page-btn.active {
+  background: #1a237e;
+  color: #fff;
+  border-color: #1a237e;
+  font-weight: 700;
+}
+
+/* ✅ Prev / Next buttons */
+.page-btn.prev,
+.page-btn.next {
+  width: auto;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+

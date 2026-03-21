@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Change Email</title>
+  <link rel="stylesheet" href="/css/change-email.css">
+</head>
+<body>
+
+  <div class="change-email-container">
+    <h3>Change Email</h3>
+
+    <% if (message) { %>
+      <p class="<%= type === 'error' ? 'error-msg' : 'success-msg' %>">
+        <%= message %>
+      </p>
+    <% } %>
+
+    <form action="/profile/change-email" method="POST">
+      <div class="input-group">
+        <input 
+          type="email" 
+          name="email" 
+          placeholder="Enter new email" 
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn-submit">
+        Send OTP
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>order</title>
+</head>
+  <%- include("partials/user/header") %>
+
+<link rel="stylesheet" href="/css/cart.css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="/css/header.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+  <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+  <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+  <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/css/header.css" type="text/css">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<body>
+<link rel="stylesheet" href="/css/order.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Filters / Search -->
+<div class="order-controls">
+  <form class="search-form" action="/order" method="GET">
+    <input
+      type="text"
+      name="search"
+      placeholder="Search by Order ID..."
+      value="<%= search %>"
+    />
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<% if (orders.length === 0) { %>
+  <div class="empty-state">
+    <p>No orders found.</p>
+    <a href="/shop" class="btn">Start Shopping</a>
+  </div>
+<% } else { %>
+
+<div class="orders-list">
+  <% orders.forEach(order => { %>
+    <div class="order-card">
+
+      <div class="order-header">
+        <div class="order-id">
+          <strong>Order #<%= order.orderID %></strong>
+        </div>
+        <div class="order-date">
+          <%= new Date(order.createdAt).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          }) %>
+        </div>
+      </div>
+
+      <div class="order-body">
+        <% if (order.items && order.items.length > 0) { %>
+        <%
+          const firstItem = order.items[0];
+          const product = firstItem && firstItem.productId;
+          const imgSrc = product && product.productImage && product.productImage[0]
+            ? '/uploads/product-images/' + product.productImage[0]
+            : '/images/placeholder.jpg';
+          const imgAlt = product ? product.productName : 'Product';
+        %>
+        <div class="order-image">
+          <img src="<%= imgSrc %>" alt="<%= imgAlt %>" />
+        </div>
+        <% } %>
+
+        <div class="order-info">
+          <div class="order-status">
+            <strong>Status:</strong>
+            <span class="status-badge <%= (order.address?.status || 'pending').toLowerCase().replace(/\s/g,'-') %>">
+              <%= order.address?.status || 'Pending' %>
+            </span>
+          </div>
+
+          <div class="payment-status">
+            <strong>Payment:</strong>
+            <span class="payment-badge">
+              <%= order.paymentMethod || order.address?.paymentMethod || 'COD' %>
+            </span>
+          </div>
+
+          <div class="order-total">
+            <strong>Total:</strong>
+            ₹<%= order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2) %>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-actions">
+        <a href="/order/<%= order._id %>" class="btn-view">View Details</a>
+
+        <!-- ✅ Cancel button with SweetAlert -->
+        <% if (!['Cancelled','Delivered','Returned'].includes(order.address?.status)) { %>
+        <button class="btn-cancel" onclick="cancelOrder('<%= order._id %>')">
+          Cancel
+        </button>
+        <% } %>
+
+        <!-- ✅ Return button with SweetAlert -->
+        <% if (order.address?.status === 'Delivered') { %>
+        <button class="btn-return" onclick="returnOrder('<%= order._id %>')">
+          Return
+        </button>
+        <% } %>
+      </div>
+
+    </div>
+  <% }) %>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a href="/order?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-link">« Prev</a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a 
+      href="/order?page=<%= i %>&search=<%= search %>"
+      class="page-link <%= currentPage === i ? 'active' : '' %>"
+    ><%= i %></a>
+  <% } %>
+
+  <% if (currentPage < totalPages) { %>
+    <a href="/order?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-link">Next »</a>
+  <% } %>
+</div>
+
+
+
+<% } %>
+
+<script>
+// ✅ Cancel order with SweetAlert
+async function cancelOrder(id) {
+  const { value: reason } = await Swal.fire({
+    title: 'Cancel Order?',
+    input: 'text',
+    inputLabel: 'Reason for cancellation',
+    inputPlaceholder: 'Enter reason (optional)',
+    showCancelButton: true,
+    confirmButtonColor: '#e53935',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, Cancel Order',
+    cancelButtonText: 'Close'
+  });
+
+  if (reason === undefined) return;
+
+  const res = await fetch(`/order/${id}/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Order Cancelled',
+      text: 'Your order has been cancelled.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.message || 'Cannot cancel order'
+    });
+  }
+}
+
+// ✅ Return order with SweetAlert
+async function returnOrder(id) {
+  const { value: reason } = await Swal.fire({
+    title: 'Return Order?',
+    input: 'text',
+    inputLabel: 'Reason for return',
+    inputPlaceholder: 'Enter reason (required)',
+    inputValidator: (value) => {
+      if (!value) return 'Return reason is required!';
+    },
+    showCancelButton: true,
+    confirmButtonColor: '#1a237e',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Submit Return',
+    cancelButtonText: 'Close'
+  });
+
+  if (reason === undefined) return;
+
+  const res = await fetch(`/order/${id}/return`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Return Requested',
+      text: 'Your return request has been submitted.',
+      timer: 1500,
+      showConfirmButton: false
+    });
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.message || 'Cannot return order'
+    });
+  }
+}
+</script>
+</body>
+</html>
+
+<%- include("partials/user/footer") %>

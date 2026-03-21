@@ -7,7 +7,7 @@ const blockCheck = async (req, res, next) => {
       return next();
     }
 
-    const user = await User.findById(req.session.user._id).lean();
+    const user = await User.findById(req.session.user).lean();
 
     // User removed from DB
     if (!user) {

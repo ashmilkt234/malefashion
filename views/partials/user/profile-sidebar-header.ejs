@@ -1,45 +1,55 @@
+<!-- Header style version -->
 
-  <div class="sidebar">
-    <div class="user-info">
-      <i class="fa-solid fa-user-circle user-icon"></i>
-      <h3 class="username">
-        <%= user?.name || "User" %>
-      </h3>
-      <p class="user-email">
-        <%= user?.email || "" %>
-      </p>
+<link rel="stylesheet" href="/css/profileheader.css">
+<div class="header">
+  <div class="user-info">
+  <% if (user && user.profilePicture) { %>
+    <img 
+     src="/uploads/profile/<%= user.profilePicture %>"
+      alt="Profile Picture" 
+      class="user-icon"
+      style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;"
+    >
+  <% } else { %>
+    <i class="fa-solid fa-user-circle user-icon"></i>
+  <% } %>
+      <span class="username"><%= user?.name || "User" %></span>
+      <span class="user-email"><%= user?.email || "" %></span>
     </div>
-
-    <nav class="sidebar-nav">
-      <ul>
-        <li>
-          <a href="/userprofile">
-            <i class="fa-solid fa-id-card"></i>
-            Profile
-          </a>
-        </li>
-
-        <li>
-          <a href="/orders">
-            <i class="fa-solid fa-box"></i>
-            Orders
-          </a>
-        </li>
-
-        <li>
-          <a href="/wishlist">
-            <i class="fa-solid fa-heart"></i>
-            Wishlist
-          </a>
-        </li>
-
-        <li>
-          <a href="/logout">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
-          </a>
-        </li>
-      </ul>
-    </nav>
   </div>
+
+  <nav class="header-nav">
+    <ul>
+      <li>
+        <a href="/userprofile">
+          <i class="fa-solid fa-id-card"></i> Profile
+        </a>
+      </li>
+      <li>
+        <a href="/order">
+          <i class="fa-solid fa-box"></i> Orders
+        </a>
+      </li>
+      <li>
+        <a href="/address">
+          <i class="fa-solid fa-address-book"></i> My Address
+        </a>
+      </li>
+      <li>
+        <a href="/wishlist">
+          <i class="fa-solid fa-heart"></i> Wishlist
+        </a>
+      </li>
+      <li>
+        <a href="/logout">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+
+
+
 

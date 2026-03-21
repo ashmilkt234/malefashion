@@ -67,6 +67,7 @@ const togglePassword = document.getElementById("togglePassword");
 
   const res = await fetch('/login', {
     method: 'POST',
+     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       email: document.getElementById('email').value,

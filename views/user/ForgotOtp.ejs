@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OTP Verification</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  
 <link rel="stylesheet" href="/css/verifyOTP.css">
 <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
+  </head>
    <body>
 
-  </head>
+
    <div class="container">
       <div class="left">
         <div class="title">OTP Verification Code</div>
@@ -97,7 +98,7 @@
         otpInputs.forEach((input) => (enteredOTP += input.value));
 
         if (enteredOTP.length !== 6) {
-          showError();
+          showError("Please enter the 6-digit OTP");
           shakeInputs();
           return;
         }
@@ -105,7 +106,7 @@
         verifyBtn.classList.add("loading");
         verifyBtn.disabled = true;
 
-        fetch("/resend-otp", {
+        fetch("/verify-forgot-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ otp: enteredOTP }),
@@ -118,14 +119,14 @@
             if (data.success) {
               showSuccess();
             } else {
-              showError();
+              showError(data.message||"Invalid OTP");
               shakeInputs();
             }
           })
           .catch(() => {
             verifyBtn.classList.remove("loading");
             verifyBtn.disabled = false;
-            showError();
+            showError("Server error. Please try again.");
           });
       }
 
@@ -136,68 +137,29 @@
         });
       }
 
-      function showSuccess() {
-        Swal.fire({
-          icon: "success",
-          title: "Oh Yeah!",
-          text: "You have successfully registered and logged in.",
-          confirmButtonColor: "#22c55e",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          didClose: () => {
-            window.location.href = "/reset-password";
-          },
-        })
-      }
+    function showSuccess() {
+  Swal.fire({
+    icon: "success",
+    title: "OTP Verified",
+    text: "You can now reset your password.",
+    timer: 1500,
+    showConfirmButton: false,
+  }).then(() => {
+    window.location.href = "/reset-password";
+  });
+}
 
-      function showError() {
+
+      function showError(message="Invalid OTP") {
         Swal.fire({
           icon: "error",
           title: "Invalid OTP!",
-          text: "The OTP you entered is incorrect, please try again.",
+          text:message,
           confirmButtonColor: "#ef4444",
         });
       }
 
-      function closePopup() {
-        document.getElementById("popupOverlay").classList.remove("show");
-        if (
-          document.getElementById("popupTitle").textContent === "Invalid OTP!"
-        ) {
-          otpInputs.forEach((input) => (input.value = ""));
-          otpInputs[0].focus();
-        }
-      }
-
-      function resendOTP() {
-        console.log("resend function called ,", resendLink);
-        if (!resendLink.classList.contains("active")) return;
-
-        timeLeft =60;
-        countdown.textContent = timeLeft;
-        timer.style.display = "block";
-        timer.classList.remove("warning");
-        resendLink.classList.remove("active");
-        startTimer();
-        otpInputs.forEach((input) => {
-          input.value = "";
-          input.classList.remove("filled", "error");
-        });
-
-        otpInputs[0].focus();
-        startTimer();
-
-        Swal.fire({
-          icon: "info",
-          title: "OTP Sent",
-          text: "A new OTP has been sent to your phone.",
-          confirmButtonColor: "#3182ce",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-
+   
       verifyBtn.addEventListener("click", verifyOTP);
       resendLink.addEventListener("click", (e) => {
         console.log("commint resent blicked");
@@ -209,33 +171,39 @@
         if (e.target === document.getElementById("popupOverlay")) closePopup();
       });
       window.addEventListener("load", () => otpInputs[0].focus());
-      function resendOTP() {
-        clearInterval(timerInterval);
-        time = 60;
-       
+   async function resendOTP() {
+  if (!resendLink.classList.contains("active")) return;
 
-        $.ajax({
-          type: "POST",
-          url: "/resend-otp",
-          success: function (response) {
-            if (response.success) {
-              Swal.fire({
-                icon: "success",
-                title: "OTP Resend Successfully",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            } else {
-              Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "An error occured while resending OTP. Please try again",
-              });
-            }
-          },
-        });
-        return false;
-      }
+  try {
+    const res = await fetch("/resend-otp", { method: "POST" });
+    const data = await res.json();
+
+    if (data.success) {
+      timeLeft = 60;
+      timer.style.display = "block";
+      resendLink.classList.remove("active");
+      startTimer();
+
+      otpInputs.forEach(input => {
+        input.value = "";
+        input.classList.remove("filled", "error");
+      });
+
+      otpInputs[0].focus();
+
+      Swal.fire({
+        icon: "success",
+        title: "OTP Sent",
+        text: "A new OTP has been sent.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  } catch (err) {
+    Swal.fire("Error", "Could not resend OTP", "error");
+  }
+}
+
     </script>
     </body>
 </html>

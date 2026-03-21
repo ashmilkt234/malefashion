@@ -5,12 +5,13 @@ const adminDashboardController=require("../controllers/admin/adminDashboardContr
 const adminUserController=require("../controllers/admin/adminUserController")
 const adminAuthController=require("../controllers/admin/adminAuthController")
 const adminErrorController=require("../controllers/admin/adminErrorController")
-
+const orderController=require("../controllers/admin/orderController")
 // const userController=require("../controllers/admin/userController")
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require("../controllers/admin/productController")
 const adminAuth=require("../middleware/adminAuth")
 const guestAdmin=require("../middleware/guestAdmin")
+const inventoryController = require("../controllers/admin/inventoryController")
 const nocache = require("nocache");
 const uploads = require("../middleware/multerConfig"); 
 const multer=require("multer")
@@ -74,6 +75,14 @@ router.delete("/deleteImage",adminAuth,productController.deleteSingleImage)
 router.post("/product/:id/soft-delete",adminAuth,productController.softDelete)
 
 router.post("/product/:id/restore",adminAuth,productController.restore)
+
+router.get("/orders", orderController.loadOrders)
+router.get("/orders/edit/:id",orderController.editOrderPage)
+router.post("/orders/edit/:id",orderController.updateOrder)
+router.get("/orders/cancel/:id",orderController.cancelOrder)
+
+router.get("/inventory", inventoryController.loadInventory)
+router.post("/inventory/adjust", inventoryController.adjustStock)
 
 
 module.exports = router;

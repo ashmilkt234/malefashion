@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>checkout</title>
+</head>
+
+<link rel="stylesheet" href="/css/checkout.css">
+<link rel="stylesheet" href="/css/cart.css">
+<link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="/css/header.css">
+
+<link rel="stylesheet" href="/css/cart.css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="/css/header.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+  <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+  <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+  <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/css/header.css" type="text/css">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<%- include("partials/user/header") %>
+
+
+
+<!-- SweetAlert2 -->
+
+
+<div class="checkout-wrapper">
+
+<form id="orderForm">
+
+<div class="checkout-left">
+
+  <!-- Step Indicator -->
+  <div class="checkout-steps">
+    <div class="step active">1 <span>Address</span></div>
+    <div class="line"></div>
+    <div class="step">2 <span>Payment</span></div>
+  </div>
+
+  <h3>Select Address</h3>
+
+  <% addresses.forEach(address => { %>
+    <div class="address-card">
+      <label class="address-option">
+        <input type="radio"
+               name="selectedAddress"
+               value="<%= address._id %>"
+               <%= address.is_default ? "checked" : "" %> >
+
+        <div class="address-details">
+          <p class="name">
+            <%= address.name %>
+            <% if(address.is_default){ %>
+             
+            <% } %>
+          </p>
+
+          <p><%= address.phone %></p>
+          <p><%= address.address_line %></p>
+          <p><%= address.pincode %></p>
+        </div>
+      </label>
+    </div>
+  <% }) %>
+
+  <div class="address-actions">
+    <a href="/address" class="link">+ Add New Address</a>
+    <!-- <a href="/address/edit/:id" class="link">Manage Address</a> -->
+  </div>
+
+  <div class="checkout-buttons">
+    <a href="/cart" class="btn back-btn">Back</a>
+    <button type="submit" class="btn next-btn">Next</button>
+  </div>
+
+</div>
+</form>
+</div>
+<body>
+<script>
+document.getElementById("orderForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked')?.value;
+
+  if(!selectedAddress){
+    Swal.fire({
+      icon: 'warning',
+      title: 'Address Required',
+      text: 'Please select a shipping address to continue.',
+      confirmButtonColor: '#3085d6'
+    });
+    return;
+  }
+
+  console.log("Sending selected address:", selectedAddress); // ← for debugging
+
+  try {
+    const response = await fetch("/checkout/proceed", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({ selectedAddress })
+    });
+
+    const result = await response.json();
+
+    console.log("Response from proceed:", result); // ← debug
+
+    if(result.success){
+      Swal.fire({
+        icon: 'success',
+        title: 'Address Confirmed',
+        text: 'Redirecting to payment...',
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        window.location.href = result.redirect || "/payment";
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: result.message || "Something went wrong",
+        confirmButtonColor: '#d33'
+      });
+    }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Network Error',
+      text: "Cannot connect. Please check internet and try again.",
+      confirmButtonColor: '#d33'
+    });
+  }
+});
+</script>
+
+</body>
+</html>
+<%- include("partials/user/footer") %>

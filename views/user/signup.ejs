@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Signup</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="/css/signup.css">
   <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
@@ -63,14 +64,15 @@
       <!-- Password with toggle -->
       <div class="password-container">
         <input type="password" id="password" name="password" placeholder="Password" />
-        <span class="toggle-password" id="togglePassword">SHOW</span>
+        <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
       </div>
       <div id="error4" class="error-message"></div>
 
       <!-- Confirm Password with toggle -->
       <div class="password-container">
         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" />
-        <span class="toggle-password" id="toggleConfirm">SHOW</span>
+         <i class="fa-solid fa-eye toggle-password" id="toggleConfirm"></i>
+
       </div>
       <div id="error5" class="error-message"></div>
 
@@ -219,10 +221,12 @@
     toggle.addEventListener("click", () => {
       if (input.type === "password") {
         input.type = "text";
-        toggle.textContent = "HIDE";
+        toggle.classList.remove("fa-eye");
+      toggle.classList.add("fa-eye-slash");
       } else {
         input.type = "password";
-        toggle.textContent = "SHOW";
+     toggle.classList.remove("fa-eye-slash");
+      toggle.classList.add("fa-eye");
       }
     });
   }

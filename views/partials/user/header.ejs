@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <header class="header" style="position: relative; z-index: 500;">
 <link rel="stylesheet" href="/css/header.css">
@@ -54,21 +55,29 @@
   <a href="/signup" class="sign-in-link">Sign Up</a>
   <a href="/login" class="sign-in-link">Log In</a>
 <% } %>
+  <a href="/wishlist" class="wishlist-icon">
+        <i class="fa-regular fa-heart"></i>
+        <span class="wishlist-count">0<span>
+      </a>
+<a href="/cart" class="cart-icon">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span class="cart-count"><%=cartCount %></span>
+  </a>
 
-          <a href="#" class="search-switch">
-            <img src="img/icon/search.png" alt="">
-          </a>
-          <a href="#">
+
+  
+          <!-- <a href="#">
             <img src="img/icon/heart.png" alt="">
-          </a>
-          <a href="./shopping-cart.html">
-            <!-- <img src="image/icon/cart.png" alt=""><span></span> -->
-          </a>
+          </a> -->
+         
         </div>
       </div>
     </div>
 
-    <div class="canvas__open"><i class="fa fa-bars"></i></div>
+    <!-- <div class="canvas__open"><i class="fa fa-bars"></i></div> -->
   </div>
 </header>
 <!-- Header Section End -->
+
+
+

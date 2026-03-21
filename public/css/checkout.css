@@ -1,0 +1,335 @@
+/* ===== CHECKOUT PAGE ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #f7f8fa;
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+}
+
+.checkout-wrapper {
+  display: flex;
+  gap: 32px;
+  padding: 40px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+/* ===== LEFT PANEL ===== */
+.checkout-left {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e4e4e4;
+  padding: 32px;
+}
+
+/* Steps */
+.checkout-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.step span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #555;
+}
+
+.step.active .step-num {
+  background: #111;
+  color: #fff;
+}
+
+.step.active span {
+  color: #111;
+  font-weight: 600;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+  margin: 0 16px;
+}
+
+/* Section Title */
+.checkout-left h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+/* Address Card */
+.address-card {
+  border: 1.5px solid #e4e4e4;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  background: #fff;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+
+.address-card:hover {
+  border-color: #bbb;
+}
+
+.address-card:has(input:checked) {
+  border-color: #111;
+  background: #fafafa;
+}
+
+.address-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.address-option input[type="radio"] {
+  margin-top: 3px;
+  accent-color: #111;
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+}
+
+.address-details p {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.address-details .name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.badge {
+  background: #111;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Address Actions */
+.address-actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.address-actions .link {
+  font-size: 14px;
+  color: #111;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dashed #aaa;
+  padding-bottom: 1px;
+}
+
+.address-actions .link:hover {
+  border-bottom-color: #111;
+}
+
+/* Buttons */
+.checkout-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 28px;
+}
+
+.btn {
+  padding: 11px 32px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.back-btn {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.back-btn:hover {
+  background: #e4e4e4;
+}
+
+.next-btn {
+  background: #111;
+  color: #fff;
+}
+
+.next-btn:hover {
+  background: #333;
+}
+
+/* ===== RIGHT PANEL — ORDER SUMMARY ===== */
+.checkout-right {
+  width: 340px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e4e4e4;
+}
+
+.order-summary-header {
+  background: #111;
+  color: #fff;
+  padding: 18px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.order-summary-body {
+  background: #fff;
+  padding: 24px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.summary-row .label {
+  color: #666;
+}
+
+.summary-row .value {
+  font-weight: 500;
+  color: #111;
+}
+
+.summary-row .value.free {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.summary-row .value.discount {
+  color: #e53935;
+}
+
+/* Coupon */
+.coupon-section {
+  margin: 16px 0 20px;
+}
+
+.coupon-section label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.coupon-input-group {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.coupon-input-group input {
+  flex: 1;
+  border: none;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fafafa;
+}
+
+.coupon-input-group button {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+
+.coupon-input-group button:hover {
+  background: #333;
+}
+
+.summary-divider {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 16px 0;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 20px;
+}
+
+.continue-btn {
+  width: 100%;
+  padding: 13px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.continue-btn:hover {
+  background: #333;
+}

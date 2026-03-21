@@ -40,7 +40,7 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link ">
+                <a href="/admin/orders" class="sidebar-link ">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Orders</span>
                 </a>
@@ -63,6 +63,13 @@
                     <span>Offers</span>
                 </a>
             </li> 
+<li class="sidebar-item">
+    <a href="/admin/inventory" class="sidebar-link">
+        <i class="fas fa-warehouse"></i>
+        <span>Inventory</span>
+    </a>
+</li>
+              
         </ul>
    <div class="logout-section">
   <button id="logoutBtn" class="logout-btn">
@@ -72,6 +79,7 @@
 </div>
     </aside>
     <body>
+        
         
         <script>
             
@@ -95,10 +103,50 @@ document.getElementById("logoutBtn").addEventListener("click", function () {
               });
           }
         });
-    }
+  }
   });
 });
-</script>
 
-        
+  const currentPath = window.location.pathname;
+  const sidebarLinks = document.querySelectorAll('.sidebar-item a');
+
+  sidebarLinks.forEach(link => {
+    if (link.getAttribute('href') === currentPath) {
+      link.parentElement.classList.add('active');
+    }
+  });
+
+
+</script>
+<style>
+  .sidebar-item {
+  list-style: none;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  color: #bfc9d4;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-link i {
+  font-size: 16px;
+}
+
+/* ACTIVE STATE */
+.sidebar-item.active .sidebar-link {
+  background: #1e293b;
+  color: #ffffff;
+  border-left: 4px solid #3b82f6;
+}
+
+.sidebar-item.active .sidebar-link i {
+  color: #3b82f6;
+}
+</style>        
     </body>

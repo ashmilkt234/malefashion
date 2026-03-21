@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Placed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #f0f4f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 32px;
+      gap: 0;
+    }
+
+    /* Animated checkmark circle */
+    .check-wrapper {
+      width: 100px;
+      height: 100px;
+      background: #d6f0d6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    .check-wrapper svg {
+      width: 52px;
+      height: 52px;
+      stroke: #2e9e4f;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .check-wrapper svg .circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      animation: drawCircle 0.5s 0.15s ease forwards;
+    }
+
+    .check-wrapper svg .check {
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: drawCheck 0.35s 0.55s ease forwards;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1a1f2e;
+      margin-bottom: 12px;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #7a8494;
+      font-weight: 600;
+      line-height: 1.6;
+      max-width: 340px;
+      margin-bottom: 32px;
+      animation: fadeUp 0.5s 0.4s ease both;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+
+    .btn-group a {
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: #1a1f2e;
+      color: #fff;
+      border: 2px solid #1a1f2e;
+    }
+
+    .btn-primary:hover {
+      background: #2d3347;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(26,31,46,0.25);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #1a1f2e;
+      border: 2px solid #d8dce6;
+    }
+
+    .btn-secondary:hover {
+      border-color: #b0b6c4;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    @keyframes drawCircle {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="success-container">
+
+    <div class="check-wrapper">
+      <svg viewBox="0 0 52 52">
+        <circle class="circle" cx="26" cy="26" r="24"/>
+        <polyline class="check" points="14,26 22,34 38,18"/>
+      </svg>
+    </div>
+
+    <h1>Order Placed!</h1>
+
+    <p>Your items are being packed and will be shipped shortly via Cash on Delivery.</p>
+
+    <div class="btn-group">
+      <a href="/" class="btn-primary">Continue Shopping</a>
+      <a href="/order" class="btn-secondary">View Orders</a>
+    </div>
+
+  </div>
+
+</body>
+</html>

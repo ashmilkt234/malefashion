@@ -1,0 +1,88 @@
+.page-title{
+font-size:28px;
+font-weight:700;
+margin-bottom:20px;
+}
+
+.order-card{
+background:#fff;
+border-radius:12px;
+padding:25px;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+max-width:850px;
+}
+
+.order-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding-bottom:15px;
+border-bottom:1px solid #eee;
+}
+
+.label{
+font-size:12px;
+color:#888;
+margin-bottom:5px;
+}
+
+.header-right{
+display:flex;
+gap:50px;
+}
+
+.status-badge { 
+  padding: 4px 12px; 
+  border-radius: 20px; 
+  font-size: 12px; 
+  font-weight: 700; 
+}
+.status-badge.pending         { background: #fff3cd; color: #b8860b; }
+.status-badge.shipped         { background: #cce5ff; color: #0066cc; }
+.status-badge.out-for-delivery{ background: #e8d5ff; color: #6600cc; }
+.status-badge.delivered       { background: #d4edda; color: #155724; }
+.status-badge.cancelled       { background: #f8d7da; color: #721c24; }
+.status-badge.returned        { background: #fde8d8; color: #c0392b; }
+
+.order-product{
+display:flex;
+gap:15px;
+padding:20px 0;
+align-items:center;
+}
+
+.product-img{
+width:60px;
+height:60px;
+object-fit:cover;
+border-radius:8px;
+}
+
+.product-info h4{
+margin:0;
+font-size:16px;
+}
+
+.order-actions{
+display:flex;
+justify-content:flex-end;
+gap:15px;
+padding-top:15px;
+}
+
+.cancel-btn{
+border:1px solid #ff4d4f;
+background:white;
+color:#ff4d4f;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.invoice-btn{
+background:#111827;
+color:white;
+padding:10px 18px;
+border-radius:8px;
+text-decoration:none;
+}

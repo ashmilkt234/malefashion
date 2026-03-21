@@ -36,7 +36,7 @@ const addProducts = async (req, res) => {
       sizes,
       salesPrice,
       quantity,
-      description
+      description,
     } = req.body;
 
   

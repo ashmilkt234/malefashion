@@ -1,63 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Information</title>
-    <link rel="stylesheet" href= "/public/css/userprofile-sidebar.css/">
-    <link rel="stylesheet" href="/css/userprofile.css/">
-    <!-- Add Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
-    <link rel="stylesheet" href="/css/userprofile-sidebar.css">
-    <link rel="stylesheet" href="/css/userprofile.css">
+  <meta charset="UTF-8">
+  <title>Personal Information</title>
+
+
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <link rel="shortcut icon" href="/img/hero/cr.jpg">
+  
+  <link rel="stylesheet" href="/css/userprofile-sidebar.css">
+  <link rel="stylesheet" href="/css/userprofile.css">
+  <style>
+    .remove-photo-btn{
+        display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #e53935;
+  text-transform: uppercase;
+  text-decoration: none !important;  /* ✅ add !important */
+  cursor: pointer;
+  background: none;
+  border: none
+    }
+    .profile-picture-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+.profile-img-box{
+  position: relative;
+  width:120px;
+  margin:auto;
+}
+
+.profile-picture{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid #eee;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+
+.camera-icon{
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  background:#000;
+  color:#fff;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:14px;
+}
+    .default-icon {
+      font-size: 120px;
+      color: #888;
+    }
+    .upload-form {
+      margin-top: 1rem;
+    }
+    .upload-form input[type="file"] {
+      margin-right: 1rem;
+    }
+    .upload-form button {
+      padding: 8px 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .upload-form button:hover {
+      background: #45a049;
+    }
+    .message {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .success { color: #2e7d32; }
+    .error   { color: #d32f2f; }
+  </style>
 </head>
 <body>
-  <%-include('../partials/user/profile-sidebar-header')%>
-  <div class="container">
-    <!-- Place edit button next to each section title -->
-    <section class="info-section">
-        <div class="header-container">
-            <h1 class="section-title">Personal Information</h1>
-            <a href="/editUserProfile" class="edit-button">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                </svg>
-                Edit Profile
-            </a>
-        </div>
-        <div class="info-item">
-            <h2 class="field-label">Full Name</h2>
-            <p class="field-value"><%= user.name %></p>
-        </div>
-    </section>
 
-    <section class="info-section">
-        <h1 class="section-title">Contacts</h1>
-        <div class="info-item">
-            <h2 class="field-label">Email Address</h2>
-            <p class="field-value"><%= user.email %></p>
-        </div>
-        <div class="info-item">
-            <h2 class="field-label">Phone Number</h2>
-            <p class="field-value"><%= user.phone || 'None' %></p>
-        </div>
-    </section>
+<%- include('../partials/user/profile-sidebar-header') %>
+  
+<div class="container">
+<section class="info-section">
+  <div class="profile-picture-container">
 
-    <section class="info-section">
-        <h1 class="section-title">Account Settings</h1>
-        <div class="info-item">
-            <h2 class="field-label">Account Status</h2>
-            <p class="field-value"><%= user.isBlocked ? 'Blocked' : 'Active' %></p>
-        </div>
-    </section>
+  <div class="profile-img-box">
 
-    <section class="info-section">
-        <h1 class="section-title">Password</h1>
-        <p class="password-text">Do you want to change your password?</p>
-        <a href="/changepassword" class="change-password-btn">Change Password</a>
-    </section>
+    <% if (user.profilePicture) { %>
+      
+      <img 
+        src="/uploads/profile/<%= user.profilePicture %>" 
+        alt="Profile Picture" 
+        class="profile-picture"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      >
+      <!-- ✅ Fallback initials if image fails -->
+      <div class="avatar-initials" style="display:none;">
+        <%= user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U' %>
+      </div>
+    <% } else { %>
+      <!-- ✅ Show initials when no profile picture -->
+      <div class="avatar-initials">
+        <%= user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : 'U' %>
+      </div>
+    <% } %>
+
+    <!-- ✅ Camera icon triggers file input -->
+    <label for="profileFileInput" class="camera-icon">
+      <i class="fa-solid fa-camera"></i>
+    </label>
+
+  </div>
+
+  <!-- ✅ Profile Picture label -->
+  <p class="profile-label">Profile Picture</p>
+
+  <!-- ✅ Remove Photo button -->
+  <a href="/profile/remove-photo" class="remove-photo-btn">Remove Photo</a>
+
+  <!-- Hidden Upload Form — camera icon triggers this -->
+  <form action="/profile/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+    <input 
+      type="file" 
+      name="profilePicture" 
+      id="profileFileInput" 
+      style="display:none;"
+      onchange="document.getElementById('uploadForm').submit()"
+    >
+  </form>
+
+  <!-- Show success/error messages -->
+  <% if (messages && messages.success) { %>
+    <p class="message success"><%= messages.success %></p>
+  <% } %>
+  <% if (messages && messages.error) { %>
+    <p class="message error"><%= messages.error %></p>
+  <% } %>
+
 </div>
-<%-include('../partials/user/profile-sidebar-footer')%>
+
+ 
+  </section>
+  <!-- Personal Info -->
+  <section class="info-section">
+    <div class="header-container">
+      <h1 class="section-title">Personal Information</h1>
+      
+    </div>
+
+    <div class="info-item">
+      <h2 class="field-label">Full Name</h2>
+      <p class="field-value"><%= user.name %></p>
+         <a href="/profile/change-username" class="edit-button">
+        <i class="fa-solid fa-pen"></i> Change fullName
+      </a>
+    </div>
+  </section>
+
+  <!-- Contacts -->
+  <section class="info-section">
+    <h1 class="section-title">Contacts</h1>
+
+    <div class="info-item">
+      
+      <h2 class="field-label">Email</h2>
+      <p class="field-value"><%= user.email %></p>
+      <a href="/profile/change-email" class="edit-button">
+        <i class="fa-solid fa-pen"></i> Change Email
+      </a>
+    </div>
+
+    <div class="info-item">
+      <h2 class="field-label">Phone</h2>
+      <p class="field-value"><%= user.phone || 'Not provided' %></p>
+    </div>
+  </section>
+
+  <!-- Account -->
+  <section class="info-section">
+    <h1 class="section-title">Account Settings</h1>
+
+    <div class="info-item">
+      <h2 class="field-label">Account Status</h2>
+      <p class="field-value">
+        <%= user.isBlocked ? 'Blocked' : 'Active' %>
+      </p>
+    </div>
+  </section>
+
+  <!-- Password -->
+  <section class="info-section">
+    <h1 class="section-title">Password</h1>
+    <p class="password-text">Do you want to change your password?</p>
+    <a href="/changepassword" class="change-password-btn">
+      Change Password
+    </a>
+  </section>
+
+</div>
+
+<%- include('../partials/user/profile-sidebar-footer') %>
+
 </body>
 </html>

@@ -3,14 +3,15 @@ const User = require("../models/userSchema");
 const guestAuth = async (req, res, next) => {
   try {
     if (req.session.user) {
-      const user = await User.findById(req.session.user);
+      const user = await User.findById(req.session.user).lean();
 
-      // If blocked → destroy session
+
       if (!user || user.isBlocked) {
-        req.session.destroy();
+        req.session.destroy(()=>{;
         return res.redirect("/login");
-      }
-
+      })
+      return 
+    }
       // Logged in & active user
       return res.redirect("/");
     }

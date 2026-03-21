@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Change Email</title>
+  
+</head>
+<body>
+<style>
+  body{
+  margin:0;
+  padding:0;
+  background:#f4f6f9;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.profile-container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.profile-card{
+  background:#fff;
+  width:400px;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.profile-card h2{
+  margin-bottom:20px;
+  font-size:22px;
+  font-weight:600;
+}
+
+.profile-form label{
+  display:block;
+  font-size:14px;
+  margin-bottom:6px;
+  font-weight:500;
+}
+
+.profile-form input{
+  width:100%;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  margin-bottom:20px;
+  font-size:14px;
+}
+
+.profile-form input:focus{
+  border-color:#ffb400;
+  outline:none;
+}
+
+.btn-primary{
+  width:100%;
+  padding:12px;
+  background:#ffb400;
+  border:none;
+  border-radius:6px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.btn-primary:hover{
+  background:#e6a200;
+}
+
+.error-message{
+  background:#ffeaea;
+  color:#d32f2f;
+  padding:10px;
+  border-radius:6px;
+  margin-bottom:15px;
+  font-size:14px;
+}
+</style>
+<div class="profile-container">
+
+  <div class="profile-card">
+    <h2>Change Email</h2>
+
+    <% if (message) { %>
+      <p class="error-message"><%= message %></p>
+    <% } %>
+
+    <form action="/profile/update-email" method="POST" class="profile-form">
+
+      <label for="email">New Email Address</label>
+      <input 
+        type="email" 
+        name="email" 
+        id="email"
+        placeholder="Enter new email" 
+        required
+      >
+
+      <button type="submit" class="btn-primary">
+        Send OTP
+      </button>
+
+    </form>
+  </div>
+
+</div>
+
+</body>
+</html>
