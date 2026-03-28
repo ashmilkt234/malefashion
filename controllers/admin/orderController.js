@@ -1,4 +1,5 @@
 const Order = require("../../models/orderSchema");
+const Product = require("../../models/productSchema");
 
 const loadOrders = async (req, res) => {
   try {
@@ -95,5 +96,40 @@ const cancelOrder = async (req, res) => {
   }
 }
 
+const approveReturn = async (req, res) => {
+  try {
+      const order = await Order.findById(req.params.id);
+      if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-module.exports = { loadOrders ,editOrderPage ,updateOrder,cancelOrder};
+      for (let item of order.items) {
+          await Product.findByIdAndUpdate(item.productId, {
+              $inc: { quantity: item.quantity }
+          });
+      }
+
+      order.address.status = "Returned";
+      await order.save();
+
+      res.redirect("/admin/orders");
+  } catch (error) {
+      console.error("Approve return error:", error);
+      res.status(500).redirect("/admin/orders");
+  }
+};
+
+const rejectReturn = async (req, res) => {
+  try {
+      const order = await Order.findById(req.params.id);
+      if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+      order.address.status = "Delivered"; // Revert status
+      await order.save();
+
+      res.redirect("/admin/orders");
+  } catch (error) {
+      console.error("Reject return error:", error);
+      res.status(500).redirect("/admin/orders");
+  }
+};
+
+module.exports = { loadOrders ,editOrderPage ,updateOrder,cancelOrder, approveReturn, rejectReturn };

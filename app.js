@@ -1,36 +1,36 @@
-const express=require('express');
+const express = require('express');
 const { model } = require('mongoose');
-const path=require("path")
-const env=require("dotenv").config()
-const session=require("express-session")
+const path = require("path")
+const env = require("dotenv").config()
+const session = require("express-session")
 const flash = require('connect-flash');
-const passport=require("./config/passport.js")
-const db=require("./config/db.js")
+const passport = require("./config/passport.js")
+const db = require("./config/db.js")
 const nocache = require("nocache");
 const setUserData = require("./middleware/setUserData.js");
 const errorMiddleware = require("./middleware/errorMiddleware");
 
-const app=express()
+const app = express()
 
-const adminRouter=require("./routes/adminRouter.js")
+const adminRouter = require("./routes/adminRouter.js")
 const userRouter = require("./routes/userRouter.js")
 const profileRoutes = require("./routes/userRouter.js");
 
-const cartCountMiddleware=require("./middleware/cartCount.js")
+const cartCountMiddleware = require("./middleware/cartCount.js")
 
 //connect to database
 db()
 //Middleware
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(session({
-  secret:process.env.SESSION_SECRET,
-  resave:false,
-   saveUninitialized: false,
-  cookie:{
-    secure:false,
-    httpOnly:true,
-    maxAge:72*60*60*1000
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 72 * 60 * 60 * 1000
 
   }
 }))
@@ -38,7 +38,7 @@ app.use(flash());
 
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
-  res.locals.error   = req.flash('error');
+  res.locals.error = req.flash('error');
   next();
 });
 app.use(cartCountMiddleware)
@@ -64,7 +64,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 //set View engine and view folder
-app.set("view engine","ejs");
+app.set("view engine", "ejs");
 app.set("views", [
   path.join(__dirname, "views"),
 ]);
@@ -72,18 +72,18 @@ app.set("views", [
 
 
 //Routes
-app.use("/admin",adminRouter)
-app.use("/",userRouter);
-app.use("/admin/category",adminRouter)
+app.use("/admin", adminRouter)
+app.use("/", userRouter);
+app.use("/admin/category", adminRouter)
 app.use("/profile", profileRoutes);
 
 app.use(setUserData)
 
 app.use(errorMiddleware)
 
-app.listen(process.env.PORT,()=>{
-console.log(`Server Running on http://localhost:${3000}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server Running on http://localhost:${3000}`);
 })
 
 
-module.exports=app;
+module.exports = app;

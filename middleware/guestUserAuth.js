@@ -10,7 +10,7 @@ const guestAuth = async (req, res, next) => {
         req.session.destroy(()=>{;
         return res.redirect("/login");
       })
-      return 
+
     }
       // Logged in & active user
       return res.redirect("/");

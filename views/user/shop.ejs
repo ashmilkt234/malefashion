@@ -200,34 +200,23 @@
                 <% if (totalPages > 1) { %>
                     <div class="pagination">
                         <% if (currentPage > 1) { %>
-                            <a href="/shop?page=<%= currentPage - 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>" class="page-btn">
+                            <a href="/shop?page=<%= currentPage - 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
                                 <i class="fas fa-chevron-left"></i> Prev
                             </a>
                         <% } %>
 
-             <% for (let i = 1; i <= totalPages; i++) { -%>
-    <a class="page-btn <%= currentPage === i ? 'active' : '' %>"
-       href="/shop?page=<%= i -%>
-             &category=<%= selectedCategory || '' -%>
-             &sort=<%= sort || '' -%>
-             &minPrice=<%= minPrice || '' -%>
-             &maxPrice=<%= maxPrice || '' -%>
-             &search=<%= search || '' %>">
-        <%= i %>
-    </a>
-<% } %>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <a class="page-btn <%= currentPage === i ? 'active' : '' %>"
+                               href="/shop?page=<%= i %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
 
-                    <% if (currentPage > 1) { %>
-    <a href="/shop?page=<%= currentPage - 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
-        <i class="fas fa-chevron-left"></i> Prev
-    </a>
-<% } %>
-
-<% if (currentPage < totalPages) { %>
-    <a href="/shop?page=<%= currentPage + 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
-        Next <i class="fas fa-chevron-right"></i>
-    </a>
-<% } %>
+                        <% if (currentPage < totalPages) { %>
+                            <a href="/shop?page=<%= currentPage + 1 %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>&minPrice=<%= minPrice || '' %>&maxPrice=<%= maxPrice || '' %>&search=<%= search || '' %>" class="page-btn">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        <% } %>
                     </div>
                 <% } %>
             </main>
@@ -383,5 +372,4 @@ async function addToCart(productId) {
   }
 }
     </script>
-</body>
-</html>
+<%- include("partials/user/footer") %>

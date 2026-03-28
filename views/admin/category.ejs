@@ -37,8 +37,7 @@
         <tr>
           <th>Category Name</th>
           <th>Description</th>
-      <th>SoftDelete</th>
-          <th>Size</th>
+          <th>SoftDelete</th>
           <th>Offer Price</th>
           <th>Offer</th>
           <th>Status</th>
@@ -66,15 +65,6 @@
   <% } %>
 </td>
 
-
-   
-<td>
-  <% if (category.hasSize) { %>
-    <span class="badge bg-success">Yes</span>
-  <% } else { %>
-    <span class="badge bg-secondary">No</span>
-  <% } %>
-</td>
 
             <td><%= category.categoryOffer ? category.categoryOffer + '%' : '0%' %></td>
             <!-- <td><%= category.createdAt.toLocaleDateString('en-IN') %></td> -->

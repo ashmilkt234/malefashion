@@ -1,436 +1,334 @@
-<link rel="stylesheet" href="/css/addresses.css">
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Addresses</title>
+  <link rel="stylesheet" href="/css/addresses.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="shortcut icon" href="/img/hero/cr.jpg">
+</head>
+<body>
 
+  <%- include('../partials/user/header', { hideHeaderTop: true }) %>
 
-<div class="address-container">
-   <button class="back-btn" onclick="goBack()">← Back</button>
-  <h2>My Addresses</h2>
-     
-<div class="add-address-btn" id="addAddressBtn">
-  <span class="plus-icon">+</span>
-  <span>Add New Address</span>
-</div>
-<!-- Existing Addresses Section -->
-<div class="existing-addresses">
+  <div class="page-wrapper">
+    <%- include('../partials/user/profile-sidebar-header') %>
 
-  <% if (!addresses || addresses.length === 0) { %>
+    <main class="main-content">
+      <div class="address-container">
+        <button class="back-btn" onclick="goBack()">← Back</button>
+        <h2>My Addresses</h2>
 
-    <div class="no-address">
-      <span class="highlight">No</span> addresses added yet.
-    </div>
-
-  <% } else { %>
-
-    <% addresses.forEach(address => { %>
-      <div class="address-card">
-
-        <div class="address-actions">
-          <a href="/address/edit/<%= address._id %>" class="icon-btn edit">
-            <i class="fa-solid fa-pen"></i>
-          </a>
-
-          <form class="delete-address-form" data-id="<%= address._id %>">
-            <button type="submit" class="icon-btn delete">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </form>
+        <div class="add-address-btn" id="addAddressBtn">
+          <span class="plus-icon">+</span>
+          <span>Add New Address</span>
         </div>
 
-        <div class="address-content">
-          <p>
-            <span class="address-name"><%= address.name %></span>
-            <span class="address-phone">(<%= address.phone %>)</span>
-          </p>
-          <p class="address-details">
-            <%= address.address_line %>, <%= address.city %><br>
-            <%= address.district %>, <%= address.state %> - <%= address.pincode %>
-          </p>
-        </div>
-
-        <div class="default-checkbox">
-          <% if (address.is_default) { %>
-            <label>
-              <input type="checkbox" checked disabled>
-              Set as default
-            </label>
+        <!-- Existing Addresses Section -->
+        <div class="existing-addresses">
+          <% if (!addresses || addresses.length===0) { %>
+            <div class="no-address">
+              <span class="highlight">No</span> addresses added yet.
+            </div>
           <% } else { %>
-            <form action="/address/<%= address._id %>/default" method="POST">
-              <label>
-                <input type="checkbox" onchange="this.form.submit()">
-                Set as default
-              </label>
-            </form>
+            <% addresses.forEach(address=> { %>
+              <div class="address-card">
+                <div class="address-actions">
+                  <a href="/address/edit/<%= address._id %>" class="icon-btn edit">
+                    <i class="fa-solid fa-pen"></i>
+                  </a>
+                  <form class="delete-address-form" data-id="<%= address._id %>">
+                    <button type="submit" class="icon-btn delete">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </form>
+                </div>
+
+                <div class="address-content">
+                  <p>
+                    <span class="address-name"><%= address.name %></span>
+                    <span class="address-phone">(<%= address.phone %>)</span>
+                  </p>
+                  <p class="address-details">
+                    <%= address.address_line %>, <%= address.city %><br>
+                    <%= address.district %>, <%= address.state %> - <%= address.pincode %>
+                  </p>
+                </div>
+
+                <div class="default-checkbox">
+                  <% if (address.is_default) { %>
+                    <label>
+                      <input type="checkbox" checked disabled>
+                      Set as default
+                    </label>
+                  <% } else { %>
+                    <form action="/address/<%= address._id %>/default" method="POST">
+                      <label>
+                        <input type="checkbox" onchange="this.form.submit()">
+                        Set as default
+                      </label>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
           <% } %>
         </div>
 
+        <!-- Add New Address Section -->
+        <div class="form-section" id="addressForm" style="display:none;">
+          <h3>Add Addresses</h3>
+          <form action="/address/add" method="POST" class="address-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>First name <span class="required">*</span></label>
+                <input type="text" name="first_name" placeholder="Enter first name" minlength="2" maxlength="30">
+                <small class="error"></small>
+              </div>
+              <div class="form-group">
+                <label>Last name <span class="required">*</span></label>
+                <input type="text" name="last_name" placeholder="Enter last name" minlength="1" maxlength="30">
+                <small class="error"></small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone number</label>
+                <input type="tel" name="phone" placeholder="10 digit phone number" pattern="[0-9]{10}" maxlength="10">
+                <small class="error"></small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Country <span class="required">*</span></label>
+                <input type="text" name="country" value="India">
+                <small class="error"></small>
+              </div>
+              <div class="form-group">
+                <label>Postcode <span class="required">*</span></label>
+                <input type="text" name="pincode" placeholder="6 digit pincode" pattern="[0-9]{6}" maxlength="6">
+                <small class="error"></small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>State <span class="required">*</span></label>
+                <select name="state" id="state">
+                  <option value="">Select State</option>
+                </select>
+                <small class="error"></small>
+              </div>
+              <div class="form-group">
+                <label>District <span class="required">*</span></label>
+                <input type="text" name="district">
+                <small class="error"></small>
+              </div>
+              <div class="form-group">
+                <label>City <span class="required">*</span></label>
+                <select name="city" id="city" disabled>
+                  <option value="">Select City</option>
+                </select>
+                <small class="error"></small>
+              </div>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Address (Area and Street) <span class="required">*</span></label>
+              <textarea name="address_line" rows="4" placeholder="House no, street, area" minlength="10"></textarea>
+              <small class="error"></small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Landmark</label>
+                <input type="text" name="landmark" placeholder="Nearby landmark (optional)">
+                <small class="error"></small>
+              </div>
+              <div class="form-group">
+                <label>Alternate Phone <span class="required">*</span></label>
+                <input type="tel" name="alternate_phone" placeholder="Alternate phone number" pattern="[0-9]{10}" maxlength="10">
+                <small class="error"></small>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit">Save Address</button>
+          </form>
+        </div>
       </div>
-    <% }) %>
-
-  <% } %>
-
-</div>
-
-
-  <!-- Add New Address Section -->
-  
-<div class="form-section" id="addressForm" style="display:none;">
-  <h3>Add Addresses</h3>
-
-  <form action="/address/add" method="POST" class="address-form">
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>First name <span class="required">*</span></label>
-        <input type="text" name="first_name" placeholder="Enter first name" minlength="2" maxlength="30">
-        <small class="error"></small>
-      </div>
-
-      <div class="form-group">
-        <label>Last name <span class="required">*</span></label>
-        <input type="text" name="last_name" placeholder="Enter last name" minlength="1"
-  maxlength="30">
-        <small class="error"></small>
-      </div>
-    </div>
-
-    <div class="form-row">
-     <div class="form-group">
-        <label>Phone number</label>
-        <input type="tel" name="phone" placeholder="10 digit phone number"
-  pattern="[0-9]{10}"
-  maxlength="10">
-        <small class="error"></small>
-      </div>
-    </div>
-
-   
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Country <span class="required">*</span></label>
-        <input type="text" name="country" value="India" >
-        <small class="error"></small>
-      </div>
-
-      <div class="form-group">
-        <label>Postcode <span class="required">*</span></label>
-        <input type="text" name="pincode" placeholder="6 digit pincode"
-  pattern="[0-9]{6}"
-  maxlength="6">
-        <small class="error"></small>
-      </div>
-    </div>
-
-<div class="form-row">
-  <div class="form-group">
-    <label>State <span class="required">*</span></label>
-    <select name="state" id="state">
-      <option value="">Select State</option>
-    </select>
-    <small class="error"></small>
+    </main>
   </div>
-      <div class="form-group">
-  <label>District <span class="required">*</span></label>
-  <input type="text" name="district">
-  <small class="error"></small>
-</div>
 
-      <div class="form-group">
-    <label>City <span class="required">*</span></label>
-    <select name="city" id="city" disabled>
-      <option value="">Select City</option>
-    </select>
-    <small class="error"></small>
-  </div>
-</div>
+  <%- include('../partials/user/footer') %>
 
-    <div class="form-group full-width">
-      <label>Address (Area and Street) <span class="required">*</span></label>
-      <textarea name="address_line" rows="4"  placeholder="House no, street, area" minlength="10"></textarea>
-      <small class="error"></small>
-    </div>
+  <script>
+    const form = document.querySelector(".address-form");
+    const fields = {
+      first_name: "First name is required",
+      last_name: "Last name is required",
+      country: "Country is required",
+      state: "State is required",
+      district: "District is required",
+      city: "City is required",
+      address_line: "Address is required",
+      pincode: "Pincode must be 6 digits"
+    };
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Landmark</label>
-        <input type="text" name="landmark"placeholder="Nearby landmark (optional)">
-        <small class="error"></small>
-      </div>
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      let valid = true;
+      document.querySelectorAll(".error").forEach(el => el.textContent = "");
 
-      <div class="form-group">
-        <label>Alternate Phone <span class="required">*</span></label>
-        <input type="tel" name="alternate_phone" placeholder="Alternate phone number"
-  pattern="[0-9]{10}"
-  maxlength="10">
-        <small class="error"></small>
-      </div>
-    </div>
+      if (!form.first_name.value.trim()) { showError("first_name", fields.first_name); valid = false; }
+      if (!form.last_name.value.trim()) { showError("last_name", fields.last_name); valid = false; }
+      if (!/^[6-9]\d{9}$/.test(form.phone.value)) { showError("phone", "Enter valid 10 digit Indian mobile number"); valid = false; }
+      if (!form.country.value.trim()) { showError("country", fields.country); valid = false; }
+      if (!form.state.value) { showError("state", "State is required"); valid = false; }
+      if (!form.city.value) { showError("city", "City is required"); valid = false; }
+      if (!/^\d{6}$/.test(form.pincode.value)) { showError("pincode", fields.pincode); valid = false; }
+      if (!form.district.value.trim()) { showError("district", fields.district); valid = false; }
+      if (!form.address_line.value.trim()) { showError("address_line", fields.address_line); valid = false; }
+      if (form.alternate_phone.value && !/^\d{10}$/.test(form.alternate_phone.value)) {
+        showError("alternate_phone", "Alternate phone must be 10 digits");
+        valid = false;
+      }
 
-    <button type="submit" class="btn-submit">Save Address</button>
-  </form>
-</div>
+      if (valid) form.submit();
+    });
 
+    function showError(name, message) {
+      const input = document.querySelector(`[name="${name}"]`);
+      const error = input.parentElement.querySelector(".error");
+      error.textContent = message;
+    }
 
-<script>
-const form = document.querySelector(".address-form");
+    document.querySelectorAll(".delete-address-form").forEach(form => {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const addressId = this.dataset.id;
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You want to delete this address",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it",
+          cancelButtonText: "Cancel"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const deleteForm = document.createElement("form");
+            deleteForm.method = "POST";
+            deleteForm.action = `/address/${addressId}/delete`;
+            document.body.appendChild(deleteForm);
+            deleteForm.submit();
+          }
+        });
+      });
+    });
 
-const fields = {
-  first_name: "First name is required",
-  last_name: "Last name is required",
-  country: "Country is required",
-  state: "State is required",
- district:"District is required",
-  city: "City is required",
-  address_line: "Address is required",
-  pincode: "Pincode must be 6 digits"
-};
+    const addBtn = document.getElementById("addAddressBtn");
+    const formSection = document.getElementById("addressForm");
+    addBtn.addEventListener("click", () => {
+      formSection.style.display = "block";
+      addBtn.style.display = "none";
+    });
 
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  let valid = true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success")) {
+      Swal.fire({
+        icon: "success",
+        title: "Address Saved!",
+        text: "Your address has been added successfully",
+        confirmButtonColor: "#2563eb"
+      }).then(() => {
+        window.history.replaceState({}, document.title, "/address");
+      });
+    }
 
-  // Clear previous errors
-  document.querySelectorAll(".error").forEach(el => el.textContent = "");
+    if (params.get("error")) {
+      Swal.fire({ icon: "error", title: "Oops!", text: "Something went wrong. Please try again.", confirmButtonColor: "#d33" });
+    }
 
-  // First name
-  if (!form.first_name.value.trim()) {
-    showError("first_name", fields.first_name);
-    valid = false;
-  }
+    const stateCityData = {
+      "Kerala": ["Kochi", "Trivandrum", "Kozhikode", "Thrissur", "Kannur"],
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Trichy"],
+      "Karnataka": ["Bangalore", "Mysore", "Mangalore", "Hubli"],
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
+      "Delhi": ["New Delhi"],
+      "Telangana": ["Hyderabad", "Warangal"],
+      "Andhra Pradesh": ["Vijayawada", "Visakhapatnam", "Guntur"],
+      "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+      "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur", "Kota"],
+      "Uttar Pradesh": ["Lucknow", "Kanpur", "Noida", "Ghaziabad"],
+      "West Bengal": ["Kolkata", "Howrah", "Durgapur"],
+      "Punjab": ["Chandigarh", "Ludhiana", "Amritsar"],
+      "Haryana": ["Gurgaon", "Faridabad", "Panipat"],
+      "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior"],
+      "Odisha": ["Bhubaneswar", "Cuttack"],
+    };
 
-  // Last name
-  if (!form.last_name.value.trim()) {
-    showError("last_name", fields.last_name);
-    valid = false;
-  }
+    const stateSelect = document.getElementById("state");
+    const citySelect = document.getElementById("city");
+    Object.keys(stateCityData).forEach(state => {
+      const option = document.createElement("option");
+      option.value = state;
+      option.textContent = state;
+      stateSelect.appendChild(option);
+    });
 
-  // // Email
-  // if (!/^\S+@\S+\.\S+$/.test(form.email.value)) {
-  //   showError("email", fields.email);
-  //   valid = false;
-  // }
-
-  // Phone (optional)
-if (!/^[6-9]\d{9}$/.test(form.phone.value)) {
-  showError("phone", "Enter valid 10 digit Indian mobile number");
-  valid = false;
-}
-
-
-  // Country
-  if (!form.country.value.trim()) {
-    showError("country", fields.country);
-    valid = false;
-  }
-
-  // State
-if (!form.state.value) {
-  showError("state", "State is required");
-  valid = false;
-}
-
-
-  // City
-if (!form.city.value) {
-  showError("city", "City is required");
-  valid = false;
-}
-
-
-  // Pincode
-  if (!/^\d{6}$/.test(form.pincode.value)) {
-    showError("pincode", fields.pincode);
-    valid = false;
-  }
-  if (!form.district.value.trim()) {
-  showError("district", fields.district);
-  valid = false;
-}
-
-  // Address
-  if (!form.address_line.value.trim()) {
-    showError("address_line", fields.address_line);
-    valid = false;
-  }
-
-  // Alternate phone (optional)
-  if (form.alternate_phone.value && !/^\d{10}$/.test(form.alternate_phone.value)) {
-    showError("alternate_phone", "Alternate phone must be 10 digits");
-    valid = false;
-  }
-
-  if (valid) {
-    form.submit();
-  }
-});
-
-
-// Landmark (optional but validate if entered)
-if (form.landmark.value.trim()) {
-  if (!/^[a-zA-Z0-9\s,.-]{3,50}$/.test(form.landmark.value.trim())) {
-    showError(
-      "landmark",
-      "Landmark must be 3–50 characters (letters and numbers only)"
-    );
-    valid = false;
-  }
-}
-
-
-function showError(name, message) {
-  const input = document.querySelector(`[name="${name}"]`);
-  const error = input.parentElement.querySelector(".error");
-  error.textContent = message;
-}
-document.querySelectorAll(".delete-address-form").forEach(form => {
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const addressId = this.dataset.id;
-
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You want to delete this address",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it",
-      cancelButtonText: "Cancel"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Create a hidden form and submit
-        const deleteForm = document.createElement("form");
-        deleteForm.method = "POST";
-        deleteForm.action = `/address/${addressId}/delete`;
-       
-        document.body.appendChild(deleteForm);
-        deleteForm.submit();
+    stateSelect.addEventListener("change", function () {
+      citySelect.innerHTML = '<option value="">Select City</option>';
+      citySelect.disabled = true;
+      const cities = stateCityData[this.value];
+      if (cities) {
+        cities.forEach(city => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.textContent = city;
+          citySelect.appendChild(option);
+        });
+        citySelect.disabled = false;
       }
     });
-  });
-});
 
+    if (params.get("updated") === "true") {
+      Swal.fire({
+        icon: "success",
+        title: "Address Updated!",
+        text: "Your address has been updated successfully",
+        confirmButtonColor: "#2563eb"
+      }).then(() => {
+        window.history.replaceState({}, document.title, "/address");
+      });
+    }
 
-  const addBtn = document.getElementById("addAddressBtn");
-  const formSection = document.getElementById("addressForm");
+    if (params.get("error") === "defaultDelete") {
+      Swal.fire({
+        icon: "warning",
+        title: "Default Address",
+        text: "Please set another address as default before deleting this one.",
+        confirmButtonColor: "#2563eb"
+      }).then(() => {
+        window.history.replaceState({}, document.title, "/address");
+      });
+    }
 
-  addBtn.addEventListener("click", () => {
-    formSection.style.display = "block";
-    addBtn.style.display = "none";
-  });
-
-
-  const params = new URLSearchParams(window.location.search);
-
-  if (params.get("success")) {
-    Swal.fire({
-      icon: "success",
-      title: "Address Saved!",
-      text: "Your address has been added successfully",
-      confirmButtonColor: "#2563eb"
-    }).then(() => {
-      // Remove query param after alert
-      window.history.replaceState({}, document.title, "/address");
-    });
-  }
-
-  if (params.get("error")) {
-    Swal.fire({
-      icon: "error",
-      title: "Oops!",
-      text: "Something went wrong. Please try again.",
-      confirmButtonColor: "#d33"
-    });
-  }
-
-  const stateCityData = {
-  "Kerala": ["Kochi", "Trivandrum", "Kozhikode", "Thrissur", "Kannur"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Trichy"],
-  "Karnataka": ["Bangalore", "Mysore", "Mangalore", "Hubli"],
-  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad"],
-  "Delhi": ["New Delhi"],
-  "Telangana": ["Hyderabad", "Warangal"],
-  "Andhra Pradesh": ["Vijayawada", "Visakhapatnam", "Guntur"],
-  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
-  "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur", "Kota"],
-  "Uttar Pradesh": ["Lucknow", "Kanpur", "Noida", "Ghaziabad"],
-  "West Bengal": ["Kolkata", "Howrah", "Durgapur"],
-  "Punjab": ["Chandigarh", "Ludhiana", "Amritsar"],
-  "Haryana": ["Gurgaon", "Faridabad", "Panipat"],
-  "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior"],
-  "Odisha": ["Bhubaneswar", "Cuttack"],
-};
-
-const stateSelect = document.getElementById("state");
-const citySelect = document.getElementById("city");
-
-// Populate states
-Object.keys(stateCityData).forEach(state => {
-  const option = document.createElement("option");
-  option.value = state;
-  option.textContent = state;
-  stateSelect.appendChild(option);
-});
-
-// On state change → load cities
-stateSelect.addEventListener("change", function () {
-  citySelect.innerHTML = '<option value="">Select City</option>';
-  citySelect.disabled = true;
-
-  const cities = stateCityData[this.value];
-  if (cities) {
-    cities.forEach(city => {
-      const option = document.createElement("option");
-      option.value = city;
-      option.textContent = city;
-      citySelect.appendChild(option);
-    });
-    citySelect.disabled = false;
-  }
-});
-
-
-
-if (params.get("updated") === "true") {
-  Swal.fire({
-    icon: "success",
-    title: "Address Updated!",
-    text: "Your address has been updated successfully",
-    confirmButtonColor: "#2563eb"
-  }).then(() => {
-    window.history.replaceState({}, document.title, "/address");
-  });
-}
-
-
-if (params.get("error") === "defaultDelete") {
-  Swal.fire({
-    icon: "warning",
-    title: "Default Address",
-    text: "Please set another address as default before deleting this one.",
-    confirmButtonColor: "#2563eb"
-  }).then(() => {
-    window.history.replaceState({}, document.title, "/address");
-  });
-}
-
-if (params.get("deleted")) {
-  Swal.fire({
-    icon: "success",
-    title: "Deleted",
-    text: "Address deleted successfully",
-    timer: 1500,
-    showConfirmButton: false
-  }).then(() => {
-    window.history.replaceState({}, document.title, "/address");
-  });
-}
-  function goBack() {
-            window.history.back();
-        }
-</script>
+    if (params.get("deleted")) {
+      Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Address deleted successfully",
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        window.history.replaceState({}, document.title, "/address");
+      });
+    }
+    function goBack() { window.history.back(); }
+  </script>
+</body>
+</html>

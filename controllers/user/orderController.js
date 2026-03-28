@@ -158,32 +158,29 @@ await Product.findByIdAndUpdate(item.productId,{
 };
 
 const returnOrder = async (req, res) => {
-    try{
-    const order=await Order.findOne({_id:req.params.id,userId:req.session.user})
-    //check order validity
-    if(!order||order.address?.status!=="Delivered"){
-        return res.json({success:false,message:"Cannot return"})
+    try {
+        const order = await Order.findOne({ _id: req.params.id, userId: req.session.user });
+
+        // Only Delivered orders can be returned
+        if (!order || order.address?.status !== "Delivered") {
+            return res.json({ success: false, message: "Only delivered orders can be returned" });
+        }
+
+        // Reason is mandatory
+        if (!req.body.reason || !req.body.reason.trim()) {
+            return res.json({ success: false, message: "Please provide a return reason" });
+        }
+
+        // Save reason and set status to "Return Requested" — admin must approve
+        order.address.returnReason = req.body.reason.trim();
+        order.address.status = "Return Requested";
+
+        await order.save();
+        res.json({ success: true, message: "Return request submitted. Awaiting admin approval." });
+    } catch (error) {
+        console.error("Return order error", error);
+        res.json({ success: false, message: "Something went wrong" });
     }
-    //reason is mandatory
-    if(!req.body.reason){
-        return res.json({success:false,message:"Reason required"})
-    }
-    //update order field
-    order.address.returnOrder=req.body.reason
-order.address.status="Returned"
-//restore productstore
-for(let item of order.items){
-    await Product.findByIdAndUpdate(item.productId,{
-        $inc:{quantity:item.quantity}
-    })
-}
-    await order.save() 
-    res.json({ success: true });
-}
-catch(error){
-    console.error("Return order error",error)
-    res.json({success:false})
-}
 }
 
 

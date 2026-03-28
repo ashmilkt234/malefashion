@@ -284,11 +284,13 @@ h3 {
   background: #ffe5e5;
   color: red;
 }
+
 .add-address-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #f59e0b; /* orange */
+  color: #f59e0b;
+  /* orange */
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 20px;
@@ -320,27 +322,27 @@ input:focus {
 .no-address {
   font-size: 18px;
   margin: 20px 0;
-  color:red;
+  color: red;
 }
 
 .no-address .highlight {
-  color:red;
+  color: red;
   font-weight: 600;
 }
 
 
-   .back-btn {
-            padding: 8px;
-            background: none;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        } 
+.back-btn {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-        .back-btn:hover {
-            background: #f3f4f6;
-        } 
+.back-btn:hover {
+  background: #f3f4f6;
+}
 
 @media (max-width: 480px) {
   body {

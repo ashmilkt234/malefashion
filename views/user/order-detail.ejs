@@ -1,3 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>order</title>
+</head>
+  <%- include("partials/user/header") %>
+
+<link rel="stylesheet" href="/css/cart.css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+<link rel="stylesheet" href="/css/header.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+  <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+  <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+  <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/css/header.css" type="text/css">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<body>
+
 <link rel="stylesheet" href="/css/order-detail.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <h2 class="page-title">Order History</h2>
@@ -45,6 +74,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .cancel-btn:hover { background: #c62828; }
 </style>
 
@@ -111,10 +141,15 @@
 <!-- ACTION BUTTONS -->
 <div class="order-actions">
 
-  <!-- ✅ Cancel Entire Order -->
-  <% if(!["Cancelled","Delivered","Returned"].includes(order.address?.status || "Pending")){ %>
+  <% if(!["Cancelled","Delivered","Returned", "Return Requested"].includes(order.address?.status || "Pending")){ %>
   <button class="cancel-btn" onclick="cancelOrder('<%= order._id %>')">
     Cancel Entire Order
+  </button>
+  <% } %>
+
+  <% if(order.address?.status === "Delivered"){ %>
+  <button class="cancel-btn" style="background-color: #f39c12;" onclick="returnOrder('<%= order._id %>')">
+    Return Order
   </button>
   <% } %>
 
@@ -127,6 +162,46 @@
 </div>
 
 <script>
+async function returnOrder(id) {
+  const { value: reason } = await Swal.fire({
+    title: "Return Entire Order",
+    input: "text",
+    inputLabel: "Reason for return",
+    inputPlaceholder: "Enter reason (mandatory)",
+    showCancelButton: true,
+    confirmButtonColor: "#f39c12",
+    confirmButtonText: "Submit Return Request",
+    cancelButtonText: "Close",
+    inputValidator: (value) => {
+      if (!value) {
+        return 'You need to write something!'
+      }
+    }
+  });
+
+  if (reason) {
+    const res = await fetch(`/order/${id}/return`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Return Requested",
+        text: data.message || "Your return request has been submitted.",
+        timer: 1500,
+        showConfirmButton: false
+      });
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      Swal.fire({ icon: "error", title: "Error", text: data.message || "Cannot request return" });
+    }
+  }
+}
 // ✅ Cancel entire order
 async function cancelOrder(id) {
   const { value: reason } = await Swal.fire({
@@ -201,3 +276,5 @@ async function cancelItem(orderId, itemId) {
   }
 }
 </script>
+
+<%- include("partials/user/footer") %> 

@@ -19,7 +19,7 @@ deliveryCharge:Number,
 tax:Number,
 totalAmount:Number,
 paymentMethod:String,
-status: { type: String, default: 'Pending', enum: ['Pending', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Returned'] },
+status: { type: String, default: 'Pending', enum: ['Pending', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Return Requested', 'Returned'] },
   cancelReason: String , 
   returnReason: String }, 
   createdAt: { type: Date, default: Date.now}});

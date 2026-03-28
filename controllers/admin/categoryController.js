@@ -52,11 +52,7 @@ const message = req.session.message || null;
 
 // ================= Add Category =================
 const addCategory = async (req, res) => {
-  
-  
-  
-  const { name, description} = req.body;
-const hasSize=!!req.body.hasSize;
+  const { name, description } = req.body;
   try {
     // Check category exists
     const existingCategory = await Category.findOne({
@@ -67,7 +63,7 @@ const hasSize=!!req.body.hasSize;
     }
 
     // Save new category
-    const newCategory = new Category({ name, description ,hasSize});
+    const newCategory = new Category({ name, description });
     await newCategory.save();
 
     res.status(201).json({ message: "Category added successfully" });

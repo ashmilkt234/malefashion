@@ -17,7 +17,6 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <button class="btn btn-light" onclick="goBack()">← Back</button>
 
-    <h2 class="fw-bold">Orders</h2>
 
     <div></div>
   </div>
@@ -39,6 +38,8 @@
       <option value="Shipped" <%= status==='Shipped'?'selected':'' %>>Shipped</option>
       <option value="Delivered" <%= status==='Delivered'?'selected':'' %>>Delivered</option>
       <option value="Cancelled" <%= status==='Cancelled'?'selected':'' %>>Cancelled</option>
+      <option value="Return Requested" <%= status==='Return Requested'?'selected':'' %>>Return Requested</option>
+      <option value="Returned" <%= status==='Returned'?'selected':'' %>>Returned</option>
     </select>
 
     <select name="sort" class="form-select w-auto">
@@ -46,7 +47,7 @@
       <option value="oldest" <%= sort==='oldest'?'selected':'' %>>Oldest</option>
     </select>
 
-    <button type="submit" class="btn btn-dark"> Clear
+    <button type="submit" class="btn btn-secondary ms-2"> 
       <i class="fa fa-search"></i>
     </button>
 
@@ -108,6 +109,8 @@
               <%= order.address?.status === 'Delivered' ? 'bg-success' :
                   order.address?.status === 'Cancelled' ? 'bg-danger' :
                   order.address?.status === 'Shipped' ? 'bg-warning' :
+                  order.address?.status === 'Return Requested' ? 'bg-info' :
+                  order.address?.status === 'Returned' ? 'bg-dark' :
                   'bg-secondary' %>">
               <%= order.address?.status || 'Pending' %>
             </span>
@@ -134,25 +137,42 @@
     </table>
   </div>
 
-  <!-- 🔹 Pagination -->
-  <div class="d-flex justify-content-center mt-4">
+<!-- 🔹 Pagination -->
+<nav class="d-flex justify-content-center mt-4">
+  <ul class="pagination">
 
+    <!-- Prev -->
     <% if (currentPage > 1) { %>
-      <a href="?page=<%= currentPage-1 %>" class="btn btn-outline-dark me-2">Prev</a>
+      <li class="page-item">
+        <a class="page-link" 
+           href="/admin/orders?page=<%= currentPage-1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'latest' %>">
+           « Prev
+        </a>
+      </li>
     <% } %>
 
-    <% for(let i=1;i<=totalPages;i++){ %>
-      <a href="?page=<%= i %>" 
-         class="btn <%= currentPage===i ? 'btn-dark' : 'btn-outline-dark' %> me-1">
-         <%= i %>
-      </a>
+    <!-- Page Numbers -->
+    <% for(let i = 1; i <= totalPages; i++) { %>
+      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+        <a class="page-link" 
+           href="/admin/orders?page=<%= i %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'latest' %>">
+           <%= i %>
+        </a>
+      </li>
     <% } %>
 
+    <!-- Next -->
     <% if (currentPage < totalPages) { %>
-      <a href="?page=<%= currentPage+1 %>" class="btn btn-outline-dark ms-2">Next</a>
+      <li class="page-item">
+        <a class="page-link" 
+           href="/admin/orders?page=<%= currentPage+1 %>&search=<%= search || '' %>&status=<%= status || '' %>&sort=<%= sort || 'latest' %>">
+           Next »
+        </a>
+      </li>
     <% } %>
 
-  </div>
+  </ul>
+</nav>
 
 </div>
 

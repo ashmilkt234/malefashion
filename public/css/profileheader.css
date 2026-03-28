@@ -1,60 +1,137 @@
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #fff; /* white background */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  border-radius: 10px;
-}
+/* profileheader.css — redesigned to match sidebar layout */
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-icon {
-  font-size: 40px;
-  color: #f4c2c2; /* soft pink like your screenshot */
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.username {
-  font-weight: bold;
-  font-size: 16px;
-  color: #333;
-}
-
-.user-email {
-  font-size: 14px;
-  color: #666;
-}
-
-.header-nav ul {
-  display: flex;
-  list-style: none;
-  gap: 20px;
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-.header-nav ul li a {
-  text-decoration: none;
-  color: #333;
+.header {
+  /* display: flex; */
+  /* flex-direction: column;
+  width: 260px;
+  min-height: 100vh; */
+  background-color: #ffffff;
+  /* padding: 32px 20px; */
+  border-right: 1px solid #f0f0f0;
+  /* font-family: 'Segoe UI', sans-serif; */
+}
+
+/* ── User Info Block ── */
+.user-info {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.user-icon {
+  font-size: 36px;
+  color: #e8a0a0;
+  background-color: #fce8e8;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.username {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+   line-height: 1.2
+}
+
+.user-email {
+  font-size: 12px;
+  color: #999;
+  display: block;
+   line-height: 1.2;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Nav ── */
+.header-nav {
+  width: 100%;
+}
+
+.header-nav ul {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  gap: 2px;
+}
+
+.header-nav ul li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #444;
+  font-size: 14px;
   font-weight: 500;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background 0.2s;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: fit-content;      /* ← key fix: only as wide as the text+icon */
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .header-nav ul li a:hover {
-  background-color: #f0f0f0;
+
+  color:  #f5f5f5;
+    background-color:#111;
+
+}
+
+/* Active/selected state — add class="active" to the <a> tag you want highlighted */
+.header-nav ul li a.active {
+  background-color: #f5f5f5;
+  color: #111;
+  font-weight: 600;
+}
+
+.header-nav ul li a i {
+  font-size: 16px;
+  color: #999;
+  width: 18px;
+  text-align: center;
+}
+
+.header-nav ul li a:hover i,
+.header-nav ul li a.active i {
+  color: #555;
+}
+
+/* ── Section Labels (optional — add <li class="nav-label">My Account</li>) ── */
+.header-nav ul li.nav-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #aaa;
+  padding: 18px 14px 6px;
+}
+
+/* ── Logout special styling ── */
+.header-nav ul li:last-child a {
+  color: #888;
+  margin-top: 16px;
+    width: fit-content;  
+}
+
+.header-nav ul li:last-child a:hover {
+  color:  #f5f5f5;
+    background-color:#111;
+ 
+}
+
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1;
 }

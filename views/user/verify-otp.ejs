@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,38 +9,61 @@
   <link rel="stylesheet" href="/css/verifyOTP.css" />
   <link rel="shortcut icon" href="/img/hero/cr.jpg" type="image/png">
   <style>
-    .warning { color: #dc3545; font-weight: bold; }
-    .resend a.active { 
-      pointer-events: auto; 
-      opacity: 1; 
-      color: #0d6efd; 
-      text-decoration: underline; 
+    .warning {
+      color: #dc3545;
+      font-weight: bold;
     }
-    .resend a { 
-      pointer-events: none; 
-      opacity: 0.5; 
-      cursor: not-allowed; 
+
+    .resend a.active {
+      pointer-events: auto;
+      opacity: 1;
+      color: #0d6efd;
+      text-decoration: underline;
     }
-    input.error { 
-      animation: shake 0.5s; 
-      border-color: #dc3545 !important; 
-      box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25); 
+
+    .resend a {
+      pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
+
+    input.error {
+      animation: shake 0.5s;
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, .25);
+    }
+
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      50% { transform: translateX(6px); }
-      75% { transform: translateX(-4px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-6px);
+      }
+
+      50% {
+        transform: translateX(6px);
+      }
+
+      75% {
+        transform: translateX(-4px);
+      }
     }
-    input.filled { 
-      background: #f0fdf4; 
-      border-color: #198754; 
+
+    input.filled {
+      background: #f0fdf4;
+      border-color: #198754;
     }
+
     .btn.loading {
       opacity: 0.7;
       pointer-events: none;
       position: relative;
     }
+
     .btn.loading::after {
       content: '';
       position: absolute;
@@ -53,9 +77,15 @@
       top: 50%;
       transform: translateY(-50%);
     }
-    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+    @keyframes spin {
+      to {
+        transform: translateY(-50%) rotate(360deg);
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="left">
@@ -65,6 +95,18 @@
       <div class="timer" id="timer" style="display: none;">
         Resend OTP in: <span id="countdown">60</span> sec
       </div>
+
+      <% if (typeof message !== 'undefined' && message) { %>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "<%= message %>"
+            });
+          });
+        </script>
+      <% } %>
 
       <div class="otp-box" id="otpBox">
         <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="0" />
@@ -181,7 +223,7 @@
     function resendOTP() {
       if (!resendLink.classList.contains("active")) return;
 
-      fetch("/profile/resend-email-otp", {   // ← change to your resend route
+      fetch("/resend-otp", {   // ← change to your resend route
         method: "POST",
         headers: { "Content-Type": "application/json" }
       })
@@ -244,7 +286,7 @@
       verifyBtn.classList.add("loading");
 
       try {
-        const res = await fetch("/profile/verify-email-otp", {   // ← your verify route
+        const res = await fetch("/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ otp: otpValue })
@@ -252,42 +294,40 @@
 
         const data = await res.json();
 
+        // Reset button
         verifyBtn.disabled = false;
         verifyBtn.textContent = "Verify OTP";
         verifyBtn.classList.remove("loading");
 
-if (!data.success) {
-  Swal.fire({
-    icon: "error",
-    title: "Verification Failed",
-    text: data.message || "Invalid or expired OTP",
-  });
-  shakeInputs(); // your shake animation
-}
         if (data.success) {
           Swal.fire({
             icon: "success",
             title: "Verified!",
-            text: data.message || "Success",
-            timer: 2500,
+            text: data.message || "Registration successful!",
+            timer: 2000,
             showConfirmButton: false
           }).then(() => {
-            window.location.href = data.redirectTo || "/profile";
+            window.location.href = data.redirectTo || "/";
           });
         } else {
           Swal.fire({
             icon: "error",
-            title: "Failed",
-            text: data.message || "Wrong OTP",
+            title: "Verification Failed",
+            text: data.message || "Invalid or expired OTP",
           });
           shakeInputs();
-          // Timer continues running – no reset
         }
+
       } catch (err) {
         verifyBtn.disabled = false;
         verifyBtn.textContent = "Verify OTP";
         verifyBtn.classList.remove("loading");
-        Swal.fire("Error", "Connection problem", "error");
+
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Connection problem. Try again."
+        });
       }
     });
 
@@ -306,4 +346,5 @@ if (!data.success) {
     });
   </script>
 </body>
+
 </html>

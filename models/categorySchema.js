@@ -15,16 +15,6 @@ const categorySchema=new mongoose.Schema({
         type:Boolean,
         default:true
     },
-    hasSize:{
-        type: Boolean,
-        default:false
-    },
-         allowedSizes: {
-      type: [String],
-      default: []
-    
-    }
-    ,
     isDeleted: {
   type: Boolean,
   default: false

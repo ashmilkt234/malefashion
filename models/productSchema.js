@@ -23,21 +23,6 @@ const productSchema = new Schema(
     },
 
     
-    sizes: {
-      type: [String],
-      default: [],
-      validate: {
-        validator: function (value) {
-          // if category has size, at least one size required
-          if (this._hasSizeCategory && value.length === 0) {
-            return false;
-          }
-          return true;
-        },
-        message: "Size is required for this category"
-      }
-    },
-
     salesPrice: {
       type: Number,
       required: true,

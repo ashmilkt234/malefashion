@@ -1,7 +1,7 @@
 // userController.js
 const User = require("../../models/userSchema.js");
-const Category=require('../../models/categorySchema')
-const Product=require("../../models/productSchema")
+const Category = require('../../models/categorySchema')
+const Product = require("../../models/productSchema")
 const Otp = require("../../models/otpSchema");
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
@@ -9,36 +9,36 @@ const bcrypt = require("bcrypt");
 
 // //  Generate OTP
 function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 //  Send OTP Email
 async function sendVerificationEmail(email, otp) {
-    try {
-      console.log("OTP", otp);
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            port: process.env.EMAIL_PORT||587,
-            secure: false,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD,
-            },
-        });
+  try {
+    console.log("OTP", otp);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      port: process.env.EMAIL_PORT || 587,
+      secure: false,
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD,
+      },
+    });
 
-        const info = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "Verify your account",
-            text: `Your OTP is ${otp}`,
-            html: `<b>Your OTP: ${otp}</b>`
-        });
+    const info = await transporter.sendMail({
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: "Verify your account",
+      text: `Your OTP is ${otp}`,
+      html: `<b>Your OTP: ${otp}</b>`
+    });
 
-        return info.accepted.length > 0;
-    } catch (error) {
-        console.error("Error sending email", error);
-        return false;
-    }
+    return info.accepted.length > 0;
+  } catch (error) {
+    console.error("Error sending email", error);
+    return false;
+  }
 }
 
 
@@ -53,17 +53,17 @@ const verifyotp = async (req, res) => {
     const otpRecord = await Otp.findOne({ email, purpose: "signup" });
 
     if (!otpRecord) {
-      return res.render("user/verify-otp", { message: "OTP expired" });
+      return res.json({ success: false, message: "OTP expired" });
     }
 
     if (Date.now() > otpRecord.expiresAt) {
       await Otp.deleteOne({ _id: otpRecord._id });
-      return res.render("user/verify-otp", { message: "OTP expired" });
+      return res.json({ success: false, message: "OTP expired" });
     }
 
     const isValid = await bcrypt.compare(otp, otpRecord.otp);
     if (!isValid) {
-      return res.render("user/verify-otp", { message: "Invalid OTP" });
+      return res.json({ success: false, message: "Invalid OTP" });
     }
 
     // OTP SUCCESS
@@ -86,11 +86,11 @@ const verifyotp = async (req, res) => {
     req.session.userData = null;
     req.session.authType = null;
 
-    return res.redirect("/");
+    return res.json({ success: true, message: "Registration successful!", redirectTo: "/" });
 
   } catch (error) {
     console.error(error);
-    return res.render("user/error", { message: "Server error" });
+    return res.json({ success: false, message: "Server error" });
   }
 };
 
@@ -109,7 +109,7 @@ const resendOtp = async (req, res) => {
   }
 
   const otp = generateOtp();
-  console.log("Resend OTP:",otp)
+  console.log("Resend OTP:", otp)
   const hashedOtp = await bcrypt.hash(otp, 10);
 
   await Otp.deleteMany({ email, purpose });
@@ -122,7 +122,7 @@ const resendOtp = async (req, res) => {
   });
 
   await sendVerificationEmail(email, otp);
-console.log(" OTP email sent");
+  console.log(" OTP email sent");
   return res.json({ success: true, message: "OTP resent successfully" });
 };
 
@@ -142,44 +142,44 @@ const loadOtpPage = (req, res) => {
 
 //404
 const pageNotFound = async (req, res) => {
-    try {
-        res.render("user/page_404");
-    } catch (error) {
-        res.redirect("/pageNotFound");
-    }
+  try {
+    res.render("user/page_404");
+  } catch (error) {
+    res.redirect("/pageNotFound");
+  }
 };
 
 
 const loadHomepage = async (req, res) => {
   try {
 
-    const categories = await Category.find({ isListed: true ,isDeleted:false}).lean();
+    const categories = await Category.find({ isListed: true, isDeleted: false }).lean();
 
 
     const productData = await Product.find({
       isBlocked: false,
-      isDeleted:{$ne:true},
+      isDeleted: { $ne: true },
       category: { $in: categories.map(c => c._id) },
       quantity: { $gt: 0 },
     })
-      .sort({ createdAt: -1 })  
+      .sort({ createdAt: -1 })
       .limit(5)
       .lean();
 
- 
-    const userId =req.session.user || null;
-     
+
+    const userId = req.session.user || null;
+
 
     if (userId) {
       const userData = await User.findById(userId).lean();
       if (!userData) {
         return res.render("user/error", { message: "User not found" });
       }
-      
+
       return res.render("user/home", {
         user: userData,
         products: productData,
-        categories    
+        categories
       });
     }
 
@@ -193,7 +193,7 @@ const loadHomepage = async (req, res) => {
   }
 };
 
- 
+
 
 
 
@@ -204,53 +204,53 @@ const loadShopping = async (req, res) => {
     const { category, sort, page = 1, minPrice, maxPrice, search } = req.query;
 
     const limit = 5;
-    const currentPage=Number(page)||1
+    const currentPage = Number(page) || 1
     const skip = (currentPage - 1) * limit;
 
-  let searchQuery=search
- if (Array.isArray(search)) {
-    searchQuery = search.find(s => s?.trim() !== "") || "";
-}
+    let searchQuery = search
+    if (Array.isArray(search)) {
+      searchQuery = search.find(s => s?.trim() !== "") || "";
+    }
     // Fetch ONLY listed categories
-    const categories = await Category.find({ isListed: true,isDeleted:false }).lean();
+    const categories = await Category.find({ isListed: true, isDeleted: false }).lean();
     const categoryIds = categories.map(c => c._id.toString());
 
     let filter = {
       isBlocked: false,
- isDeleted:false,
+      isDeleted: false,
       quantity: { $gt: 0 },
-      category: { $in: categoryIds } 
+      category: { $in: categoryIds }
     };
-    
+
     //  Price filter
     if (minPrice || maxPrice) {
       filter.salesPrice = {};
       if (minPrice) filter.salesPrice.$gte = Number(minPrice);
       if (maxPrice) filter.salesPrice.$lte = Number(maxPrice);
     }
-     
 
 
 
 
 
- 
-if (category) {
+
+
+    if (category) {
       if (!categoryIds.includes(category)) {
         return res.redirect("/shop");
       }
-      filter.category = category; 
+      filter.category = category;
     }
 
 
-   if (searchQuery) {
+    if (searchQuery) {
       filter.productName = { $regex: searchQuery, $options: "i" };
     }
-        let sortOption = { createdAt: -1 };
+    let sortOption = { createdAt: -1 };
     if (sort === "lowtohigh") sortOption = { salesPrice: 1 };
     if (sort === "hightolow") sortOption = { salesPrice: -1 };
 
-const totalProducts = await Product.countDocuments(filter)
+    const totalProducts = await Product.countDocuments(filter)
     // Fetch products
     const products = await Product.find(filter)
       .populate("category")
@@ -258,7 +258,7 @@ const totalProducts = await Product.countDocuments(filter)
       .skip(skip)
       .limit(limit)
       .lean();
-const totalPages = Math.ceil(totalProducts / limit) || 1
+    const totalPages = Math.ceil(totalProducts / limit) || 1
     // Render
     res.render("user/shop", {
       user: req.session.user || null,
@@ -298,13 +298,14 @@ const totalPages = Math.ceil(totalProducts / limit) || 1
 
 //  Signup
 const loadSignup = async (req, res) => {
-    try {
-     return res.render("user/signup", {
-      blocked: req.query.blocked});
-    } catch (error) {
-        console.log("Signup page error", error);
-        res.status(500).send("Server Error");
-    }
+  try {
+    return res.render("user/signup", {
+      blocked: req.query.blocked
+    });
+  } catch (error) {
+    console.log("Signup page error", error);
+    res.status(500).send("Server Error");
+  }
 };
 
 //  Signup
@@ -321,7 +322,7 @@ const signup = async (req, res) => {
   }
 
   const otp = generateOtp();
-  console.log("otp")
+  console.log("OTP:", otp)
   const hashedOtp = await bcrypt.hash(otp, 10);
 
   // delete old OTPs
@@ -338,94 +339,101 @@ const signup = async (req, res) => {
 
   req.session.userData = { name, email, phone, password };
   req.session.authType = "signup";
-
-  return res.render("user/verify-otp");
+  console.log("SESSION:", req.session.userData);
+  req.session.save(() => {
+    return res.render("user/verify-otp");
+  });
+  // console.log("Entered OTP:", otp);
+  // // console.log("DB OTP Record:", otpRecord);
+  // console.log("Stored Hashed OTP:", otpRecord?.otp);
+  // console.log("Expires At:", otpRecord?.expiresAt);
+  // console.log("Current Time:", Date.now());
 };
-   
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Login
 const loadLogin = async (req, res) => {
-    try {
-        if (!req.session.user) {
-            const success = req.session.success;
-            const error = req.session.error;
-            req.session.success = null;
-            req.session.error = null;
+  try {
+    if (!req.session.user) {
+      const success = req.session.success;
+      const error = req.session.error;
+      req.session.success = null;
+      req.session.error = null;
 
-            return res.render("user/login", { success, error });
-        } else {
-            return res.redirect("/");
-        }
-    } catch (error) {
-        res.redirect("/pageNotFound");
+      return res.render("user/login", { success, error });
+    } else {
+      return res.redirect("/");
     }
+  } catch (error) {
+    res.redirect("/pageNotFound");
+  }
 };
 
 //  Login
 const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const findUser = await User.findOne({ isAdmin: false, email });
+  try {
+    const { email, password } = req.body;
+    const findUser = await User.findOne({ isAdmin: false, email });
 
-        if (!findUser) {
-        return res.json({success:false, message:"User not found"})
-        }
-
-        if (findUser.isBlocked) {
-        return res.json({success:false,message:"User blocked by admin"})
-        }
-        if(!findUser.password){
-            return res.status(400).json({
-    message: "This account uses Google login. Please sign in with Google.",
-  });
-}
-      
-
-        const passwordMatch = await bcrypt.compare(password, findUser.password);
-       
-   
-        if (!passwordMatch) {
-             return res.json({ success: false, message: "Incorrect password" });
-        }
-
-        req.session.user = findUser._id;
-        req.session.isAdmin=false;
-   res.json({ success: true, message: "Login successful" });
-      
-    } catch (error) {
-        console.error("Login error:", error);
-        return res.status(500).json({ success: false, message: "Login failed. Please try again." });
+    if (!findUser) {
+      return res.json({ success: false, message: "User not found" })
     }
+
+    if (findUser.isBlocked) {
+      return res.json({ success: false, message: "User blocked by admin" })
+    }
+    if (!findUser.password) {
+      return res.status(400).json({
+        message: "This account uses Google login. Please sign in with Google.",
+      });
+    }
+
+
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+
+
+    if (!passwordMatch) {
+      return res.json({ success: false, message: "Incorrect password" });
+    }
+
+    req.session.user = findUser._id;
+    req.session.isAdmin = false;
+    res.json({ success: true, message: "Login successful" });
+
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ success: false, message: "Login failed. Please try again." });
+  }
 };
 
 //  Logout
 const logout = async (req, res) => {
-    try {
-        req.session.destroy(err => {
-            if (err) {
-                console.log("Session destruction error", err);
-                return res.redirect("/pageNotFound");
-            }
-            return res.redirect("/login");
-        });
-    } catch (error) {
-        console.log("Logout error:", error);
-        res.redirect("/pageNotFound");
-    }
+  try {
+    req.session.destroy(err => {
+      if (err) {
+        console.log("Session destruction error", err);
+        return res.redirect("/pageNotFound");
+      }
+      return res.redirect("/login");
+    });
+  } catch (error) {
+    console.log("Logout error:", error);
+    res.redirect("/pageNotFound");
+  }
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  Forgot Password
 const loadForgotPassword = async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.render("user/forgot-password");
-        } else {
-            return res.redirect("/");
-        }
-    } catch (error) {
-        console.error("Forgot password page error", error);
-        res.redirect("/pageNotFound");
+  try {
+    if (!req.session.user) {
+      return res.render("user/forgot-password");
+    } else {
+      return res.redirect("/");
     }
+  } catch (error) {
+    console.error("Forgot password page error", error);
+    res.redirect("/pageNotFound");
+  }
 };
 
 //  Forgot Password
@@ -474,15 +482,15 @@ const forgotPassword = async (req, res) => {
 
 // Reset Password
 const loadResetPassword = async (req, res) => {
-    try {
-        if(!req.session.isOtpVerified){
-        return res.render("user/newpassword"); 
-        }
-        return res.render("user/newpassword")
-    } catch (error) {
-        console.error("Reset password page error:", error);
-        res.redirect("/pageNotFound");
+  try {
+    if (!req.session.isOtpVerified) {
+      return res.render("user/newpassword");
     }
+    return res.render("user/newpassword")
+  } catch (error) {
+    console.error("Reset password page error:", error);
+    res.redirect("/pageNotFound");
+  }
 };
 
 
@@ -491,9 +499,9 @@ const loadResetPassword = async (req, res) => {
 
 const verifyForgotOtp = async (req, res) => {
   const { otp } = req.body;
-     if (!req.session.userData || !req.session.userData.email) {
-      return res.json({ success: false, message: "Session expired" });
-    }
+  if (!req.session.userData || !req.session.userData.email) {
+    return res.json({ success: false, message: "Session expired" });
+  }
   const { email } = req.session.userData;
 
   const otpRecord = await Otp.findOne({ email, purpose: "forgot-password" });
@@ -592,26 +600,27 @@ const resetPassword = async (req, res) => {
 
 //  Error
 const loadErrorPage = (req, res) => {
-    res.render("user/error");
+  res.render("user/error");
 };
 
 
 module.exports = {
-    loadHomepage,
-    pageNotFound,
-    loadShopping,
-    loadSignup,
-    signup,
-    verifyotp,
-    resendOtp,  
-    loadLogin,
-    login,
-    logout,
-    loadForgotPassword,
-    forgotPassword,
-    loadResetPassword,
-    loadErrorPage,
-    loadOtpPage,
-    verifyForgotOtp ,
-    resetPassword,
+  loadHomepage,
+  pageNotFound,
+  loadShopping,
+  loadSignup,
+  signup,
+  verifyotp,
+  resendOtp,
+  loadLogin,
+  login,
+  logout,
+  loadForgotPassword,
+  forgotPassword,
+  loadResetPassword,
+  loadErrorPage,
+  loadOtpPage,
+  verifyForgotOtp,
+  resetPassword,
+
 };

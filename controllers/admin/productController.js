@@ -27,56 +27,33 @@ const getProductAddPage = async (req, res) => {
 
 
 
-// ================= Add New Product =================
 const addProducts = async (req, res) => {
   try {
     const {
       productName,
       category,
-      sizes,
       salesPrice,
       quantity,
       description,
     } = req.body;
 
-  
     if (Number(quantity) < 0) {
-      return res.status(400).json({
-        message: "Stock cannot be negative"
-      });
+      return res.status(400).json({ message: "Stock cannot be negative" });
     }
 
-    // Duplicate product
     const productExists = await Product.findOne({
       productName: { $regex: `^${productName.trim()}$`, $options: "i" }
     });
 
     if (productExists) {
-      return res.status(400).json({
-        message: "Product already exists"
-      });
+      return res.status(400).json({ message: "Product already exists" });
     }
 
-    // Categorycheck
     const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc) {
-      return res.status(400).json({
-        message: "Invalid category"
-      });
+      return res.status(400).json({ message: "Invalid category" });
     }
 
-    // Size 
-    let sizesArray = [];
-    if (categoryDoc.hasSize) {
-      if (!sizes || sizes.length === 0) {
-        return res.status(400).json({
-          message: "Please select at least one size"
-        });
-      }
-      sizesArray = Array.isArray(sizes) ? sizes : [sizes];
-    }
-
-    // Image
     let images = [];
     const uploadPath = path.join(__dirname, "../../public/uploads/product-images");
 
@@ -87,22 +64,18 @@ const addProducts = async (req, res) => {
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const filename = `${Date.now()}-${file.originalname}`;
-
         await sharp(file.path)
           .resize(500, 500, { fit: "cover" })
           .jpeg({ quality: 90 })
           .toFile(path.join(uploadPath, filename));
-
         images.push(filename);
       }
     }
-
 
     const newProduct = new Product({
       productName,
       description,
       category: categoryDoc._id,
-      sizes: sizesArray,
       salesPrice,
       quantity,
       productImage: images,
@@ -111,16 +84,11 @@ const addProducts = async (req, res) => {
     });
 
     await newProduct.save();
-
-    return res.status(201).json({
-      message: "Product added successfully"
-    });
+    return res.status(201).json({ message: "Product added successfully" });
 
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      message: "Something went wrong"
-    });
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 

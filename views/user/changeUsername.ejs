@@ -9,34 +9,26 @@
             <div class="alert <%= type === 'success' ? 'alert-success' : 'alert-danger' %>">
               <%= message %>
             </div>
-          <% } %>
+            <% } %>
 
-          <form action="/profile/change-username" method="POST">
-            <div class="mb-3">
-              <label for="username" class="form-label">New Full Name</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="username" 
-                name="username" 
-                placeholder="Enter new full name" 
-                required 
-                minlength="3" 
-                maxlength="20"
-                oninput="validateInput(this)"
-              >
-              <!-- ✅ Live validation message -->
-              <small id="inputFeedback" class="feedback-text"></small>
-            </div>
+              <form action="/profile/change-username" method="POST">
+                <div class="mb-3">
+                  <label for="username" class="form-label">New Full Name</label>
+                  <input type="text" class="form-control" id="username" name="username"
+                    placeholder="Enter new full name" required minlength="3" maxlength="20"
+                    oninput="validateInput(this)">
+                  <!-- ✅ Live validation message -->
+                  <small id="inputFeedback" class="feedback-text"></small>
+                </div>
 
-            <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
-              Send OTP
-            </button>
-          </form>
+                <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
+                  Send OTP
+                </button>
+              </form>
 
-          <div class="text-center mt-4">
-            <a href="/profile" class="back-link">← Back to Profile</a>
-          </div>
+              <div class="text-center mt-4">
+                <a href="/profile" class="back-link">← Back to Profile</a>
+              </div>
         </div>
       </div>
     </div>
@@ -44,44 +36,44 @@
 </div>
 
 <script>
-function validateInput(input) {
-  const feedback = document.getElementById('inputFeedback');
-  const submitBtn = document.getElementById('submitBtn');
-  const value = input.value.trim();
+  function validateInput(input) {
+    const feedback = document.getElementById('inputFeedback');
+    const submitBtn = document.getElementById('submitBtn');
+    const value = input.value.trim();
 
-  // Empty
-  if (value.length === 0) {
-    feedback.textContent = '';
-    feedback.className = 'feedback-text';
-    input.className = 'form-control';
-    submitBtn.disabled = true;
-    return;
+    // Empty
+    if (value.length === 0) {
+      feedback.textContent = '';
+      feedback.className = 'feedback-text';
+      input.className = 'form-control';
+      submitBtn.disabled = true;
+      return;
+    }
+
+    // Too short
+    if (value.length < 3) {
+      feedback.textContent = '✖ Minimum 3 characters required';
+      feedback.className = 'feedback-text error';
+      input.className = 'form-control input-error';
+      submitBtn.disabled = true;
+      return;
+    }
+
+    // Invalid characters
+    if (!/^[a-zA-Z0-9_ ]+$/.test(value)) {
+      feedback.textContent = '✖ Only letters, numbers, underscore allowed';
+      feedback.className = 'feedback-text error';
+      input.className = 'form-control input-error';
+      submitBtn.disabled = true;
+      return;
+    }
+
+    // ✅ Valid
+    feedback.textContent = '✔ Looks good!';
+    feedback.className = 'feedback-text success';
+    input.className = 'form-control input-success';
+    submitBtn.disabled = false;
   }
-
-  // Too short
-  if (value.length < 3) {
-    feedback.textContent = '✖ Minimum 3 characters required';
-    feedback.className = 'feedback-text error';
-    input.className = 'form-control input-error';
-    submitBtn.disabled = true;
-    return;
-  }
-
-  // Invalid characters
-  if (!/^[a-zA-Z0-9_ ]+$/.test(value)) {
-    feedback.textContent = '✖ Only letters, numbers, underscore allowed';
-    feedback.className = 'feedback-text error';
-    input.className = 'form-control input-error';
-    submitBtn.disabled = true;
-    return;
-  }
-
-  // ✅ Valid
-  feedback.textContent = '✔ Looks good!';
-  feedback.className = 'feedback-text success';
-  input.className = 'form-control input-success';
-  submitBtn.disabled = false;
-}
 </script>
 
 <style>
@@ -165,8 +157,13 @@ function validateInput(input) {
     font-weight: 500;
   }
 
-  .feedback-text.error   { color: #e53935; }
-  .feedback-text.success { color: #2e7d32; }
+  .feedback-text.error {
+    color: #e53935;
+  }
+
+  .feedback-text.success {
+    color: #2e7d32;
+  }
 
   /* Button */
   .btn-primary {
@@ -235,6 +232,8 @@ function validateInput(input) {
   }
 
   @media (max-width: 576px) {
-    .card-body { padding: 1.8rem 1.2rem !important; }
+    .card-body {
+      padding: 1.8rem 1.2rem !important;
+    }
   }
 </style>

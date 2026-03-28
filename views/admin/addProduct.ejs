@@ -83,27 +83,6 @@
                 </select>
                 <div id="category-error" class="error-message"></div>
             </div>
-<!-- Product Sizes -->
-<div class="form-group">
-    <label class="form-label">Available Sizes</label>
-    <div class="size-options">
-        <label class="size-box">
-            <input type="checkbox" name="sizes[]" value="S">
-            <span>S</span>
-        </label>
-
-        <label class="size-box">
-            <input type="checkbox" name="sizes[]" value="M">
-            <span>M</span>
-        </label>
-
-        <label class="size-box">
-            <input type="checkbox" name="sizes[]" value="L">
-            <span>L</span>
-        </label>
-    </div>
-    <div id="size-error" class="error-message"></div>
-</div>
 
             <!-- Sale Price -->
             <div class="form-group">
@@ -253,7 +232,6 @@ function validateForm() {
 
     const name = document.querySelector('[name="productName"]').value.trim();
     const description = document.querySelector('[name="description"]').value.trim();
-    const sizesChecked = document.querySelectorAll('input[name="sizes[]"]:checked');
     const salesPrice = document.querySelector('[name="salesPrice"]').value.trim();
     const quantity = document.querySelector('[name="quantity"]').value.trim();
     const category = document.querySelector('[name="category"]').value;
@@ -289,10 +267,6 @@ if (imageErrorFound) {
         displayErrorMessage('category-error', 'Please select a category.');
         valid = false;
     }
-    if (sizesChecked.length === 0) {
-    displayErrorMessage('size-error', 'Please select at least one size.');
-    valid = false;
-}
 
     if (!salesPrice || !/^\d+(\.\d{1,2})?$/.test(salesPrice) || parseFloat(salesPrice) <= 0) {
         displayErrorMessage('salePrice-error', 'Enter a valid sale price greater than 0.');

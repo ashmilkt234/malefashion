@@ -1,15 +1,15 @@
 // Import models
 const User = require("../../models/userSchema");
 const Otp = require("../../models/otpSchema")
-const sendVerificationEmail=require("../../utils/sendVerificationEmail")
-const generateOtp=require("../../utils/generateOtp")
+const sendVerificationEmail = require("../../utils/sendVerificationEmail")
+const generateOtp = require("../../utils/generateOtp")
 
 const bcrypt = require("bcrypt");
 const Address = require("../../models/addressSchema");
 const { render } = require("ejs");
 const { transformAuthInfo } = require("passport");
-const fs=require("fs")
-const path=require("path")
+const fs = require("fs")
+const path = require("path")
 // ================= User Profile =================
 const getUserProfile = async (req, res) => {
   try {
@@ -17,24 +17,24 @@ const getUserProfile = async (req, res) => {
     if (!req.session.user) {
       return res.redirect("/login");
     }
-console.log(req.session.user)
+    console.log(req.session.user)
     // Get user details
     const user = await User.findById(req.session.user).lean();
-    const successMsg = req.query.success === "email_updated" 
-      ? "Email updated successfully!" 
+    const successMsg = req.query.success === "email_updated"
+      ? "Email updated successfully!"
       : null
-    console.log("session user",req.session.user)
+    console.log("session user", req.session.user)
 
     // If user not found
     if (!user) {
       return res.status(404).json({
-        success: false, 
+        success: false,
         message: "User not found"
       });
     }
 
     // Render user profile page
-    return res.render("user/userprofile", { user:req.user,messages: req.flash(),user});
+    return res.render("user/userprofile", { user: req.user, messages: req.flash(), user });
   } catch (error) {
     console.log("User profile error:", error);
     return res.redirect("/pageNotFound");
@@ -44,47 +44,47 @@ console.log(req.session.user)
 
 
 
-const getchangepassword=async(req,res)=>{
+const getchangepassword = async (req, res) => {
   try {
-    if(!req.session.user){
+    if (!req.session.user) {
       return res.redirect("/login")
     }
-    res.render("user/changepassword",{message:null})
+    res.render("user/changepassword", { message: null })
   } catch (error) {
-    console.log("error",error)
+    console.log("error", error)
     return res.redirect("/pageNotFound")
   }
 }
 
 
-const postchangepassword=async(req,res)=>{
+const postchangepassword = async (req, res) => {
   try {
-    const{oldPassword,newPassword}=req.body
-    console.log("old",oldPassword)
-   
-    console.log("REQ BODY:", req.body);
-if(!req.session.user){
-  return res.redirect("/login")
-}
-    let userId=req.session.user
-    let user=await User.findById(userId);
-   
-console.log("USER PASSWORD:", user.password)
-    let match=await bcrypt.compare(oldPassword,user.password)
-    if(!match){
-      return res.render("user/changepassword",{message:"invalid old password"})
-    } 
+    const { oldPassword, newPassword } = req.body
+    console.log("old", oldPassword)
 
-   const hashedPassword=await bcrypt.hash(newPassword,10)
-   user.password= hashedPassword
-   await user.save()
-   return res.render("user/changepassword",{
-    message:"Password changed Successfully"
-   })
+    console.log("REQ BODY:", req.body);
+    if (!req.session.user) {
+      return res.redirect("/login")
+    }
+    let userId = req.session.user
+    let user = await User.findById(userId);
+
+    console.log("USER PASSWORD:", user.password)
+    let match = await bcrypt.compare(oldPassword, user.password)
+    if (!match) {
+      return res.render("user/changepassword", { message: "invalid old password" })
     }
 
-   catch (error) {
-        console.log("Change password error:", error);
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    user.password = hashedPassword
+    await user.save()
+    return res.render("user/changepassword", {
+      message: "Password changed Successfully"
+    })
+  }
+
+  catch (error) {
+    console.log("Change password error:", error);
     return res.redirect("/pageNotFound");
   }
 }
@@ -108,7 +108,7 @@ const updateProfile = async (req, res) => {
   } catch (error) {
     console.log("Update profile error:", error);
     res.status(500).send("Error updating profile");
-  }  
+  }
 }
 
 
@@ -145,7 +145,7 @@ const postEmailChange = async (req, res) => {
 
 
     req.session.newEmail = email;
-    req.session.emailOtp = otp.toString();           
+    req.session.emailOtp = otp.toString();
     req.session.otpExpiry = Date.now() + 5 * 60 * 1000;
 
     return res.render("user/verify-email-otp", {
@@ -161,7 +161,7 @@ const postEmailChange = async (req, res) => {
 
 
 
-   
+
 
 
 
@@ -178,18 +178,18 @@ const verifyEmailOtp = async (req, res) => {
       });
     }
 
-  
-    const isEmailFlow    = req.session.newEmail    && req.session.emailOtp;
+
+    const isEmailFlow = req.session.newEmail && req.session.emailOtp;
     const isUsernameFlow = req.session.newUsername && req.session.usernameOtp;
 
     if (!isEmailFlow && !isUsernameFlow) {
       return res.status(400).json({
         success: false,
-        message: "Session expired. Please start again."  
+        message: "Session expired. Please start again."
       });
     }
 
- 
+
     if (isEmailFlow) {
       if (!otp || otp.trim() !== req.session.emailOtp) {
         return res.status(400).json({
@@ -286,17 +286,17 @@ const verifyEmailOtp = async (req, res) => {
   }
 };
 //editprofile
-const loadEditProfile=async(req,res)=>{
+const loadEditProfile = async (req, res) => {
   try {
-    if(!req.session.user){
+    if (!req.session.user) {
       return res.redirect("/login")
     }
-    const user=await User.findById(req.session.user).lean()
-    console.log("user",user)
-    if(!user){
+    const user = await User.findById(req.session.user).lean()
+    console.log("user", user)
+    if (!user) {
       return res.redirect("/login")
     }
-  res.render("user/editProfile",{user})
+    res.render("user/editProfile", { user })
   } catch (error) {
     console.log("Edit profile error:", error);
     res.redirect("/pageNotFound");
@@ -306,13 +306,13 @@ const loadEditProfile=async(req,res)=>{
 
 
 //changeemailchange
-const getEmailChange=async(req,res)=>{
-try {
-  if(!req.session.user)return res.redirect("/login")
-    res.render("user/changeEmail",{message:null,type:null})
-} catch (error) {
-  res.redirect("/pageNotFound");
-}
+const getEmailChange = async (req, res) => {
+  try {
+    if (!req.session.user) return res.redirect("/login")
+    res.render("user/changeEmail", { message: null, type: null })
+  } catch (error) {
+    res.redirect("/pageNotFound");
+  }
 }
 
 
@@ -407,24 +407,26 @@ const postChangeUsername = async (req, res) => {
     if (!req.session.user) {
       return res.redirect("/login")
     }
-    const{username}=req.body
-    if(!username){
-      return res.render("user/changeUsername",{message: "Username is required",
-        type: "error"})
+    const { username } = req.body
+    if (!username) {
+      return res.render("user/changeUsername", {
+        message: "Username is required",
+        type: "error"
+      })
     }
-    if(username.length<3||username.length>20){
-  return res.render("user/changeUsername", {
+    if (username.length < 3 || username.length > 20) {
+      return res.render("user/changeUsername", {
         message: "Username must be 3–20 characters long",
         type: "error"
-  })
-  }
-  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      })
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return res.render("user/changeUsername", {
         message: "Username can only contain letters, numbers, and underscore",
         type: "error"
       });
     }
-const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username });
     if (existingUser && existingUser._id.toString() !== req.session.user.toString()) {
       return res.render("user/changeUsername", {
         message: "This username is already taken",
@@ -433,24 +435,28 @@ const existingUser = await User.findOne({ username });
     }
     const otp = generateOtp();
     const user = await User.findById(req.session.user).select('email');
- if(!user?.email){
-  return res.render("user/changeUsername",{message:"No email found. Please update your email first.",
-        type: "error"})
- }
-const emailSend=await sendVerificationEmail(user.email,otp)
-if(!emailSend){
-  return res.render("user/changeUsername",{message:"Failed to send OTP.Try again later.",
-        type: "error"})
-}
-req.session.newUsername = username
-req.session.usernameOtp = otp.toString()
-req.session.usernameOtpExpiry = Date.now() + 5 * 60 * 1000
+    if (!user?.email) {
+      return res.render("user/changeUsername", {
+        message: "No email found. Please update your email first.",
+        type: "error"
+      })
+    }
+    const emailSend = await sendVerificationEmail(user.email, otp)
+    if (!emailSend) {
+      return res.render("user/changeUsername", {
+        message: "Failed to send OTP.Try again later.",
+        type: "error"
+      })
+    }
+    req.session.newUsername = username
+    req.session.usernameOtp = otp.toString()
+    req.session.usernameOtpExpiry = Date.now() + 5 * 60 * 1000
 
-return res.render("user/verify-email-otp", { 
+    return res.render("user/verify-email-otp", {
       message: `OTP sent to your email (${user.email})`,
       type: "success"
     });
-    } catch (error) {
+  } catch (error) {
     console.error("Change username error:", error);
     return res.redirect("/pageNotFound");
   }
@@ -464,11 +470,11 @@ const verifyUsernameOtp = async (req, res) => {
         message: "Session expired. Please start again."
       });
     }
-    const{otp}=req.body
-    if(!otp||otp.trim()!==req.session.usernameOtp){
-      return res.status(400).json({success:false, message:"Invalid otp please try again"})
+    const { otp } = req.body
+    if (!otp || otp.trim() !== req.session.usernameOtp) {
+      return res.status(400).json({ success: false, message: "Invalid otp please try again" })
     }
-    if(Date.now()>req.session.usernameOtpExpiry){
+    if (Date.now() > req.session.usernameOtpExpiry) {
       return res.status(400).json({
         success: false,
         message: "OTP has expired"
@@ -494,14 +500,14 @@ const verifyUsernameOtp = async (req, res) => {
       })
     }
     delete req.session.newUsername
-     delete req.session.usernameOtp
-      delete req.session.usernameOtpExpiry
-      return res.status(200).json({
+    delete req.session.usernameOtp
+    delete req.session.usernameOtpExpiry
+    return res.status(200).json({
       success: true,
       message: "Username updated successfully!",
       redirectTo: "/profile"
     })
-    } catch (error) {
+  } catch (error) {
     console.error("Verify username OTP error:", error);
     return res.status(500).json({
       success: false,
@@ -518,19 +524,19 @@ const resendUsernameOtp = async (req, res) => {
         message: "Session expired."
       })
     }
-    const user=await User.findById(req.session.user).select("email")
+    const user = await User.findById(req.session.user).select("email")
     if (!user?.email) {
       return res.status(400).json({ success: false, message: "No email found" });
     }
     const otp = generateOtp()
-const sent = await sendVerificationEmail(user.email, otp)
-if (!sent) {
+    const sent = await sendVerificationEmail(user.email, otp)
+    if (!sent) {
       return res.status(500).json({ success: false, message: "Failed to send OTP" });
     }
     req.session.usernameOtp = otp.toString();
     req.session.usernameOtpExpiry = Date.now() + 5 * 60 * 1000
-     return res.json({success:true,message:"New OTP sent to your email"})
-     } catch (error) {
+    return res.json({ success: true, message: "New OTP sent to your email" })
+  } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -540,60 +546,60 @@ const getChangeUsername = async (req, res) => {
     if (!req.session.user) {
       return res.redirect("/login");
     }
-    const user=await User.findById(req.session.user).select('username email')
-    if(!user){
+    const user = await User.findById(req.session.user).select('username email')
+    if (!user) {
       return res.redirect("/profile?error=user_not_found")
 
     }
-    res.render("user/changeUsername",{
-      user,message:null,type:null,title:"Change Username"
+    res.render("user/changeUsername", {
+      user, message: null, type: null, title: "Change Username"
     })
-    }
-
-    catch(error){
-      console.error("chage eroor",error)
-        }
   }
 
+  catch (error) {
+    console.error("chage eroor", error)
+  }
+}
 
 
 
 
-const uploadProfilePicture = async(req,res)=>{
- try {
-console.log(req.file)
+
+const uploadProfilePicture = async (req, res) => {
+  try {
+    console.log(req.file)
     const userId = req.session.user
-console.log("userid",userId)
-    if(!req.file){
-        return res.redirect("/userProfile")
+    console.log("userid", userId)
+    if (!req.file) {
+      return res.redirect("/userProfile")
     }
 
-    await User.findByIdAndUpdate(userId,{
-        profilePicture:req.file.filename
+    await User.findByIdAndUpdate(userId, {
+      profilePicture: req.file.filename
     })
 
     res.redirect("/userProfile")
 
- } catch (error) {
+  } catch (error) {
 
-    console.log("Profile upload error:",error)
+    console.log("Profile upload error:", error)
     res.redirect("/userProfile")
 
- }
+  }
 }
 const removeProfilePhoto = async (req, res) => {
   try {
-  const userId =  req.session.user
+    const userId = req.session.user
 
 
     const user = await User.findById(userId);
-  if (!user) {
-      return res.redirect('/login'); 
+    if (!user) {
+      return res.redirect('/login');
     }
     // Delete file from uploads folder
     if (user.profilePicture) {
       const filePath = path.join(__dirname, '../uploads/profile/', user.profilePicture);
-      
+
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath); //
       }
@@ -615,12 +621,12 @@ const removeProfilePhoto = async (req, res) => {
 
 
 
-      module.exports = {
+module.exports = {
   getUserProfile,
   getchangepassword,
   postchangepassword,
   updateProfile,
-postEmailChange,
+  postEmailChange,
   verifyEmailOtp,
   loadEditProfile,
   getEmailChange,
@@ -629,8 +635,8 @@ postEmailChange,
   resendEmailOtp,
   postChangeUsername,
   verifyUsernameOtp,
-   resendUsernameOtp,
-   getChangeUsername,
-     removeProfilePhoto 
+  resendUsernameOtp,
+  getChangeUsername,
+  removeProfilePhoto
 
 };

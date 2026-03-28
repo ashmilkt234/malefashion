@@ -80,6 +80,8 @@ router.get("/orders", orderController.loadOrders)
 router.get("/orders/edit/:id",orderController.editOrderPage)
 router.post("/orders/edit/:id",orderController.updateOrder)
 router.get("/orders/cancel/:id",orderController.cancelOrder)
+router.post("/orders/approve-return/:id", orderController.approveReturn)
+router.post("/orders/reject-return/:id", orderController.rejectReturn)
 
 router.get("/inventory", inventoryController.loadInventory)
 router.post("/inventory/adjust", inventoryController.adjustStock)

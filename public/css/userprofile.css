@@ -1,16 +1,18 @@
 /* ===== Main Container ===== */
-.container {
+ 
+ .container {
   margin-left: 260px;
-  padding: 40px;
+  padding: 24px 30px;  /* reduced from 40px */
   background: #f9fafb;
   min-height: 100vh;
 }
 
+
 /* ===== Sections ===== */
 .info-section {
   background: #ffffff;
-  padding: 25px 30px;
-  margin-bottom: 25px;
+  padding: 20px 24px;        /* reduced from 25px 30px */
+  margin-bottom: 16px;       /* reduced from 25px */
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
@@ -20,12 +22,18 @@
   transform: translateY(-2px);
 }
 
+.profile-label {
+  margin: 6px 0 2px 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
 /* ===== Section Header ===== */
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+ margin-bottom: 12px
 }
 
 .section-title {
@@ -57,12 +65,13 @@
 .info-item {
   display: flex;
   justify-content: space-between;
-  padding: 14px 0;
+  align-items: center;
+  padding: 10px 0;
   border-bottom: 1px dashed #e5e7eb;
 }
-
 .info-item:last-child {
   border-bottom: none;
+
 }
 
 .field-label {

@@ -251,19 +251,20 @@
   <!-- Header -->
   <div class="page-header">
     <h1>Order Details</h1>
-    <p>Welcome back, Admin.</p>
+
   </div>
 
   <!-- Back -->
-  <a href="/admin/orders" class="back-link">‹ Back to Orders</a>
+        
 
   <div class="grid">
 
     <!-- LEFT COLUMN -->
     <div>
-
+          <button class="back-btn" onclick="goBack()">← Back</button> 
       <!-- Products Ordered -->
       <div class="card">
+
         <div class="card-title">Products Ordered</div>
         <div class="card-subtitle">Items included in <%= order.orderID %></div>
 
@@ -347,4 +348,10 @@ function selectStatus(btn, status) {
   // Update hidden input
   document.getElementById('statusInput').value = status;
 }
+
+
+
+ function goBack() {
+            window.history.back();
+        }
 </script>

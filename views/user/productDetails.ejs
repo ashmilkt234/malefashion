@@ -110,20 +110,6 @@
           <%= product. description %>
         </p>
 
-    <% if (product.sizes && product.sizes.length > 0) { %>
-  <div class="product-sizes mt-3">
-    <h6>Select Size</h6>
-
-    <div class="size-options">
-      <% product.sizes.forEach(size => { %>
-        <label class="size-box">
-          <input type="radio" name="size" value="<%= size %>">
-          <span><%= size %></span>
-        </label>
-      <% }) %>
-    </div>
-  </div>
-<% } %>
 <% if (isBlocked) { %>
   <div class="alert alert-danger" style="margin: 15px 0;">
     🚫 This product is currently unavailable.
@@ -282,7 +268,7 @@
     originalEl.innerText = `₹${totalOriginal.toLocaleString("en-IN")}`;
   }
 
-const maxStock = <%= product.stock %>
+const maxStock = <%= product.quantity %>
 
 function increaseQty() {
   const input = document.getElementById("quantity");
